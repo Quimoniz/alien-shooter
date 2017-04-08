@@ -12,8 +12,8 @@ var MovablesEngine;
 var UserInput;
 */
 var GraphicsRooster = {
-    arrNames = new Array(),
-    arrImages = new Array(),
+    arrNames : new Array(),
+    arrImages : new Array(),
     countImages: 0,
     addImage: function(nameStr, imageSrc)
     {
@@ -39,8 +39,18 @@ function ImageWrapper(nameStr, imageSrc)
 {
     this.name = nameStr
     this.src = new Image(imageSrc);
-    this.width = this.src.width;
-    this.height = this.src.height;
+    var selfReference;
+    this.src.onload = function () {
+        selfReference.width = selfReference.src.width;
+        selfReference.height = selfReference.src.height;
+    }
+}
+
+function flyingObject () {
+    this.id;
+    this.name;
+    this.velocity;
+    this.direction;
 }
 
 var Landscape = {
@@ -82,8 +92,21 @@ var Viewport = {
     update: function()
     {
         Viewport.adjustIfResizedWindow();
-        currentSeconds = (new Date()).getTime() % 60000;
-        colors = new Array(255,255,Math.floor(255 * Math.sin(currentSeconds * Math.PI / 60000)));
+        var referenceMaximum = 15000;
+        var curTime = (new Date()).getTime();
+        var currentPoints = curTime % referenceMaximum;
+        colors = new Array(255,255,Math.floor(255 * Math.cos(currentPoints * Math.PI * 2/ referenceMaximum)));
+        switch (Math.floor(curTime % (referenceMaximum * 3) / referenceMaximum))
+        {
+            case 0:
+                colors[0] = colors[2];
+                colors[2] = 255;
+                break;
+            case 1:
+                colors[1] = colors[2];
+                colors[2] = 255;
+                break;
+        }
         Viewport.ctx.fillStyle = "rgba(" + colors[0] + "," + colors[1] + "," + colors[2] +  ")";
         Viewport.ctx.fillRect(0,0,Viewport.pxWidth, Viewport.pxHeight);
     }
@@ -111,5 +134,10 @@ var ProgramExecuter = {
 
 
 
-
+GraphicsRooster.addImage("gegner_1", "gegner_1.png");
+GraphicsRooster.addImage("gegner_2", "gegner_2.png");
+GraphicsRooster.addImage("gegner_3", "gegner_3.png");
+GraphicsRooster.addImage("gegner_4", "gegner_4.png");
+GraphicsRooster.addImage("gegner_5", "gegner_5.png");
 setTimeout(ProgramExecuter.init, 150);
+
