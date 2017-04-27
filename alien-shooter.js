@@ -87,6 +87,34 @@ function Spaceship (paramName, imgName, paramPosition, paramMass) {
     }
 }
 
+
+var Protagonist = {
+    spaceship: undefined,
+    lastDirectionSetTime: 0,
+    minMomentumKeepDuration: 200,
+    init: function ()
+    {
+        Protagonist.spaceship = new Spaceship("Protagonist", "spieler_0", [3000, 7000], 500),
+        MovablesEngine.addObject(Protagonist.spaceship);
+    },
+    userInputDirection: function (direction, elapsedTime)
+    {
+        //console.log("userInputDirection(" + (direction * 360 / (Math.PI * 2)) + ", " + elapsedTime + " ms)");
+        Protagonist.spaceship.velocity = 2500;
+        Protagonist.spaceship.moveDirection = (Protagonist.spaceship.moveDirection + direction) / 2;
+        Protagonist.lastDirectionSetTime = (new Date()).getTime();
+    },
+    update: function ()
+    {
+        var curTime = (new Date()).getTime();
+        if ((curTime - Protagonist.lastDirectionSetTime) > Protagonist.minMomentumKeepDuration)
+        {
+            Protagonist.spaceship.velocity *= 0.8;
+        }
+    }
+    
+};
+
 var MovablesEngine = {
     arrObjects: new Array(),
     addObject: function (newObject)
@@ -220,6 +248,8 @@ var ProgramExecuter = {
     init: function()
     {
         Viewport.init();
+        UserInput.init();
+        Protagonist.init();
         setTimeout(ProgramExecuter.startLevelLoop, 200);
     },
     startLevelLoop: function ()
@@ -229,9 +259,119 @@ var ProgramExecuter = {
     },
     oneTickLevelLoop: function ()
     {
+        Protagonist.update();
         Viewport.update();
+
+        var keysPressed = UserInput.getKeysSinceLastQuery();
+        for (var i = 0, curKeyPress; i < keysPressed.length; i++)
+        {
+            curKeyPress = keysPressed[i];
+  
+            if (37 == curKeyPress.keyCode)
+            {
+                Protagonist.userInputDirection(Math.PI, curKeyPress.timeElapsed);
+            }
+            else if (38 == curKeyPress.keyCode)
+            {
+                Protagonist.userInputDirection(Math.PI / 2, curKeyPress.timeElapsed);
+            }
+            else if (39 == curKeyPress.keyCode)
+            {
+                Protagonist.userInputDirection(0, curKeyPress.timeElapsed);
+            }
+            else if (40 == curKeyPress.keyCode)
+            {
+                Protagonist.userInputDirection(Math.PI / 2 * 3, curKeyPress.timeElapsed);
+            }
+        }
     }
 };
+
+function KeyPressObj (keyCode)
+{
+    this.timeKeyDown = (new Date()).getTime();
+    this.timeLastQuery = this.timeKeyDown;
+    this.keyCode = keyCode;
+    this.timeKeyUp = -1;
+    this.isBeingPressed = true;
+    this.keyReleased = function (timeKeyUp)
+    {
+        this.timeKeyUp = timeKeyUp;
+        this.isBeingPressed = false;
+    }
+}
+function KeyUsedObj (keyCode, timeElapsed)
+{
+    this.keyCode = keyCode;
+    this.timeElapsed = timeElapsed;
+}
+
+var UserInput = {
+    keysUsedQueue: new Array(),
+    init: function ()
+    {
+        document.onkeydown = function (eventParam)
+        {
+            var keyCode = eventParam.keyCode;
+            if ( ! keyCode )
+            {
+                keyCode = eventParam.which;
+            }
+            UserInput.keysUsedQueue.push(new KeyPressObj(keyCode));
+        }
+        document.onkeyup = function (eventParam)
+        {
+            var keyCode = eventParam.keyCode;
+            if ( ! keyCode )
+            {
+                keyCode = eventParam.which;
+            }
+            var timeKeyUp = (new Date()).getTime();
+            for (var i = 0; i < UserInput.keysUsedQueue.length; i++)
+            {
+                if ( UserInput.keysUsedQueue[i].keyCode == keyCode )
+                {
+                    UserInput.keysUsedQueue[i].keyReleased( timeKeyUp );
+                }
+            }
+        }
+    },
+    getKeysSinceLastQuery: function ()
+    {
+        /* Refresh keysUsedQueue (i.e. throw away all NOT isBeingPressed)
+         * and determine how long keys were pressed since last invocation
+         *  return the latter in the form of an array
+         */
+        var newKeysUsedQueue = new Array();
+        var holdKeysUsedQueue = UserInput.keysUsedQueue;
+        var keysUsedArr = new Array();
+
+        var curTime = (new Date()).getTime();
+        var elapsedTime = -1;
+
+        for (var i = 0; i < holdKeysUsedQueue.length; i++)
+        {
+            curObj = holdKeysUsedQueue[i];
+            if( curObj.isBeingPressed )
+            {
+                newKeysUsedQueue.push(curObj);
+                elapsedTime = curTime - curObj.timeLastQuery;
+                curObj.timeLastQuery = curTime;
+            } else {
+                elapsedTime = curObj.timeKeyUp -  curObj.timeLastQuery;
+            }
+            if( elapsedTime < 0)
+            {
+                elapsedTime = 0;
+            }
+            keysUsedArr.push(new KeyUsedObj(curObj.keyCode, elapsedTime));
+        }
+        UserInput.keysUsedQueue = newKeysUsedQueue;
+
+	return keysUsedArr;
+    }
+};
+
 
 
 
@@ -242,6 +382,7 @@ GraphicsRooster.addImage("gegner_2", "gegner_2.png", 60, 82);
 GraphicsRooster.addImage("gegner_3", "gegner_3.png", 50, 44);
 GraphicsRooster.addImage("gegner_4", "gegner_4.png", 60, 50);
 GraphicsRooster.addImage("gegner_5", "gegner_5.png", 120, 76);
+GraphicsRooster.addImage("spieler_0", "spieler_schiff_0.png", 70, 70);
 setTimeout(ProgramExecuter.init, 150);
 MovablesEngine.addObject(new Spaceship("Enemy", "gegner_2", [4000, 4000], 10000));
 MovablesEngine.addObject(new Spaceship("Enemy", "gegner_1", [9000, 5000], 10000));
