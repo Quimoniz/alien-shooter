@@ -196,7 +196,7 @@ var Viewport = {
                 colors[2] = 255;
                 break;
         }
-        Viewport.ctx.fillStyle = "rgba(" + colors[0] + "," + colors[1] + "," + colors[2] +  ")";
+        Viewport.ctx.fillStyle = "#" + getHexForRGB(colors[0], colors[1], colors[2]);
         Viewport.ctx.fillRect(0,0,Viewport.pxWidth, Viewport.pxHeight);
     },
     update: function()
@@ -242,6 +242,21 @@ var Viewport = {
     }
 };
 
+function getHexForRGB(red, green, blue)
+{
+    var hexValues = [ "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "A", "B", "C", "D", "E", "F"];
+    var colorArr = [red, green, blue];
+    var colorHex = "";
+    for (var i = 0; i < 3; i++)
+    {
+        if (colorArr[i] > 255) colorArr[i] = 255;
+        else if (colorArr[i] < 0) colorArr[i] = 0;
+        
+        colorHex += hexValues[Math.floor(colorArr[i] / 16)];
+        colorHex += hexValues[colorArr[i] % 16];
+    }
+    return colorHex;
+}
 
 var ProgramExecuter = {
     currentRunningInterval: -1,
