@@ -66,6 +66,7 @@ function Spaceship (paramName, imgName, paramPosition, paramMass) {
     this.mass = paramMass;
     this.rotation = Math.PI / 2;
     this.rotationSpeed = 0;
+    this.hitbox = [0,0,0,0];
     this.engine = function()
     {
     }
@@ -75,15 +76,133 @@ function Spaceship (paramName, imgName, paramPosition, paramMass) {
 
         this.position[0] += Math.cos(this.moveDirection) * this.velocity * timeSinceLastFrame / 1000;
         this.position[1] += Math.sin(this.moveDirection) * this.velocity * timeSinceLastFrame / 1000 * -1;
+        this.hitbox = [this.position[0] - this.img.width * 1000 / 2 / Viewport.pixelsPerThousand,
+                       this.position[1] - this.img.height* 1000 / 2 / Viewport.pixelsPerThousand,
+                       this.img.width * 1000 / Viewport.pixelsPerThousand,
+                       this.img.height * 1000/ Viewport.pixelsPerThousand];
+
     }
 
     this.paint = function (ctx, viewportOffset, timeSinceLastFrame)
     {
         this.update(timeSinceLastFrame);
         var tileSource = [0,0,this.img.width,this.img.height];
-        var tileDest = [Math.round((this.position[0] - viewportOffset[0]) * Viewport.pixelsPerThousand / 1000), Math.round((this.position[1] - viewportOffset[1]) * Viewport.pixelsPerThousand / 1000), tileSource[2], tileSource[3]];
-        
+        var tileDest = [(this.position[0] - viewportOffset[0]) * Viewport.pixelsPerThousand / 1000, (this.position[1] - viewportOffset[1]) * Viewport.pixelsPerThousand / 1000, tileSource[2], tileSource[3]];
+        var origPoints = [tileDest[0], tileDest[1]]; // DEBUG
+        tileDest[0] = Math.round(tileDest[0] - this.img.width / 2);
+        tileDest[1] = Math.round(tileDest[1] - this.img.height/ 2);
         ctx.drawImage(this.img.src, tileSource[0], tileSource[1], tileSource[2], tileSource[3], tileDest[0], tileDest[1], tileDest[2], tileDest[3]);
+
+//DEBUG
+        if (false)
+        {
+            ctx.fillStyle = "#D00000";
+            ctx.fillRect(origPoints[0] - 2, origPoints[1] - 10, 4, 20);
+            ctx.fillRect(origPoints[0] - 10, origPoints[1] - 2, 20, 4);
+            ctx.strokeStyle = "#0000FF";
+            ctx.strokeRect(Math.round((this.hitbox[0] - viewportOffset[0]) * Viewport.pixelsPerThousand / 1000), Math.round((this.hitbox[1] - viewportOffset[0]) * Viewport.pixelsPerThousand / 1000), this.img.width, this.img.height);
+        }
+        
+    }
+    this.hitcheck = function (otherSpaceship)
+    {
+        if (this.hitbox[0] <= (otherSpaceship.hitbox[0] + otherSpaceship.hitbox[2]) &&
+            (this.hitbox[0] + this.hitbox[2]) >= otherSpaceship.hitbox[0] &&
+            this.hitbox[1] <= (otherSpaceship.hitbox[1] + otherSpaceship.hitbox[3]) &&
+            (this.hitbox[1] + this.hitbox[3] >= otherSpaceship.hitbox[1]))
+        {
+/*NEW code */
+            var hitRect = [0, 0, 0, 0];
+            hitRect[0] = this.hitbox[0];
+            if (this.hitbox[0] < otherSpaceship.hitbox[0])
+            {
+                hitRect[0] = otherSpaceship.hitbox[0];
+            }
+             
+            hitRect[1] = this.hitbox[1];
+            if (this.hitbox[1] < otherSpaceship.hitbox[1])
+            {
+                hitRect[1] = otherSpaceship.hitbox[1];
+            }
+            
+            hitRect[2] = this.hitbox[0] + this.hitbox[2];
+            if (hitRect[2] > (otherSpaceship.hitbox[0] + otherSpaceship.hitbox[2]))
+            {
+                hitRect[2] = otherSpaceship.hitbox[0] + otherSpaceship.hitbox[2];
+            }
+
+            
+            hitRect[3] = this.hitbox[1] + this.hitbox[3];
+            if (hitRect[3] > (otherSpaceship.hitbox[1] + otherSpaceship.hitbox[3]))
+            {
+                hitRect[3] = otherSpaceship.hitbox[1] + otherSpaceship.hitbox[3];
+            }
+            var markerPosition = [ hitRect[2], hitRect[3] ];
+
+            hitRect[2] = hitRect[2] - hitRect[0];
+            hitRect[3] = hitRect[3] - hitRect[1];
+
+            if (hitRect[2] > 0 && hitRect[3] > 0)
+            {
+//DEBUG
+                if (false) //DEBUG draw rectangle
+                {
+                    if(false)  //DEBUG OUTPUT
+                    {
+                        var nicified = "[ ";
+                        for (var i = 0; i < 4; i ++)
+                        {
+                            if ( i > 0 ) nicified += ", ";
+                            nicified += "" + Math.round(hitRect[i]);
+                        }
+                        nicified += " ]";
+                        console.log("hitRect:" + nicified);
+                    }
+                    switch ( this.id % 6) {
+                        case 0:
+                            Viewport.ctx.fillStyle = "#00FF00";
+                            break;
+                        case 1:
+                            Viewport.ctx.fillStyle = "#0000FF";
+                            break;
+                        case 2:
+                            Viewport.ctx.fillStyle = "#00A0A0";
+                            break;
+                        case 3:
+                            Viewport.ctx.fillStyle = "#A0A000";
+                            break;
+                        case 4:
+                            Viewport.ctx.fillStyle = "#A000A0";
+                            break;
+                        case 5:
+                            Viewport.ctx.fillStyle = "#00D0D0";
+                            break;
+                    }
+                    if(((Math.round(Viewport.lastFrameTime / 1000) + this.id) % 3) == 0) {
+                        Viewport.ctx.fillRect(Math.round((hitRect[0] - Viewport.viewportOffset[0]) * Viewport.pixelsPerThousand / 1000),
+                                          Math.round((hitRect[1] - Viewport.viewportOffset[1]) * Viewport.pixelsPerThousand / 1000),
+                                          Math.round(hitRect[2] * Viewport.pixelsPerThousand / 1000),
+                                          Math.round(hitRect[3] * Viewport.pixelsPerThousand / 1000) );
+                    }
+                }
+                if (true) {  //DEBUG draw cross-hair
+                    markerPosition[0] = Math.round(hitRect[0] + hitRect[2] / 2);
+                    markerPosition[1] = Math.round(hitRect[1] + hitRect[3] / 2);
+                    Viewport.ctx.fillStyle = "#000080";
+                    Viewport.ctx.fillRect( Math.round((markerPosition[0] - Viewport.viewportOffset[0]) * Viewport.pixelsPerThousand / 1000)- 2, Math.round((markerPosition[1] - Viewport.viewportOffset[1]) * Viewport.pixelsPerThousand / 1000) - 10, 4, 20);
+                    Viewport.ctx.fillRect( Math.round((markerPosition[0] - Viewport.viewportOffset[0]) * Viewport.pixelsPerThousand / 1000) - 10, Math.round((markerPosition[1] - Viewport.viewportOffset[1]) * Viewport.pixelsPerThousand / 1000) - 2, 20, 4);
+                }
+                if (otherSpaceship != Protagonist.spaceship)
+                {
+                    otherSpaceship.destroy();
+                }
+            }
+
+        }
+    }
+    this.destroy = function ()
+    {
+        MovablesEngine.removeObject(this);
     }
 }
 
@@ -100,8 +219,16 @@ var Protagonist = {
     userInputDirection: function (direction, elapsedTime)
     {
         //console.log("userInputDirection(" + (direction * 360 / (Math.PI * 2)) + ", " + elapsedTime + " ms)");
-        Protagonist.spaceship.velocity = 2500;
-        Protagonist.spaceship.moveDirection = (Protagonist.spaceship.moveDirection + direction) / 2;
+        var baseSpeed = 2500;
+
+        Protagonist.spaceship.velocity = baseSpeed;
+
+        Protagonist.spaceship.moveDirection = direction;
+
+        //Protagonist.spaceship.moveDirection = (Protagonist.spaceship.moveDirection + direction) / 2;
+//console.log("Protagonist.spaceship.velocity: " + Protagonist.spaceship.velocity);
+//console.log("Protagonist.spaceship.moveDirection: " + Protagonist.spaceship.moveDirection);
+//console.log("newMoveDirection: " + newMoveDirection.join(","));
         Protagonist.lastDirectionSetTime = (new Date()).getTime();
     },
     update: function ()
@@ -123,19 +250,40 @@ var MovablesEngine = {
     },
     removeObject: function (oldObject)
     {
-        for (var i = 0; i < this.arrObjects.length; i++)
+        for (var i = 0; i < MovablesEngine.arrObjects.length; i++)
         {
-            if (oldObject.id == this.arrObjects[i].id)
+            if (oldObject.id == MovablesEngine.arrObjects[i].id)
             {
-                newArrObjects = this.arrObjects.slice(0,i);
-                if ((i + 1) < this.arrObjects.length)
+                var newArrObjects = new Array(MovablesEngine.arrObjects.length - 1);
+                for (var j = 0; j < newArrObjects.length; j++)
                 {
-                    newArrObjects.concat(this.arrObjects.slice(i+1));
+                    if (j < i)
+                    {
+                        newArrObjects[j] = MovablesEngine.arrObjects[j];
+                    } else
+                    {
+                        newArrObjects[j] = MovablesEngine.arrObjects[j + 1];
+                    }
                 }
-                this.arrObjects = newArrObjects;
+                MovablesEngine.arrObjects = newArrObjects;
                 break;
             }
         }
+    },
+    doHitcheck: function()
+    {
+        var movablesLength = MovablesEngine.arrObjects.length;
+        for ( var i = 0; i < movablesLength; i++)
+            for ( var j = 0; j < movablesLength; j++)
+            {
+                if (i != j)
+                {
+                    if (MovablesEngine.arrObjects[i])
+                    {
+                        MovablesEngine.arrObjects[i].hitcheck(MovablesEngine.arrObjects[j]);
+                    }
+                }
+            }
     }
 };
 
@@ -276,6 +424,7 @@ var ProgramExecuter = {
     {
         Protagonist.update();
         Viewport.update();
+        MovablesEngine.doHitcheck();
 
         var keysPressed = UserInput.getKeysSinceLastQuery();
         for (var i = 0, curKeyPress; i < keysPressed.length; i++)
@@ -332,7 +481,19 @@ var UserInput = {
             {
                 keyCode = eventParam.which;
             }
-            UserInput.keysUsedQueue.push(new KeyPressObj(keyCode));
+            var keyAlreadyPressedDown = false;
+            for (var i = 0; i < UserInput.keysUsedQueue.length; i++)
+            {
+                if ( UserInput.keysUsedQueue[i].keyCode == keyCode )
+                {
+                    keyAlreadyPressedDown = true;
+                    break;
+                }
+            }
+            if ( ! keyAlreadyPressedDown)
+            {
+                UserInput.keysUsedQueue.push(new KeyPressObj(keyCode));
+            }
         }
         document.onkeyup = function (eventParam)
         {
@@ -403,10 +564,10 @@ MovablesEngine.addObject(new Spaceship("Enemy", "gegner_2", [4000, 4000], 10000)
 MovablesEngine.addObject(new Spaceship("Enemy", "gegner_1", [9000, 5000], 10000));
 MovablesEngine.addObject(new Spaceship("Enemy", "gegner_3", [7000, 4000], 10000));
 MovablesEngine.addObject(new Spaceship("Enemy", "gegner_4", [1500, 3500], 10000));
-MovablesEngine.arrObjects[0].velocity = 1100;
+MovablesEngine.arrObjects[0].velocity = 550;
 MovablesEngine.arrObjects[0].engine = function ()
 {
-    this.moveDirection = Math.PI / 4 * (Viewport.curTime % 16000 / 2000);
+    this.moveDirection = Math.PI / 4 * (Viewport.curTime % 32000 / 4000);
 }
 MovablesEngine.arrObjects[1].velocity = 1700;
 MovablesEngine.arrObjects[1].engine = function ()
@@ -414,13 +575,13 @@ MovablesEngine.arrObjects[1].engine = function ()
     this.moveDirection = Math.PI * Math.round(Viewport.curTime % 10000 / 5000);
     this.velocity = Math.sin((Viewport.curTime + 2500 ) % 5000 * Math.PI / 5000) * 4000;
 }
-MovablesEngine.arrObjects[2].velocity = 500;
+MovablesEngine.arrObjects[2].velocity = 250;
 MovablesEngine.arrObjects[2].engine = function ()
 {
-    this.moveDirection = Math.PI / 4 * Math.round(7 - (Viewport.curTime % 24000 / 3000));
+    this.moveDirection = Math.PI / 4 * Math.round(7 - (Viewport.curTime % 48000 / 6000));
 }
-MovablesEngine.arrObjects[3].velocity = 500;
+MovablesEngine.arrObjects[3].velocity = 250;
 MovablesEngine.arrObjects[3].engine = function ()
 {
-    this.moveDirection = Math.PI / 2 * (Math.round(Viewport.curTime % 10000 / 5000) * 2 + 1);
+    this.moveDirection = Math.PI / 2 * (Math.round(Viewport.curTime % 20000 / 10000) * 2 + 1);
 }
