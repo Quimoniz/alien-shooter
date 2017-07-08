@@ -55,14 +55,98 @@ function flyingObject () {
     this.rotation;
     this.rotationSpeed;
 }
-
+function Projectile (paramOriginSpaceship, imgName, paramPosition, paramPower, paramMoveDirection, paramVelocity) {
+    this.id = objectIdCounter++;
+    this.type = "projectile";
+    this.originSpaceship = paramOriginSpaceship;
+    this.img = GraphicsRooster.getImgByName(imgName);
+    this.position = paramPosition;
+    this.power = paramPower;
+    this.moveDirection = paramMoveDirection;
+    this.rotation = Math.PI / 2;
+    this.rotationSpeed = 0;
+    this.hitbox = [0,0,0,0];
+    this.update = function(timeSinceLastFrame)
+    { /* same as for spaceship */
+        this.position[0] += Math.cos(this.moveDirection) * this.velocity * timeSinceLastFrame / 1000;
+        this.position[1] += Math.sin(this.moveDirection) * this.velocity * timeSinceLastFrame / 1000 * -1;
+        this.hitbox = [this.position[0] - this.img.width * 1000 / 2 / Viewport.pixelsPerThousand,
+                       this.position[1] - this.img.height* 1000 / 2 / Viewport.pixelsPerThousand,
+                       this.img.width * 1000 / Viewport.pixelsPerThousand,
+                       this.img.height * 1000/ Viewport.pixelsPerThousand];
+    } 
+    this.paint = function (ctx, viewportOffset, timeSinceLastFrame)
+    { /* same as for spaceship */
+        this.update(timeSinceLastFrame);
+        var tileSource = [0,0,this.img.width,this.img.height];
+        var tileDest = [(this.position[0] - viewportOffset[0]) * Viewport.pixelsPerThousand / 1000, (this.position[1] - viewportOffset[1]) * Viewport.pixelsPerThousand / 1000, tileSource[2], tileSource[3]];
+        var origPoints = [tileDest[0], tileDest[1]]; // DEBUG
+        tileDest[0] = Math.round(tileDest[0] - this.img.width / 2);
+        tileDest[1] = Math.round(tileDest[1] - this.img.height/ 2);
+        ctx.drawImage(this.img.src, tileSource[0], tileSource[1], tileSource[2], tileSource[3], tileDest[0], tileDest[1], tileDest[2], tileDest[3]);
+    }
+    this.hitcheck = function (otherSpaceship)
+    {
+        if ( otherSpaceship != this.originSpaceship)
+        {
+            if (this.hitbox[0] <= (otherSpaceship.hitbox[0] + otherSpaceship.hitbox[2]) &&
+                (this.hitbox[0] + this.hitbox[2]) >= otherSpaceship.hitbox[0] &&
+                this.hitbox[1] <= (otherSpaceship.hitbox[1] + otherSpaceship.hitbox[3]) &&
+                (this.hitbox[1] + this.hitbox[3] >= otherSpaceship.hitbox[1]))
+            {
+    /*NEW code */
+                var hitRect = [0, 0, 0, 0];
+                hitRect[0] = this.hitbox[0];
+                if (this.hitbox[0] < otherSpaceship.hitbox[0])
+                {
+                    hitRect[0] = otherSpaceship.hitbox[0];
+                }
+                 
+                hitRect[1] = this.hitbox[1];
+                if (this.hitbox[1] < otherSpaceship.hitbox[1])
+                {
+                    hitRect[1] = otherSpaceship.hitbox[1];
+                }
+                
+                hitRect[2] = this.hitbox[0] + this.hitbox[2];
+                if (hitRect[2] > (otherSpaceship.hitbox[0] + otherSpaceship.hitbox[2]))
+                {
+                    hitRect[2] = otherSpaceship.hitbox[0] + otherSpaceship.hitbox[2];
+                }
+    
+                
+                hitRect[3] = this.hitbox[1] + this.hitbox[3];
+                if (hitRect[3] > (otherSpaceship.hitbox[1] + otherSpaceship.hitbox[3]))
+                {
+                    hitRect[3] = otherSpaceship.hitbox[1] + otherSpaceship.hitbox[3];
+                }
+                var markerPosition = [ hitRect[2], hitRect[3] ];
+    
+                hitRect[2] = hitRect[2] - hitRect[0];
+                hitRect[3] = hitRect[3] - hitRect[1];
+    
+                if (hitRect[2] > 0 && hitRect[3] > 0)
+                {
+                    otherSpaceship.projectileHit(this.power);
+                    this.destroy();
+                }
+            }
+        }
+    }
+    this.destroy = function ()
+    {
+        MovablesEngine.removeObject(this);
+    }
+}
 function Spaceship (paramName, imgName, paramPosition, paramMass) {
     this.id = objectIdCounter++;
+    this.type = "spaceship";
     this.name = paramName;
     this.img = GraphicsRooster.getImgByName(imgName);
     this.position = paramPosition;
     this.velocity = 0;
     this.moveDirection = Math.PI / 2;
+    this.health = 100;
     this.mass = paramMass;
     this.rotation = Math.PI / 2;
     this.rotationSpeed = 0;
@@ -106,95 +190,98 @@ function Spaceship (paramName, imgName, paramPosition, paramMass) {
     }
     this.hitcheck = function (otherSpaceship)
     {
-        if (this.hitbox[0] <= (otherSpaceship.hitbox[0] + otherSpaceship.hitbox[2]) &&
-            (this.hitbox[0] + this.hitbox[2]) >= otherSpaceship.hitbox[0] &&
-            this.hitbox[1] <= (otherSpaceship.hitbox[1] + otherSpaceship.hitbox[3]) &&
-            (this.hitbox[1] + this.hitbox[3] >= otherSpaceship.hitbox[1]))
+        if ("spaceship" == otherSpaceship.type)
         {
-/*NEW code */
-            var hitRect = [0, 0, 0, 0];
-            hitRect[0] = this.hitbox[0];
-            if (this.hitbox[0] < otherSpaceship.hitbox[0])
+            if (this.hitbox[0] <= (otherSpaceship.hitbox[0] + otherSpaceship.hitbox[2]) &&
+                (this.hitbox[0] + this.hitbox[2]) >= otherSpaceship.hitbox[0] &&
+                this.hitbox[1] <= (otherSpaceship.hitbox[1] + otherSpaceship.hitbox[3]) &&
+                (this.hitbox[1] + this.hitbox[3] >= otherSpaceship.hitbox[1]))
             {
-                hitRect[0] = otherSpaceship.hitbox[0];
-            }
-             
-            hitRect[1] = this.hitbox[1];
-            if (this.hitbox[1] < otherSpaceship.hitbox[1])
-            {
-                hitRect[1] = otherSpaceship.hitbox[1];
-            }
-            
-            hitRect[2] = this.hitbox[0] + this.hitbox[2];
-            if (hitRect[2] > (otherSpaceship.hitbox[0] + otherSpaceship.hitbox[2]))
-            {
-                hitRect[2] = otherSpaceship.hitbox[0] + otherSpaceship.hitbox[2];
-            }
-
-            
-            hitRect[3] = this.hitbox[1] + this.hitbox[3];
-            if (hitRect[3] > (otherSpaceship.hitbox[1] + otherSpaceship.hitbox[3]))
-            {
-                hitRect[3] = otherSpaceship.hitbox[1] + otherSpaceship.hitbox[3];
-            }
-            var markerPosition = [ hitRect[2], hitRect[3] ];
-
-            hitRect[2] = hitRect[2] - hitRect[0];
-            hitRect[3] = hitRect[3] - hitRect[1];
-
-            if (hitRect[2] > 0 && hitRect[3] > 0)
-            {
-//DEBUG
-                if (false) //DEBUG draw rectangle
+    /*NEW code */
+                var hitRect = [0, 0, 0, 0];
+                hitRect[0] = this.hitbox[0];
+                if (this.hitbox[0] < otherSpaceship.hitbox[0])
                 {
-                    if(false)  //DEBUG OUTPUT
+                    hitRect[0] = otherSpaceship.hitbox[0];
+                }
+                 
+                hitRect[1] = this.hitbox[1];
+                if (this.hitbox[1] < otherSpaceship.hitbox[1])
+                {
+                    hitRect[1] = otherSpaceship.hitbox[1];
+                }
+                
+                hitRect[2] = this.hitbox[0] + this.hitbox[2];
+                if (hitRect[2] > (otherSpaceship.hitbox[0] + otherSpaceship.hitbox[2]))
+                {
+                    hitRect[2] = otherSpaceship.hitbox[0] + otherSpaceship.hitbox[2];
+                }
+    
+                
+                hitRect[3] = this.hitbox[1] + this.hitbox[3];
+                if (hitRect[3] > (otherSpaceship.hitbox[1] + otherSpaceship.hitbox[3]))
+                {
+                    hitRect[3] = otherSpaceship.hitbox[1] + otherSpaceship.hitbox[3];
+                }
+                var markerPosition = [ hitRect[2], hitRect[3] ];
+    
+                hitRect[2] = hitRect[2] - hitRect[0];
+                hitRect[3] = hitRect[3] - hitRect[1];
+    
+                if (hitRect[2] > 0 && hitRect[3] > 0)
+                {
+    //DEBUG
+                    if (false) //DEBUG draw rectangle
                     {
-                        var nicified = "[ ";
-                        for (var i = 0; i < 4; i ++)
+                        if(false)  //DEBUG OUTPUT
                         {
-                            if ( i > 0 ) nicified += ", ";
-                            nicified += "" + Math.round(hitRect[i]);
+                            var nicified = "[ ";
+                            for (var i = 0; i < 4; i ++)
+                            {
+                                if ( i > 0 ) nicified += ", ";
+                                nicified += "" + Math.round(hitRect[i]);
+                            }
+                            nicified += " ]";
+                            console.log("hitRect:" + nicified);
                         }
-                        nicified += " ]";
-                        console.log("hitRect:" + nicified);
+                        switch ( this.id % 6) {
+                            case 0:
+                                Viewport.ctx.fillStyle = "#00FF00";
+                                break;
+                            case 1:
+                                Viewport.ctx.fillStyle = "#0000FF";
+                                break;
+                            case 2:
+                                Viewport.ctx.fillStyle = "#00A0A0";
+                                break;
+                            case 3:
+                                Viewport.ctx.fillStyle = "#A0A000";
+                                break;
+                            case 4:
+                                Viewport.ctx.fillStyle = "#A000A0";
+                                break;
+                            case 5:
+                                Viewport.ctx.fillStyle = "#00D0D0";
+                                break;
+                        }
+                        if(((Math.round(Viewport.lastFrameTime / 1000) + this.id) % 3) == 0) {
+                            Viewport.ctx.fillRect(Math.round((hitRect[0] - Viewport.viewportOffset[0]) * Viewport.pixelsPerThousand / 1000),
+                                              Math.round((hitRect[1] - Viewport.viewportOffset[1]) * Viewport.pixelsPerThousand / 1000),
+                                              Math.round(hitRect[2] * Viewport.pixelsPerThousand / 1000),
+                                              Math.round(hitRect[3] * Viewport.pixelsPerThousand / 1000) );
+                        }
                     }
-                    switch ( this.id % 6) {
-                        case 0:
-                            Viewport.ctx.fillStyle = "#00FF00";
-                            break;
-                        case 1:
-                            Viewport.ctx.fillStyle = "#0000FF";
-                            break;
-                        case 2:
-                            Viewport.ctx.fillStyle = "#00A0A0";
-                            break;
-                        case 3:
-                            Viewport.ctx.fillStyle = "#A0A000";
-                            break;
-                        case 4:
-                            Viewport.ctx.fillStyle = "#A000A0";
-                            break;
-                        case 5:
-                            Viewport.ctx.fillStyle = "#00D0D0";
-                            break;
+                    if (true) {  //DEBUG draw cross-hair
+                        markerPosition[0] = Math.round(hitRect[0] + hitRect[2] / 2);
+                        markerPosition[1] = Math.round(hitRect[1] + hitRect[3] / 2);
+                        Viewport.ctx.fillStyle = "#000080";
+                        Viewport.ctx.fillRect( Math.round((markerPosition[0] - Viewport.viewportOffset[0]) * Viewport.pixelsPerThousand / 1000)- 2, Math.round((markerPosition[1] - Viewport.viewportOffset[1]) * Viewport.pixelsPerThousand / 1000) - 10, 4, 20);
+                        Viewport.ctx.fillRect( Math.round((markerPosition[0] - Viewport.viewportOffset[0]) * Viewport.pixelsPerThousand / 1000) - 10, Math.round((markerPosition[1] - Viewport.viewportOffset[1]) * Viewport.pixelsPerThousand / 1000) - 2, 20, 4);
                     }
-                    if(((Math.round(Viewport.lastFrameTime / 1000) + this.id) % 3) == 0) {
-                        Viewport.ctx.fillRect(Math.round((hitRect[0] - Viewport.viewportOffset[0]) * Viewport.pixelsPerThousand / 1000),
-                                          Math.round((hitRect[1] - Viewport.viewportOffset[1]) * Viewport.pixelsPerThousand / 1000),
-                                          Math.round(hitRect[2] * Viewport.pixelsPerThousand / 1000),
-                                          Math.round(hitRect[3] * Viewport.pixelsPerThousand / 1000) );
+                    if (otherSpaceship != Protagonist.spaceship)
+                    {
+                        otherSpaceship.destroy();
                     }
-                }
-                if (true) {  //DEBUG draw cross-hair
-                    markerPosition[0] = Math.round(hitRect[0] + hitRect[2] / 2);
-                    markerPosition[1] = Math.round(hitRect[1] + hitRect[3] / 2);
-                    Viewport.ctx.fillStyle = "#000080";
-                    Viewport.ctx.fillRect( Math.round((markerPosition[0] - Viewport.viewportOffset[0]) * Viewport.pixelsPerThousand / 1000)- 2, Math.round((markerPosition[1] - Viewport.viewportOffset[1]) * Viewport.pixelsPerThousand / 1000) - 10, 4, 20);
-                    Viewport.ctx.fillRect( Math.round((markerPosition[0] - Viewport.viewportOffset[0]) * Viewport.pixelsPerThousand / 1000) - 10, Math.round((markerPosition[1] - Viewport.viewportOffset[1]) * Viewport.pixelsPerThousand / 1000) - 2, 20, 4);
-                }
-                if (otherSpaceship != Protagonist.spaceship)
-                {
-                    otherSpaceship.destroy();
                 }
             }
 
@@ -203,6 +290,19 @@ function Spaceship (paramName, imgName, paramPosition, paramMass) {
     this.destroy = function ()
     {
         MovablesEngine.removeObject(this);
+    }
+    this.projectileHit = function (powerOfImpact)
+    {
+        this.health = this.health - powerOfImpact;
+        if ( this.health < 0)
+        {
+            this.destroy();
+        }
+    }
+    this.fireProjectile = function ()
+    {
+        var bullet = new Projectile(this, "bullet", [this.position[0], this.position[1]], 25, this.rotation, 300);
+        MovablesEngine.addObject(bullet);
     }
 }
 
@@ -447,6 +547,10 @@ var ProgramExecuter = {
             {
                 Protagonist.userInputDirection(Math.PI / 2 * 3, curKeyPress.timeElapsed);
             }
+            else if (32 == curKeyPress.keyCode)
+            {
+                Protagonist.spaceship.fireProjectile();
+            }
         }
     }
 };
@@ -559,6 +663,7 @@ GraphicsRooster.addImage("gegner_3", "gegner_3.png", 50, 44);
 GraphicsRooster.addImage("gegner_4", "gegner_4.png", 60, 50);
 GraphicsRooster.addImage("gegner_5", "gegner_5.png", 120, 76);
 GraphicsRooster.addImage("spieler_0", "spieler_schiff_0.png", 70, 70);
+GraphicsRooster.addImage("bullet", "bullet.png", 5, 20); 
 setTimeout(ProgramExecuter.init, 150);
 MovablesEngine.addObject(new Spaceship("Enemy", "gegner_2", [4000, 4000], 10000));
 MovablesEngine.addObject(new Spaceship("Enemy", "gegner_1", [9000, 5000], 10000));
