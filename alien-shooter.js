@@ -63,6 +63,7 @@ function Projectile (paramOriginSpaceship, imgName, paramPosition, paramPower, p
     this.position = paramPosition;
     this.power = paramPower;
     this.moveDirection = paramMoveDirection;
+    this.velocity = paramVelocity;
     this.rotation = Math.PI / 2;
     this.rotationSpeed = 0;
     this.hitbox = [0,0,0,0];
@@ -87,7 +88,7 @@ function Projectile (paramOriginSpaceship, imgName, paramPosition, paramPower, p
     }
     this.hitcheck = function (otherSpaceship)
     {
-        if ( otherSpaceship != this.originSpaceship)
+        if ( otherSpaceship.type == "spaceship" && otherSpaceship != this.originSpaceship)
         {
             if (this.hitbox[0] <= (otherSpaceship.hitbox[0] + otherSpaceship.hitbox[2]) &&
                 (this.hitbox[0] + this.hitbox[2]) >= otherSpaceship.hitbox[0] &&
@@ -151,6 +152,8 @@ function Spaceship (paramName, imgName, paramPosition, paramMass) {
     this.rotation = Math.PI / 2;
     this.rotationSpeed = 0;
     this.hitbox = [0,0,0,0];
+    this.lastFired = 0;
+    this.timeBetweenFiring = 250;
     this.engine = function()
     {
     }
@@ -278,10 +281,6 @@ function Spaceship (paramName, imgName, paramPosition, paramMass) {
                         Viewport.ctx.fillRect( Math.round((markerPosition[0] - Viewport.viewportOffset[0]) * Viewport.pixelsPerThousand / 1000)- 2, Math.round((markerPosition[1] - Viewport.viewportOffset[1]) * Viewport.pixelsPerThousand / 1000) - 10, 4, 20);
                         Viewport.ctx.fillRect( Math.round((markerPosition[0] - Viewport.viewportOffset[0]) * Viewport.pixelsPerThousand / 1000) - 10, Math.round((markerPosition[1] - Viewport.viewportOffset[1]) * Viewport.pixelsPerThousand / 1000) - 2, 20, 4);
                     }
-                    if (otherSpaceship != Protagonist.spaceship)
-                    {
-                        otherSpaceship.destroy();
-                    }
                 }
             }
 
@@ -294,15 +293,24 @@ function Spaceship (paramName, imgName, paramPosition, paramMass) {
     this.projectileHit = function (powerOfImpact)
     {
         this.health = this.health - powerOfImpact;
-        if ( this.health < 0)
+        if ( this.health <= 0)
         {
             this.destroy();
         }
     }
     this.fireProjectile = function ()
     {
-        var bullet = new Projectile(this, "bullet", [this.position[0], this.position[1]], 25, this.rotation, 300);
+        var bullet = new Projectile(this, "bullet", [this.position[0], this.position[1]], 25, this.rotation, 2200);
         MovablesEngine.addObject(bullet);
+    }
+    this.firingIntended = function ()
+    {
+        var curTime = (new Date()).getTime();
+        if(this.timeBetweenFiring <= (curTime - this.lastFired))
+        {
+            this.lastFired = curTime;
+            this.fireProjectile();
+        }
     }
 }
 
@@ -475,15 +483,17 @@ var Viewport = {
     paintMovables: function (timeSinceLastFrame)
     {
         var movablesLength = MovablesEngine.arrObjects.length;
+        var curObj;
         for( var i = 0; i < movablesLength; i++)
         {
-            if (Viewport.objInsideViewport(MovablesEngine.arrObjects[i]))
+            curObj = MovablesEngine.arrObjects[i];
+            if (Viewport.objInsideViewport(curObj) || curObj == Protagonist.spaceship)
             {
-                MovablesEngine.arrObjects[i].paint(Viewport.ctx, Viewport.viewportOffset, timeSinceLastFrame);
+                curObj.paint(Viewport.ctx, Viewport.viewportOffset, timeSinceLastFrame);
             }
         }
     },
-    objInsideViewport: function ()
+    objInsideViewport: function (movingObject)
     {
         //TODO: implement me
         return true;
@@ -549,7 +559,7 @@ var ProgramExecuter = {
             }
             else if (32 == curKeyPress.keyCode)
             {
-                Protagonist.spaceship.fireProjectile();
+                Protagonist.spaceship.firingIntended();
             }
         }
     }
