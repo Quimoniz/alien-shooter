@@ -72,11 +72,17 @@ function Projectile (paramOriginSpaceship, imgName, paramPosition, paramPower, p
     { /* same as for spaceship */
         this.position[0] += Math.cos(this.moveDirection) * this.velocity * timeSinceLastFrame / 1000;
         this.position[1] += Math.sin(this.moveDirection) * this.velocity * timeSinceLastFrame / 1000 * -1;
+        this.updateHitbox();
+    } 
+    this.updateHitbox = function ()
+    {
         this.hitbox = [this.position[0] - this.img.width * 1000 / 2 / Viewport.pixelsPerThousand,
                        this.position[1] - this.img.height* 1000 / 2 / Viewport.pixelsPerThousand,
                        this.img.width * 1000 / Viewport.pixelsPerThousand,
                        this.img.height * 1000/ Viewport.pixelsPerThousand];
-    } 
+    }
+    this.updateHitbox();
+
     this.paint = function (ctx, viewportOffset, timeSinceLastFrame)
     { /* same as for spaceship */
         this.update(timeSinceLastFrame);
@@ -164,12 +170,16 @@ function Spaceship (paramName, imgName, paramPosition, paramMass) {
 
         this.position[0] += Math.cos(this.moveDirection) * this.velocity * timeSinceLastFrame / 1000;
         this.position[1] += Math.sin(this.moveDirection) * this.velocity * timeSinceLastFrame / 1000 * -1;
+        this.updateHitbox();
+    }
+    this.updateHitbox = function ()
+    {
         this.hitbox = [this.position[0] - this.img.width * 1000 / 2 / Viewport.pixelsPerThousand,
                        this.position[1] - this.img.height* 1000 / 2 / Viewport.pixelsPerThousand,
                        this.img.width * 1000 / Viewport.pixelsPerThousand,
                        this.img.height * 1000/ Viewport.pixelsPerThousand];
-
     }
+    this.updateHitbox();
 
     this.paint = function (ctx, viewportOffset, timeSinceLastFrame)
     {
@@ -303,9 +313,9 @@ function Spaceship (paramName, imgName, paramPosition, paramMass) {
     {
         if("Protagonist" == this.name)
         {
-            var bullet = new Projectile(this, "bullet", [this.position[0]-440, this.position[1] -190], 25, this.rotation, 3000);
+            var bullet = new Projectile(this, "bullet", [this.position[0]-440, this.position[1] -190], 25, this.rotation, 3500);
             MovablesEngine.addObject(bullet);
-                bullet = new Projectile(this, "bullet", [this.position[0]+440, this.position[1] -190], 25, this.rotation, 3000);
+                bullet = new Projectile(this, "bullet", [this.position[0]+440, this.position[1] -190], 25, this.rotation, 3500);
             MovablesEngine.addObject(bullet);
         } else
         {
@@ -389,6 +399,8 @@ var MovablesEngine = {
                     break;
                 }
             }
+            //explicitly tell the garbage collector to delete this object
+            delete oldObject;
         }
     },
     doHitcheck: function()
@@ -508,7 +520,12 @@ var Viewport = {
                 curObj.paint(Viewport.ctx, Viewport.viewportOffset, timeSinceLastFrame);
             } else
             {
-                if(curObj) console.log("Object (" + curObj.id + ", " + curObj.img.name + ") left viewport. Deleting.");
+/*DEBUG
+                if(curObj)
+                {
+                    console.log("Object (" + curObj.id + ", " + curObj.img.name + ") left viewport. Deleting.");
+                }
+*/
                 MovablesEngine.removeObject(curObj);
             }
         }
@@ -517,9 +534,61 @@ var Viewport = {
     {
         if(movingObject)
         {
-            if(false && movingObject.hitbox)
+            if(true && movingObject.hitbox)
             {
-        //TODO: implement me
+                var relationalHitbox = [
+                    movingObject.hitbox[0] - Viewport.viewportOffset[0],
+                    movingObject.hitbox[1] - Viewport.viewportOffset[1],
+                    movingObject.hitbox[2],
+                    movingObject.hitbox[3]
+                ];
+                var intersectHitbox = [
+                    0,
+                    0,
+                    relationalHitbox[2],
+                    relationalHitbox[3] 
+                ];
+                for (var i = 0; i < 2; i++)
+                {
+                    if(relationalHitbox[i] < 0)
+                    {
+                        intersectHitbox[i+2] += relationalHitbox[i];
+                        intersectHitbox[i] = 0;
+                    } else
+                    {
+                        intersectHitbox[i] = relationalHitbox[i];
+                    }
+                }
+                for (var i = 0; i < 2; i++)
+                {
+                    if ((intersectHitbox[i] + intersectHitbox[i+2]) > Viewport.viewportSize[i])
+                    {
+                        intersectHitbox[i+2] = Viewport.viewportSize[i] - intersectHitbox[i];
+                    }
+                    if(intersectHitbox[i+2] < 0)
+                    {
+                        intersectHitbox[i+2] = 0;
+                    }
+                }
+                for (var i = 0; i < 2; i++)
+                {
+                    intersectHitbox[i] += Viewport.viewportOffset[i];
+                }
+                
+                if (intersectHitbox[2] > 0 && intersectHitbox[3] > 0)
+                {
+/* DEBUG
+                    if (true)
+                    {
+                        Viewport.ctx.strokeStyle = "#0000FF";
+                        Viewport.ctx.strokeRect(Math.round((intersectHitbox[0] - Viewport.viewportOffset[0]) * Viewport.pixelsPerThousand / 1000), Math.round((intersectHitbox[1] - Viewport.viewportOffset[1]) * Viewport.pixelsPerThousand / 1000), intersectHitbox[2] * Viewport.pixelsPerThousand / 1000, intersectHitbox[3] * Viewport.pixelsPerThousand / 1000);
+                    }
+*/
+                    return true;
+                } else
+                    return false;
+                {
+                }
     return true;
             } else
             {
