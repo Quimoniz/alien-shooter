@@ -317,6 +317,10 @@ function Spaceship (paramName, imgName, paramPosition, paramMass) {
             MovablesEngine.addObject(bullet);
                 bullet = new Projectile(this, "bullet", [this.position[0]+440, this.position[1] -190], 25, this.rotation, 3500);
             MovablesEngine.addObject(bullet);
+        } else if("Boss" == this.name)
+        {
+            var bullet = new Projectile(this, "bullet", [this.position[0], this.position[1] + 500], 25, this.rotation, -2200);
+            MovablesEngine.addObject(bullet);
         } else
         {
             var bullet = new Projectile(this, "bullet", [this.position[0], this.position[1]], 25, this.rotation, 2200);
@@ -833,6 +837,7 @@ MovablesEngine.addObject(new Spaceship("Enemy", "gegner_2", [4000, 4000], 10000)
 MovablesEngine.addObject(new Spaceship("Enemy", "gegner_1", [9000, 5000], 10000));
 MovablesEngine.addObject(new Spaceship("Enemy", "gegner_3", [7000, 4000], 10000));
 MovablesEngine.addObject(new Spaceship("Enemy", "gegner_4", [1500, 3500], 10000));
+MovablesEngine.addObject(new Spaceship("Boss", "gegner_5", [12000, 700], 10000));
 MovablesEngine.arrObjects[0].velocity = 550;
 MovablesEngine.arrObjects[0].engine = function ()
 {
@@ -844,13 +849,21 @@ MovablesEngine.arrObjects[1].engine = function ()
     this.moveDirection = Math.PI * Math.round(Viewport.curTime % 10000 / 5000);
     this.velocity = Math.sin((Viewport.curTime + 2500 ) % 5000 * Math.PI / 5000) * 4000;
 }
-MovablesEngine.arrObjects[2].velocity = 250;
+MovablesEngine.arrObjects[2].velocity = 2000;
 MovablesEngine.arrObjects[2].engine = function ()
 {
-    this.moveDirection = Math.PI / 4 * Math.round(7 - (Viewport.curTime % 48000 / 6000));
+    this.moveDirection = Math.PI / 4 * Math.round(7 - (Viewport.curTime % 8000 / 1000));
 }
 MovablesEngine.arrObjects[3].velocity = 250;
 MovablesEngine.arrObjects[3].engine = function ()
 {
     this.moveDirection = Math.PI / 2 * (Math.round(Viewport.curTime % 20000 / 10000) * 2 + 1);
+}
+MovablesEngine.arrObjects[4].velocity = 300;
+MovablesEngine.arrObjects[4].timeBetweenFiring = 1000;
+MovablesEngine.arrObjects[4].engine = function ()
+{
+    this.moveDirection = Math.PI * Math.round(Viewport.curTime % 10000 / 5000);
+    this.velocity = Math.sin((Viewport.curTime + 2500 ) % 5000 * Math.PI / 5000) * 800;
+    this.firingIntended();
 }
