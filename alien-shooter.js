@@ -65,13 +65,18 @@ function Projectile (paramOriginSpaceship, imgName, paramPosition, paramPower, p
     this.power = paramPower;
     this.moveDirection = paramMoveDirection;
     this.velocity = paramVelocity;
-    this.rotation = Math.PI / 2;
+    this.rotation = paramMoveDirection + Math.PI / 2 * 3;
     this.rotationSpeed = 0;
     this.hitbox = [0,0,0,0];
     this.update = function(timeSinceLastFrame)
     { /* same as for spaceship */
         this.position[0] += Math.cos(this.moveDirection) * this.velocity * timeSinceLastFrame / 1000;
         this.position[1] += Math.sin(this.moveDirection) * this.velocity * timeSinceLastFrame / 1000 * -1;
+        this.rotation += this.rotationSpeed * timeSinceLastFrame / 1000;
+        if(this.rotation > (Math.PI * 2))
+            this.rotation = this.rotation % (Math.PI * 2);
+        else if(this.rotation  < 0)
+            this.rotation = (Math.PI * 2) - (this.rotation % (Math.PI * -2));
         this.updateHitbox();
     } 
     this.updateHitbox = function ()
@@ -88,10 +93,23 @@ function Projectile (paramOriginSpaceship, imgName, paramPosition, paramPower, p
         this.update(timeSinceLastFrame);
         var tileSource = [0,0,this.img.width,this.img.height];
         var tileDest = [(this.position[0] - viewportOffset[0]) * Viewport.pixelsPerThousand / 1000, (this.position[1] - viewportOffset[1]) * Viewport.pixelsPerThousand / 1000, tileSource[2], tileSource[3]];
-        var origPoints = [tileDest[0], tileDest[1]]; // DEBUG
-        tileDest[0] = Math.round(tileDest[0] - this.img.width / 2);
-        tileDest[1] = Math.round(tileDest[1] - this.img.height/ 2);
-        ctx.drawImage(this.img.src, tileSource[0], tileSource[1], tileSource[2], tileSource[3], tileDest[0], tileDest[1], tileDest[2], tileDest[3]);
+        var origPoints = [tileDest[0], tileDest[1]];
+        if(this.rotation != 0) {
+            tileDest[0] = Math.round(0 - this.img.width / 2);
+            tileDest[1] = Math.round(0 - this.img.height/ 2);
+            ctx.save();
+            ctx.translate(origPoints[0], origPoints[1]);
+            ctx.rotate(this.rotation);
+            ctx.drawImage(this.img.src, tileSource[0], tileSource[1], tileSource[2], tileSource[3], tileDest[0], tileDest[1], tileDest[2], tileDest[3]);
+            ctx.restore();
+        } else
+        {
+            tileDest[0] = Math.round(tileDest[0] - this.img.width / 2);
+            tileDest[1] = Math.round(tileDest[1] - this.img.height/ 2);
+            ctx.drawImage(this.img.src, tileSource[0], tileSource[1], tileSource[2], tileSource[3], tileDest[0], tileDest[1], tileDest[2], tileDest[3]);
+        }
+
+//DEBUG
     }
     this.hitcheck = function (otherSpaceship)
     {
@@ -156,7 +174,7 @@ function Spaceship (paramName, imgName, paramPosition, paramMass) {
     this.moveDirection = Math.PI / 2;
     this.health = 100;
     this.mass = paramMass;
-    this.rotation = Math.PI / 2;
+    this.rotation = 0;
     this.rotationSpeed = 0;
     this.hitbox = [0,0,0,0];
     this.lastFired = 0;
@@ -170,6 +188,11 @@ function Spaceship (paramName, imgName, paramPosition, paramMass) {
 
         this.position[0] += Math.cos(this.moveDirection) * this.velocity * timeSinceLastFrame / 1000;
         this.position[1] += Math.sin(this.moveDirection) * this.velocity * timeSinceLastFrame / 1000 * -1;
+        this.rotation += this.rotationSpeed * timeSinceLastFrame / 1000;
+        if(this.rotation > (Math.PI * 2))
+            this.rotation = this.rotation % (Math.PI * 2);
+        else if(this.rotation  < 0)
+            this.rotation = (Math.PI * 2) - (this.rotation % (Math.PI * -2));
         this.updateHitbox();
     }
     this.updateHitbox = function ()
@@ -186,10 +209,21 @@ function Spaceship (paramName, imgName, paramPosition, paramMass) {
         this.update(timeSinceLastFrame);
         var tileSource = [0,0,this.img.width,this.img.height];
         var tileDest = [(this.position[0] - viewportOffset[0]) * Viewport.pixelsPerThousand / 1000, (this.position[1] - viewportOffset[1]) * Viewport.pixelsPerThousand / 1000, tileSource[2], tileSource[3]];
-        var origPoints = [tileDest[0], tileDest[1]]; // DEBUG
-        tileDest[0] = Math.round(tileDest[0] - this.img.width / 2);
-        tileDest[1] = Math.round(tileDest[1] - this.img.height/ 2);
-        ctx.drawImage(this.img.src, tileSource[0], tileSource[1], tileSource[2], tileSource[3], tileDest[0], tileDest[1], tileDest[2], tileDest[3]);
+        var origPoints = [tileDest[0], tileDest[1]];
+        if(this.rotation != 0) {
+            tileDest[0] = Math.round(0 - this.img.width / 2);
+            tileDest[1] = Math.round(0 - this.img.height/ 2);
+            ctx.save();
+            ctx.translate(origPoints[0], origPoints[1]);
+            ctx.rotate(this.rotation);
+            ctx.drawImage(this.img.src, tileSource[0], tileSource[1], tileSource[2], tileSource[3], tileDest[0], tileDest[1], tileDest[2], tileDest[3]);
+            ctx.restore();
+        } else
+        {
+            tileDest[0] = Math.round(tileDest[0] - this.img.width / 2);
+            tileDest[1] = Math.round(tileDest[1] - this.img.height/ 2);
+            ctx.drawImage(this.img.src, tileSource[0], tileSource[1], tileSource[2], tileSource[3], tileDest[0], tileDest[1], tileDest[2], tileDest[3]);
+        }
 
 //DEBUG
         if (false)
@@ -313,13 +347,13 @@ function Spaceship (paramName, imgName, paramPosition, paramMass) {
     {
         if("Protagonist" == this.name)
         {
-            var bullet = new Projectile(this, "bullet", [this.position[0]-440, this.position[1] -190], 25, this.rotation, 3500);
+            var bullet = new Projectile(this, "bullet", [this.position[0]-440, this.position[1] -190], 25, this.rotation + Math.PI / 2, 3500);
             MovablesEngine.addObject(bullet);
-                bullet = new Projectile(this, "bullet", [this.position[0]+440, this.position[1] -190], 25, this.rotation, 3500);
+                bullet = new Projectile(this, "bullet", [this.position[0]+440, this.position[1] -190], 25, this.rotation + Math.PI / 2, 3500);
             MovablesEngine.addObject(bullet);
         } else if("Boss" == this.name)
         {
-            var bullet = new Projectile(this, "bullet", [this.position[0], this.position[1] + 500], 25, this.rotation, -2200);
+            var bullet = new Projectile(this, "bullet", [this.position[0], this.position[1] + 500], 25, this.rotation + Math.PI / 2 * 3, 2200);
             MovablesEngine.addObject(bullet);
         } else
         {
@@ -679,6 +713,16 @@ var ProgramExecuter = {
             else if (83 == curKeyPress.keyCode) {
                 spawnRandomEnemy();
             }
+            else if (69 == curKeyPress.keyCode) {
+                Protagonist.spaceship.rotation = 0.5;
+            }
+            else if (81 == curKeyPress.keyCode) {
+                Protagonist.spaceship.rotation = Math.PI * 2 - 0.5;
+            }
+            else
+            {
+                console.log("Key " + curKeyPress.keyCode + " was pressed");
+            }
         }
     }
 };
@@ -833,7 +877,7 @@ GraphicsRooster.addImage("gegner_5", "gegner_5.png", 120, 76);
 GraphicsRooster.addImage("spieler_0", "spieler_schiff_0.png", 70, 70);
 GraphicsRooster.addImage("bullet", "bullet.png", 5, 20); 
 setTimeout(ProgramExecuter.init, 150);
-MovablesEngine.addObject(new Spaceship("Enemy", "gegner_2", [4000, 4000], 10000));
+MovablesEngine.addObject(new Spaceship("Enemy", "gegner_2", [6000, 6000], 10000));
 MovablesEngine.addObject(new Spaceship("Enemy", "gegner_1", [9000, 5000], 10000));
 MovablesEngine.addObject(new Spaceship("Enemy", "gegner_3", [7000, 4000], 10000));
 MovablesEngine.addObject(new Spaceship("Enemy", "gegner_4", [1500, 3500], 10000));
@@ -842,6 +886,7 @@ MovablesEngine.arrObjects[0].velocity = 550;
 MovablesEngine.arrObjects[0].engine = function ()
 {
     this.moveDirection = Math.PI / 4 * (Viewport.curTime % 32000 / 4000);
+    this.rotation = Math.PI * 2 + Math.PI / 2 * 3 - Math.PI / 4 * (Viewport.curTime % 32000 / 4000);
 }
 MovablesEngine.arrObjects[1].velocity = 1700;
 MovablesEngine.arrObjects[1].engine = function ()
