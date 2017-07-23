@@ -12,6 +12,7 @@ var MovablesEngine;
 var UserInput;
 */
 var objectIdCounter = 1;
+var particleIdCounter = 1;
 var GraphicsRooster = {
     arrNames : new Array(),
     arrImages : new Array(),
@@ -43,6 +44,113 @@ function ImageWrapper(nameStr, imageSrc, imgWidth, imgHeight)
     this.src.src = imageSrc;
     this.width = imgWidth;
     this.height = imgHeight;
+}
+
+var ParticlesTemplateRooster = {
+    arrTemplateNames: new Array(),
+    arrTemplateObj:   new Array(),
+    countTemplates:   0,
+    addTemplate: function (templateName, objTemplate)
+    {
+        ParticlesTemplateRooster.arrTemplateNames.push(templateName);
+        ParticlesTemplateRooster.arrTemplateObj.push(objTemplate);
+        ParticlesTemplateRooster.countTemplates ++;
+    },
+    getTemplate: function (searchedTemplate)
+    {
+        searchedTemplate = searchedTemplate.toLowerCase();
+        for (var i = 0; i < ParticlesTemplateRooster.countTemplates; i++)
+        {
+            if(searchedTemplate == ParticlesTemplateRooster.arrTemplateNames[i].toLowerCase())
+            {
+                return ParticlesTemplateRooster.arrTemplateObj[i];
+            }
+        }
+    }
+};
+function ParticleTemplate(paramImage)
+{
+    this.img = GraphicsRooster.getImgByName(paramImage);
+    this.animSteps = new Array();
+    this.minStepDuration = 100;
+    this.addAnimStepsPerRow = function (frameSize, frameOffset, frameCount)
+    {
+        for (var i = 0; i < frameCount; i++)
+        {
+            this.animSteps.push([
+                frameOffset[0] + frameSize[0] * i,
+                frameOffset[1],
+                frameSize[0],
+                frameSize[1]
+                ]);
+        }
+    }
+    this.getAnimStep = function (indexAnimStep)
+    {
+        return this.animSteps[indexAnimStep % this.animSteps.length];
+    }
+    this.getStepCount = function ()
+    {
+        return this.animSteps.length;
+    }
+}
+
+function Particle(particleTemplate, paramPosition, paramMoveDirection, paramVelocity) {
+    this.id = particleIdCounter++;
+    this.type = "particle";
+    this.template = ParticlesTemplateRooster.getTemplate(particleTemplate);
+    this.curAnimStep = 0;
+    this.position = paramPosition;
+    this.moveDirection = paramMoveDirection;
+    this.velocity = paramVelocity;
+    this.rotation = 0;
+    this.rotationSpeed = 0;
+    this.ttl = this.template.getStepCount() -1;
+    this.timeLastFrame = 0;
+    this.isActive = true;
+    this.update = function(timeSinceLastFrame)
+    {
+        this.position[0] += Math.cos(this.moveDirection) * this.velocity * timeSinceLastFrame / 1000;
+        this.position[1] += Math.sin(this.moveDirection) * this.velocity * timeSinceLastFrame / 1000 * -1;
+        this.rotation += this.rotationSpeed * timeSinceLastFrame / 1000;
+        if(this.rotation > (Math.PI * 2))
+            this.rotation = this.rotation % (Math.PI * 2);
+        else if(this.rotation  < 0)
+            this.rotation = (Math.PI * 2) - (this.rotation % (Math.PI * -2));
+    } 
+    this.paint = function (ctx, viewportOffset, timeSinceLastFrame)
+    {
+        if((Viewport.curTime - this.timeLastFrame) >= this.template.minStepDuration)
+        {
+            this.curAnimStep ++ ;
+            this.ttl -- ;
+            this.timeLastFrame = Viewport.curTime;
+        }
+        if( 0 <= this.ttl)
+        {
+            this.update(timeSinceLastFrame);
+            var tileSource = this.template.getAnimStep(this.curAnimStep);
+            var tileDest = [(this.position[0] - viewportOffset[0]) * Viewport.pixelsPerThousand / 1000, (this.position[1] - viewportOffset[1]) * Viewport.pixelsPerThousand / 1000, tileSource[2], tileSource[3]];
+            var origPoints = [tileDest[0], tileDest[1]];
+            if(this.rotation != 0) {
+                tileDest[0] = Math.round(0 - tileSource[2] / 2);
+                tileDest[1] = Math.round(0 - tileSource[3] / 2);
+                ctx.save();
+                ctx.translate(origPoints[0], origPoints[1]);
+                ctx.rotate(this.rotation);
+                ctx.drawImage(this.template.img.src, tileSource[0], tileSource[1], tileSource[2], tileSource[3], tileDest[0], tileDest[1], tileDest[2], tileDest[3]);
+                ctx.restore();
+            } else
+            {
+                tileDest[0] = Math.round(tileDest[0] - tileSource[2] / 2);
+                tileDest[1] = Math.round(tileDest[1] - tileSource[3] / 2);
+                ctx.drawImage(this.template.img.src, tileSource[0], tileSource[1], tileSource[2], tileSource[3], tileDest[0], tileDest[1], tileDest[2], tileDest[3]);
+            }
+        } else
+        {
+            this.isActive = false;
+        }
+    }
 }
 
 function flyingObject () {
@@ -154,6 +262,14 @@ function Projectile (paramOriginSpaceship, imgName, paramPosition, paramPower, p
                 if (hitRect[2] > 0 && hitRect[3] > 0)
                 {
                     otherSpaceship.projectileHit(this.power);
+                    for(var i = Math.floor(Math.random() * 5); i >= 0; i--)
+                    {
+                        var particleMoveDirection = this.moveDirection;
+                        particleMoveDirection += Math.random() * 2 - 1;
+                        if(particleMoveDirection < 0)
+                            particleMoveDirection = Math.PI * 2 - particleMoveDirection % (Math.PI * -2)
+                        MovablesEngine.createParticle("reddot", [this.position[0], this.position[1]], particleMoveDirection, this.velocity / 2);
+                    }
                     this.destroy();
                 }
             }
@@ -333,7 +449,12 @@ function Spaceship (paramName, imgName, paramPosition, paramMass) {
     }
     this.destroy = function ()
     {
+        MovablesEngine.createParticle("explosion", [this.position[0], this.position[1]], this.moveDirection, this.velocity / 3);
         MovablesEngine.removeObject(this);
+        if(Protagonist.spaceship.id == this.id)
+        {
+            setTimeout(function () {alert("Game Over")}, 1300);
+        }
     }
     this.projectileHit = function (powerOfImpact)
     {
@@ -410,9 +531,17 @@ var Protagonist = {
 
 var MovablesEngine = {
     arrObjects: new Array(),
+    arrParticles: new Array(),
     addObject: function (newObject)
     {
         this.arrObjects.push(newObject);
+        return newObject;
+    },
+    createParticle: function (particleTemplate, paramPosition, paramMoveDirection, paramSpeed)
+    {
+        var newParticle = new Particle(particleTemplate, paramPosition, paramMoveDirection, paramSpeed);
+        MovablesEngine.arrParticles.push(newParticle);
+        return newParticle;
     },
     removeObject: function (oldObject)
     {
@@ -537,6 +666,7 @@ var Viewport = {
             timeSinceLastFrame = curTime - Viewport.lastFrameTime;
         }
         Viewport.paintMovables(timeSinceLastFrame);
+        Viewport.paintParticles(timeSinceLastFrame);
 
         Viewport.finishUpdating(curTime);
         
@@ -568,11 +698,31 @@ var Viewport = {
             }
         }
     },
+    paintParticles: function(timeSinceLastFrame)
+    {
+        var newParticleArr = new Array();
+        var curParticle;
+        var particleCount = MovablesEngine.arrParticles.length;
+        for ( var i = 0; i < particleCount; i++)
+        {
+            curParticle = MovablesEngine.arrParticles[i];
+            if(curParticle.isActive && Viewport.objInsideViewport(curParticle))
+            {
+                curParticle.paint(Viewport.ctx, Viewport.viewportOffset, timeSinceLastFrame);
+                newParticleArr.push(curParticle);
+            } else
+            {
+                curParticle.isActive = false;
+                delete curParticle;
+            }
+        }
+        this.arrParticles = newParticleArr;
+    },
     objInsideViewport: function (movingObject)
     {
         if(movingObject)
         {
-            if(true && movingObject.hitbox)
+            if(movingObject.hitbox)
             {
                 var relationalHitbox = [
                     movingObject.hitbox[0] - Viewport.viewportOffset[0],
@@ -624,8 +774,8 @@ var Viewport = {
 */
                     return true;
                 } else
-                    return false;
                 {
+                    return false;
                 }
     return true;
             } else
@@ -721,6 +871,7 @@ var ProgramExecuter = {
             }
             else
             {
+                Protagonist.spaceship.rotation = 0;
                 console.log("Key " + curKeyPress.keyCode + " was pressed");
             }
         }
@@ -876,7 +1027,19 @@ GraphicsRooster.addImage("gegner_4", "gegner_4.png", 60, 50);
 GraphicsRooster.addImage("gegner_5", "gegner_5.png", 120, 76);
 GraphicsRooster.addImage("spieler_0", "spieler_schiff_0.png", 70, 70);
 GraphicsRooster.addImage("bullet", "bullet.png", 5, 20); 
+GraphicsRooster.addImage("particle_explosion", "sample_explosion_from_vampires-dawn-2.png", 480, 288);
+GraphicsRooster.addImage("particle_dot", "particle-dot.png", 96, 16);
+var curTemplate = new ParticleTemplate("particle_explosion");
+curTemplate.addAnimStepsPerRow([96,96],[0,0],5);
+curTemplate.addAnimStepsPerRow([96,96],[0,96],5);
+curTemplate.addAnimStepsPerRow([96,96],[0,192],5);
+ParticlesTemplateRooster.addTemplate("explosion", curTemplate);
+curTemplate = new ParticleTemplate("particle_dot");
+curTemplate.addAnimStepsPerRow([16,16],[0,0],6);
+ParticlesTemplateRooster.addTemplate("reddot", curTemplate);
+
 setTimeout(ProgramExecuter.init, 150);
+
 MovablesEngine.addObject(new Spaceship("Enemy", "gegner_2", [6000, 6000], 10000));
 MovablesEngine.addObject(new Spaceship("Enemy", "gegner_1", [9000, 5000], 10000));
 MovablesEngine.addObject(new Spaceship("Enemy", "gegner_3", [7000, 4000], 10000));
@@ -906,6 +1069,7 @@ MovablesEngine.arrObjects[3].engine = function ()
 }
 MovablesEngine.arrObjects[4].velocity = 300;
 MovablesEngine.arrObjects[4].timeBetweenFiring = 1000;
+MovablesEngine.arrObjects[4].health = 500;
 MovablesEngine.arrObjects[4].engine = function ()
 {
     this.moveDirection = Math.PI * Math.round(Viewport.curTime % 10000 / 5000);
