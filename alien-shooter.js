@@ -394,6 +394,10 @@ function Spaceship (paramName, imgName, paramPosition, paramMass) {
     
                 if (hitRect[2] > 0 && hitRect[3] > 0)
                 {
+                    if(otherSpaceship.id == Protagonist.spaceship.id)
+                    {
+                        Protagonist.spaceship.collisionDamage();
+                    }
     //DEBUG
                     if (false) //DEBUG draw rectangle
                     {
@@ -449,20 +453,29 @@ function Spaceship (paramName, imgName, paramPosition, paramMass) {
     }
     this.destroy = function ()
     {
-        MovablesEngine.createParticle("explosion", [this.position[0], this.position[1]], this.moveDirection, this.velocity / 3);
+        var explosionParticle = MovablesEngine.createParticle("explosion", [this.position[0], this.position[1]], this.moveDirection, this.velocity / 3);
+        explosionParticle.template.minStepDuration = 70;
         MovablesEngine.removeObject(this);
         if(Protagonist.spaceship.id == this.id)
         {
             setTimeout(function () {alert("Game Over")}, 1300);
         }
     }
-    this.projectileHit = function (powerOfImpact)
+    this.damage = function (amountOfDamage)
     {
-        this.health = this.health - powerOfImpact;
+        this.health = this.health - amountOfDamage;  
         if ( this.health <= 0)
         {
             this.destroy();
         }
+    }
+    this.projectileHit = function (powerOfImpact)
+    {
+        this.damage(powerOfImpact);
+    }
+    this.collisionDamage = function ()
+    {
+        this.damage(25);
     }
     this.fireProjectile = function ()
     {
