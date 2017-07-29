@@ -739,7 +739,7 @@ var Viewport = {
                 delete curParticle;
             }
         }
-        this.arrParticles = newParticleArr;
+        MovablesEngine.arrParticles = newParticleArr;
     },
     objInsideViewport: function (movingObject)
     {
@@ -904,7 +904,7 @@ var ProgramExecuter = {
 function spawnRandomEnemy()
 {
     var enemyType = Math.floor(Math.random() * 4 + 1);
-    var newEnemy = new Spaceship("Enemy", "gegner_" + enemyType, [Math.floor(Viewport.viewportOffset[0] + Math.random() * Viewport.viewportSize[0]), Math.floor(Viewport.viewportOffset[1] + Math.random() * Viewport.viewportSize[1])], 10000);
+    var newEnemy = new Spaceship("Enemy", "gegner_" + enemyType, [Math.floor(Viewport.viewportOffset[0] + Math.random() * Viewport.viewportSize[0]), Math.floor(Viewport.viewportOffset[1] + Viewport.viewportSize[1] )], 10000);
     switch(enemyType)
     {
         case 2:
