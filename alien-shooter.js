@@ -13,11 +13,18 @@ var UserInput;
 */
 var objectIdCounter = 1;
 var particleIdCounter = 1;
+
+var spawnAllSeconds = 2000; //Miliseconds
+var difficulty = 10;
+var loopedAmount = 0;
+
+var score = 0;
+
 var GraphicsRooster = {
     arrNames : new Array(),
     arrImages : new Array(),
     countImages: 0,
-    addImage: function(nameStr, imageSrc, imgWidth, imgHeight)
+    addImage: function (nameStr, imageSrc, imgWidth, imgHeight)
     {
         var imageObj = new ImageWrapper(nameStr, imageSrc, imgWidth, imgHeight);
         GraphicsRooster.arrNames.push(nameStr);
@@ -330,6 +337,7 @@ function Spaceship (paramName, imgName, paramPosition, paramMass) {
     this.paint = function (ctx, viewportOffset, timeSinceLastFrame)
     {
         this.update(timeSinceLastFrame);
+        
         var tileSource = [0,0,this.img.width,this.img.height];
         var tileDest = [(this.position[0] - viewportOffset[0]) * Viewport.pixelsPerThousand / 1000, (Viewport.viewportSize[1] - this.position[1] + viewportOffset[1]) * Viewport.pixelsPerThousand / 1000, tileSource[2], tileSource[3]];
         var origPoints = [tileDest[0], tileDest[1]];
@@ -465,7 +473,13 @@ function Spaceship (paramName, imgName, paramPosition, paramMass) {
         MovablesEngine.removeObject(this);
         if(Protagonist.spaceship.id == this.id)
         {
-            setTimeout(function () {alert("Game Over")}, 1300);
+            alert("Game Over"); 
+            clearInterval(myInterval); 
+            location.reload();
+        }
+        else {
+            score += 100;   
+            console.log("Spaceship with the ID: " + this.id + " has been destroyed!"); //Error for some reason?? Is this called too often? or the Hitbox not removed properly?
         }
     }
     this.damage = function (amountOfDamage)
@@ -526,7 +540,7 @@ var Protagonist = {
     userInputDirection: function (direction, elapsedTime)
     {
         //console.log("userInputDirection(" + (direction * 360 / (Math.PI * 2)) + ", " + elapsedTime + " ms)");
-        var baseSpeed = 2500;
+        var baseSpeed = 5000;
 
         Protagonist.spaceship.velocity = baseSpeed;
 
@@ -632,7 +646,7 @@ var Viewport = {
         Viewport.viewportCanvas = document.getElementById("mainCanvas");
         Viewport.setPxSize(window.innerWidth, window.innerHeight);
         Viewport.ctx = Viewport.viewportCanvas.getContext("2d");
-        Viewport.ctx.font = "16px Sans, Sans-Serif";
+        Viewport.ctx.font = "32px Sans, Sans-Serif";
     },
     adjustIfResizedWindow: function()
     {
@@ -673,13 +687,13 @@ var Viewport = {
     },
     update: function()
     {
+        
         Viewport.adjustIfResizedWindow();
         var curTime = (new Date()).getTime();
         Viewport.curTime = curTime;
 
 //TESTING CODE, to be REMOVED in alpha stage
         Viewport.debugTestingBackgroundPaint(curTime);
-
 
         var timeSinceLastFrame = 0;
         if ( Viewport.wasRunning  )
@@ -688,9 +702,12 @@ var Viewport = {
         }
         Viewport.viewportOffset[1] += Viewport.movePerSecond * timeSinceLastFrame / 1000;
 
+        
         Viewport.paintMovables(timeSinceLastFrame);
         Viewport.paintParticles(timeSinceLastFrame);
-
+        Viewport.ctx.fillStyle = "red";
+        Viewport.ctx.fillText("Score: " +  score,10,50);
+        Viewport.ctx.fillText("Wave: " + loopedAmount,10,100);
         Viewport.finishUpdating(curTime);
         
     },
@@ -883,9 +900,6 @@ var ProgramExecuter = {
             {
                 Protagonist.spaceship.firingIntended();
             }
-            else if (83 == curKeyPress.keyCode) {
-                spawnRandomEnemy();
-            }
             else if (69 == curKeyPress.keyCode) {
                 Protagonist.spaceship.rotation = 0.5;
             }
@@ -900,6 +914,20 @@ var ProgramExecuter = {
         }
     }
 };
+
+function spawnEnemys()
+{    
+    spawnRandomEnemy();
+    spawnRandomEnemy();
+    spawnRandomEnemy();
+    loopedAmount++;
+    
+    if(spawnAllSeconds-difficulty*loopedAmount > 300)
+    {
+        clearInterval(myInterval);
+        myInterval = setInterval("spawnEnemys()", spawnAllSeconds-difficulty*loopedAmount);
+    }
+}
 
 function spawnRandomEnemy()
 {
@@ -1063,39 +1091,4 @@ ParticlesTemplateRooster.addTemplate("reddot", curTemplate);
 
 setTimeout(ProgramExecuter.init, 150);
 
-MovablesEngine.addObject(new Spaceship("Enemy", "gegner_2", [6000, 6000], 10000));
-MovablesEngine.addObject(new Spaceship("Enemy", "gegner_1", [9000, 7000], 10000));
-MovablesEngine.addObject(new Spaceship("Enemy", "gegner_3", [7000, 8000], 10000));
-MovablesEngine.addObject(new Spaceship("Enemy", "gegner_4", [1500, 8500], 10000));
-MovablesEngine.addObject(new Spaceship("Boss", "gegner_5", [12000, 11300], 10000));
-MovablesEngine.arrObjects[0].velocity = 550;
-MovablesEngine.arrObjects[0].engine = function ()
-{
-    this.moveDirection = Math.PI / 4 * (Viewport.curTime % 32000 / 4000);
-    this.rotation = Math.PI * 2 + Math.PI / 2 * 3 - Math.PI / 4 * (Viewport.curTime % 32000 / 4000);
-}
-MovablesEngine.arrObjects[1].velocity = 1700;
-MovablesEngine.arrObjects[1].engine = function ()
-{
-    this.moveDirection = Math.PI * Math.round(Viewport.curTime % 10000 / 5000);
-    this.velocity = Math.sin((Viewport.curTime + 2500 ) % 5000 * Math.PI / 5000) * 4000;
-}
-MovablesEngine.arrObjects[2].velocity = 2000;
-MovablesEngine.arrObjects[2].engine = function ()
-{
-    this.moveDirection = Math.PI / 4 * Math.round(7 - (Viewport.curTime % 8000 / 1000));
-}
-MovablesEngine.arrObjects[3].velocity = 250;
-MovablesEngine.arrObjects[3].engine = function ()
-{
-    this.moveDirection = Math.PI / 2 * (Math.round(Viewport.curTime % 20000 / 10000) * 2 + 1);
-}
-MovablesEngine.arrObjects[4].velocity = 300;
-MovablesEngine.arrObjects[4].timeBetweenFiring = 1000;
-MovablesEngine.arrObjects[4].health = 500;
-MovablesEngine.arrObjects[4].engine = function ()
-{
-    this.moveDirection = Math.PI * Math.round(Viewport.curTime % 10000 / 5000);
-    this.velocity = Math.sin((Viewport.curTime + 2500 ) % 5000 * Math.PI / 5000) * 800;
-    this.firingIntended();
-}
+var myInterval = setInterval( "spawnEnemys()", spawnAllSeconds-difficulty*loopedAmount);
