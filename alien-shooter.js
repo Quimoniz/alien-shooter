@@ -14,12 +14,6 @@ var UserInput;
 var objectIdCounter = 1;
 var particleIdCounter = 1;
 
-var spawnAllSeconds = 2000; //Miliseconds
-var difficulty = 10;
-var loopedAmount = 0;
-
-var score = 0;
-
 var GraphicsRooster = {
     arrNames : new Array(),
     arrImages : new Array(),
@@ -312,6 +306,7 @@ function Spaceship (paramName, imgName, paramPosition, paramMass) {
         this.engine();
 
         this.position[0] += Math.cos(this.moveDirection) * this.velocity * timeSinceLastFrame / 1000;
+     
         this.position[1] += Math.sin(this.moveDirection) * this.velocity * timeSinceLastFrame / 1000 * -1;
         this.rotation += this.rotationSpeed * timeSinceLastFrame / 1000;
         if(this.rotation > (Math.PI * 2))
@@ -323,6 +318,14 @@ function Spaceship (paramName, imgName, paramPosition, paramMass) {
             if(this.position[1] < Viewport.viewportOffset[1])
             {
                 this.position[1] = Viewport.viewportOffset[1];
+            }
+            if(this.position[0] < Viewport.viewportOffset[0])
+            {
+                this.position[0] = Viewport.viewportOffset[0];
+            }
+            if(this.position[0] > (Viewport.viewportOffset[0] + Viewport.viewportSize[0]))
+            {
+                this.position[0] = Viewport.viewportOffset[0] + Viewport.viewportSize[0];
             }
         }
         this.updateHitbox();
@@ -468,10 +471,12 @@ function Spaceship (paramName, imgName, paramPosition, paramMass) {
 
         }
     }
+    
     this.destroy = function ()
     {
         var explosionParticle = MovablesEngine.createParticle("explosion", [this.position[0], this.position[1]], this.moveDirection, this.velocity / 3);
         explosionParticle.template.minStepDuration = 70;
+        
         if(Protagonist.spaceship.id == this.id)
         {
             alert("Game Over"); 
@@ -481,10 +486,10 @@ function Spaceship (paramName, imgName, paramPosition, paramMass) {
         else {
             if(this.name.split(" ")[1] == "4")
                 {
-                    score += 200;  
+                    Protagonist.score += 200;  
                 }
             else {
-                score += 100;  
+                Protagonist.score += 100;  
             }
              
             console.log("Spaceship with the ID: " + this.name + " has been destroyed!"); //Error for some reason?? Is this called too often? or the Hitbox not removed properly?
@@ -536,11 +541,11 @@ function Spaceship (paramName, imgName, paramPosition, paramMass) {
     }
 }
 
-
 var Protagonist = {
     spaceship: undefined,
     lastDirectionSetTime: 0,
     minMomentumKeepDuration: 200,
+    score: 0,
     init: function ()
     {
         Protagonist.spaceship = new Spaceship("Protagonist", "spieler_0", [3000, 7000], 500),
@@ -570,6 +575,12 @@ var Protagonist = {
         }
     }
     
+};
+
+var WaveSettings =  {
+    spawnAllSeconds: 2000, //Miliseconds
+    difficulty: 10,
+    loopedAmount: 0
 };
 
 var MovablesEngine = {
@@ -715,8 +726,8 @@ var Viewport = {
         Viewport.paintMovables(timeSinceLastFrame);
         Viewport.paintParticles(timeSinceLastFrame);
         Viewport.ctx.fillStyle = "red";
-        Viewport.ctx.fillText("Score: " +  score,10,50);
-        Viewport.ctx.fillText("Wave: " + loopedAmount,10,100);
+        Viewport.ctx.fillText("Score: " +  Protagonist.score,10,50);
+        Viewport.ctx.fillText("Wave: " + WaveSettings.loopedAmount,10,100);
         Viewport.finishUpdating(curTime);
         
     },
@@ -929,12 +940,12 @@ function spawnEnemys()
     spawnRandomEnemy();
     spawnRandomEnemy();
     spawnRandomEnemy();
-    loopedAmount++;
+    WaveSettings.loopedAmount++;
     
-    if(spawnAllSeconds-difficulty*loopedAmount > 300)
+    if(WaveSettings.spawnAllSeconds - WaveSettings.difficulty * WaveSettings.loopedAmount > 300)
     {
         clearInterval(myInterval);
-        myInterval = setInterval("spawnEnemys()", spawnAllSeconds-difficulty*loopedAmount);
+        myInterval = setInterval("spawnEnemys()", WaveSettings.spawnAllSeconds - WaveSettings.difficulty * WaveSettings.loopedAmount);
     }
 }
 
@@ -945,7 +956,7 @@ function spawnRandomEnemy()
     switch(enemyType)
     {
         case 2:
-            newEnemy.velocity = 550;
+            newEnemy.velocity = 1100;
             newEnemy.engine = function ()
             {
                 this.moveDirection = Math.PI / 4 * (Viewport.curTime % 32000 / 4000);
@@ -967,7 +978,7 @@ function spawnRandomEnemy()
             }
             break;
         case 4:
-            newEnemy.velocity = 250;
+            newEnemy.velocity = 350;
 			newEnemy.health = 200;
             newEnemy.engine = function ()
             {
@@ -1101,4 +1112,4 @@ ParticlesTemplateRooster.addTemplate("reddot", curTemplate);
 
 setTimeout(ProgramExecuter.init, 150);
 
-var myInterval = setInterval( "spawnEnemys()", spawnAllSeconds-difficulty*loopedAmount);
+var myInterval = setInterval("spawnEnemys()", WaveSettings.spawnAllSeconds - WaveSettings.difficulty * WaveSettings.loopedAmount);
