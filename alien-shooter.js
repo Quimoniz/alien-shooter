@@ -71,6 +71,8 @@ var ParticlesTemplateRooster = {
             if(searchedTemplate == ParticlesTemplateRooster.arrTemplateNames[i].toLowerCase())
             {
                 return ParticlesTemplateRooster.arrTemplateObj[i];
+                
+                
             }
         }
     }
@@ -369,7 +371,7 @@ function Spaceship (paramName, imgName, paramPosition, paramMass) {
     }
     this.hitcheck = function (otherSpaceship)
     {
-        if ("spaceship" == otherSpaceship.type)
+        if (otherSpaceship && "spaceship" == otherSpaceship.type)
         {
             if (this.hitbox[0] <= (otherSpaceship.hitbox[0] + otherSpaceship.hitbox[2]) &&
                 (this.hitbox[0] + this.hitbox[2]) >= otherSpaceship.hitbox[0] &&
@@ -470,7 +472,6 @@ function Spaceship (paramName, imgName, paramPosition, paramMass) {
     {
         var explosionParticle = MovablesEngine.createParticle("explosion", [this.position[0], this.position[1]], this.moveDirection, this.velocity / 3);
         explosionParticle.template.minStepDuration = 70;
-        MovablesEngine.removeObject(this);
         if(Protagonist.spaceship.id == this.id)
         {
             alert("Game Over"); 
@@ -478,9 +479,17 @@ function Spaceship (paramName, imgName, paramPosition, paramMass) {
             location.reload();
         }
         else {
-            score += 100;   
-            console.log("Spaceship with the ID: " + this.id + " has been destroyed!"); //Error for some reason?? Is this called too often? or the Hitbox not removed properly?
+            if(this.name.split(" ")[1] == "4")
+                {
+                    score += 200;  
+                }
+            else {
+                score += 100;  
+            }
+             
+            console.log("Spaceship with the ID: " + this.name + " has been destroyed!"); //Error for some reason?? Is this called too often? or the Hitbox not removed properly?
         }
+		 MovablesEngine.removeObject(this);
     }
     this.damage = function (amountOfDamage)
     {
@@ -932,7 +941,7 @@ function spawnEnemys()
 function spawnRandomEnemy()
 {
     var enemyType = Math.floor(Math.random() * 4 + 1);
-    var newEnemy = new Spaceship("Enemy", "gegner_" + enemyType, [Math.floor(Viewport.viewportOffset[0] + Math.random() * Viewport.viewportSize[0]), Math.floor(Viewport.viewportOffset[1] + Viewport.viewportSize[1] )], 10000);
+    var newEnemy = new Spaceship("Enemy " + enemyType, "gegner_" + enemyType, [Math.floor(Viewport.viewportOffset[0] + Math.random() * Viewport.viewportSize[0]), Math.floor(Viewport.viewportOffset[1] + Viewport.viewportSize[1] )], 10000);
     switch(enemyType)
     {
         case 2:
@@ -959,6 +968,7 @@ function spawnRandomEnemy()
             break;
         case 4:
             newEnemy.velocity = 250;
+			newEnemy.health = 200;
             newEnemy.engine = function ()
             {
                 this.moveDirection = Math.PI / 2 * (Math.round(Viewport.curTime % 20000 / 10000) * 2 + 1);
