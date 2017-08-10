@@ -1,4 +1,4 @@
-function Spaceship (paramName, imgName, paramPosition, paramMass) {
+function Spaceship (paramName, imgName, paramPosition, paramMass, paramInitialHealth) {
     this.id = objectIdCounter++;
     this.type = "spaceship";
     this.name = paramName;
@@ -6,7 +6,8 @@ function Spaceship (paramName, imgName, paramPosition, paramMass) {
     this.position = paramPosition;
     this.velocity = 0;
     this.moveDirection = Math.PI / 2;
-    this.health = 100;
+    this.curHealth = paramInitialHealth;
+    this.maxHealth = paramInitialHealth;
     this.mass = paramMass;
     this.rotation = 0;
     this.rotationSpeed = 0;
@@ -213,16 +214,21 @@ function Spaceship (paramName, imgName, paramPosition, paramMass) {
             location.reload();
         }
         else {
-            Protagonist.score += this.health;  
+            Protagonist.score += this.maxHealth;  
              
             console.log("Spaceship with the ID: " + this.name + " has been destroyed!"); //Error for some reason?? Is this called too often? or the Hitbox not removed properly?
         }
 		 MovablesEngine.removeObject(this);
     }
+    this.initHealth = function (paramHealth)
+    {
+        this.maxHealth = paramHealth;
+        this.curHealth = paramHealth;
+    }
     this.damage = function (amountOfDamage)
     {
-        this.health = this.health - amountOfDamage;  
-        if ( this.health <= 0)
+        this.curHealth = this.curHealth - amountOfDamage;  
+        if ( this.curHealth <= 0)
         {
             this.destroy();
         }
@@ -239,9 +245,9 @@ function Spaceship (paramName, imgName, paramPosition, paramMass) {
     {
         if("Protagonist" == this.name)
         {
-            var bullet = new Projectile(this, "bullet", [this.position[0]-440, this.position[1] +190], 25, this.rotation + Math.PI / 2, -3500);
+            var bullet = new Projectile(this, "bullet", [this.position[0]-440, this.position[1] +190], 25, this.rotation + Math.PI / 2, -5500);
             MovablesEngine.addObject(bullet);
-                bullet = new Projectile(this, "bullet", [this.position[0]+440, this.position[1] +190], 25, this.rotation + Math.PI / 2, -3500);
+                bullet = new Projectile(this, "bullet", [this.position[0]+440, this.position[1] +190], 25, this.rotation + Math.PI / 2, -5500);
             MovablesEngine.addObject(bullet);
         } else if("Boss" == this.name)
         {

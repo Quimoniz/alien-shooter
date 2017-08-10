@@ -235,7 +235,7 @@ function spawnRandomEnemy()
     {
         enemyType = 5;
     }
-    var newEnemy = new Spaceship("Enemy " + enemyType, "gegner_" + enemyType, [Math.floor(Viewport.viewportOffset[0] + Math.random() * Viewport.viewportSize[0]), Math.floor(Viewport.viewportOffset[1] + Viewport.viewportSize[1] )], 10000);
+    var newEnemy = new Spaceship("Enemy " + enemyType, "gegner_" + enemyType, [Math.floor(Viewport.viewportOffset[0] + Math.random() * Viewport.viewportSize[0]), Math.floor(Viewport.viewportOffset[1] + Viewport.viewportSize[1] )], 10000, 100);
     switch(enemyType)
     {
         case 1:
@@ -266,7 +266,7 @@ function spawnRandomEnemy()
             break;
         case 4:
             newEnemy.velocity = 450;
-            newEnemy.health = 200;
+            newEnemy.initHealth(200);
             // move up and down
             newEnemy.engine = function ()
             {
@@ -277,7 +277,7 @@ function spawnRandomEnemy()
             newEnemy.name = "Boss";
             newEnemy.velocity = 300;
             newEnemy.timeBetweenFiring = 1000;
-            newEnemy.health = 500;
+            newEnemy.initHealth(500);
             newEnemy.engine = function ()
             {
                 this.moveDirection = 
