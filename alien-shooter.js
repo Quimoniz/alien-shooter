@@ -196,6 +196,9 @@ var ProgramExecuter = {
             {
                 Protagonist.spaceship.firingIntended();
             }
+            else if (67 == curKeyPress.keyCode) {
+                Credits.ShowCredits();
+            }
             else if (69 == curKeyPress.keyCode) {
                 Protagonist.spaceship.rotation = 0.5;
             }

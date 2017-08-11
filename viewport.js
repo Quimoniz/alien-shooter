@@ -74,10 +74,12 @@ var Viewport = {
         }
         Viewport.viewportOffset[1] += Viewport.movePerSecond * timeSinceLastFrame / 1000;
 
+      
         
         Viewport.paintMovables(timeSinceLastFrame);
         Viewport.paintParticles(timeSinceLastFrame);
         Viewport.ctx.fillStyle = "red";
+        Credits.DrawCredits();
         Viewport.ctx.fillText("Score: " +  Protagonist.score,10,50);
         Viewport.ctx.fillText("Wave: " + WaveSettings.loopedAmount,10,100);
         Viewport.finishUpdating(curTime);
