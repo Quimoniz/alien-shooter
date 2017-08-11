@@ -35,7 +35,7 @@ var Protagonist = {
     score: 0,
     init: function ()
     {
-        Protagonist.spaceship = new Spaceship("Protagonist", "spieler_0", [3000, 7000], 500),
+        Protagonist.spaceship = new Spaceship("Protagonist", "spieler_0", [3000, 7000], 500, 100),
         MovablesEngine.addObject(Protagonist.spaceship);
     },
     userInputDirection: function (direction, elapsedTime)
