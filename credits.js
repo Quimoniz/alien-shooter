@@ -1,36 +1,32 @@
 var Credits = {
     isShowing: false,
     timer: 0,
-    text: "Lars Jitschin",
     creditsSpeed: 3,
     
-    ShowCredits : function()
-    {
-        if(!this.isShowing)
-            {
+    ShowCredits : function () {
+        if (!this.isShowing) {
                 this.isShowing = true;
-               
             }
-        
     },
     
-    DrawCredits : function()
-    {
-        if(this.isShowing)
-        {
-            var textLength = Viewport.ctx.measureText(this.text).width;
-            var curLength = 0;
-            for(i = 0; i < this.text.length; i++)
-            {
-                var char = this.text.charAt(i);
-                Viewport.ctx.fillText(char, (Viewport.viewportCanvas.width/2-textLength/2+curLength), this.timer*this.creditsSpeed+Math.random()*10);
-                curLength += Viewport.ctx.measureText(char).width;
-                console.log(curLength);
-            }
+    DrawText : function (Text, offset) {
+        var textLength = Viewport.ctx.measureText(Text).width, curLength = 0, i = 0, char;
+        
+        for (i = 0; i < Text.length; i++) {
+            char = Text.charAt(i);
+            Viewport.ctx.fillText(char, (Viewport.viewportCanvas.width / 2 - textLength / 2 + curLength + 0.5), this.timer * this.creditsSpeed + Math.sin(Math.PI * 2 / 10 * i + this.timer / 5) * 15);
+            curLength += Viewport.ctx.measureText(char).width + 0.5;
+        }
+    },
+    
+    DrawCredits : function () {
+        if (this.isShowing) {
+            DrawText("Niklas Werner", 300);
+            DrawText("Lars Jitschin", 0);
+            
             this.timer++;
             
-            if(this.timer*this.creditsSpeed > Viewport.viewportCanvas.height)
-            {
+            if (this.timer * this.creditsSpeed > Viewport.viewportCanvas.height) {
                     this.timer = 0;
                     this.isShowing = false;
             }
