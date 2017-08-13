@@ -81,7 +81,7 @@ var Viewport = {
         Viewport.ctx.fillStyle = "red";
         Credits.DrawCredits();
         Viewport.ctx.fillText("Score: " +  Protagonist.score,10,50);
-        Viewport.ctx.fillText("Wave: " + WaveSettings.loopedAmount,10,100);
+        Viewport.ctx.fillText("Wave: " + EnemyWaves.loopedAmount,10,100);
         Viewport.finishUpdating(curTime);
         
     },

@@ -209,11 +209,9 @@ function Spaceship (paramName, imgName, paramPosition, paramMass, paramInitialHe
         
         if(Protagonist.spaceship.id == this.id)
         {
-            alert("Game Over"); 
-            clearInterval(myInterval); 
-            location.reload();
-        }
-        else {
+            ProgramExecuter.gameOver();
+        } else
+        {
             Protagonist.score += this.maxHealth;  
              
             console.log("Spaceship with the ID: " + this.name + " has been destroyed!"); //Error for some reason?? Is this called too often? or the Hitbox not removed properly?
