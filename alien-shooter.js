@@ -156,8 +156,7 @@ var ProgramExecuter = {
     {
         Viewport.init();
         UserInput.init();
-        //TO be later invoked from MENU>NEW GAME
-        ProgramExecuter.initGame();
+        Menu.showMenu();
     },
     initGame: function ()
     {
