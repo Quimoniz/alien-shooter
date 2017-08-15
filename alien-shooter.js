@@ -64,11 +64,28 @@ var Protagonist = {
     
 };
 
-var WaveSettings =  {
+var EnemyWaves =  {
     spawnAllSeconds: 2000, //Miliseconds
     difficulty: 4,
-    loopedAmount: 0
+    loopedAmount: 0,
+    lastWaveTime: 0,
+    waveIntention: function() {
+        var timeElapsed = Viewport.curTime - EnemyWaves.lastWaveTime;
+        if(timeElapsed >= (EnemyWaves.spawnAllSeconds - EnemyWaves.difficulty * EnemyWaves.loopedAmount))
+        {
+            spawnEnemies();
+            EnemyWaves.loopedAmount++;
+            EnemyWaves.lastWaveTime = Viewport.curTime;
+        }
+    }
 };
+
+function spawnEnemies()
+{    
+    spawnRandomEnemy();
+    spawnRandomEnemy();
+    spawnRandomEnemy();
+}
 
 var MovablesEngine = {
     arrObjects: new Array(),
@@ -133,30 +150,16 @@ var Landscape = {
     //TODO: implement me
 }
 
-
-
-function getHexForRGB(red, green, blue)
-{
-    var hexValues = [ "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "A", "B", "C", "D", "E", "F"];
-    var colorArr = [red, green, blue];
-    var colorHex = "";
-    for (var i = 0; i < 3; i++)
-    {
-        if (colorArr[i] > 255) colorArr[i] = 255;
-        else if (colorArr[i] < 0) colorArr[i] = 0;
-        
-        colorHex += hexValues[Math.floor(colorArr[i] / 16)];
-        colorHex += hexValues[colorArr[i] % 16];
-    }
-    return colorHex;
-}
-
 var ProgramExecuter = {
     currentRunningInterval: -1,
     init: function()
     {
         Viewport.init();
         UserInput.init();
+        Menu.showMenu();
+    },
+    initGame: function ()
+    {
         Protagonist.init();
         setTimeout(ProgramExecuter.startLevelLoop, 200);
     },
@@ -170,66 +173,16 @@ var ProgramExecuter = {
         Protagonist.update();
         Viewport.update();
         MovablesEngine.doHitcheck();
-
-        var keysPressed = UserInput.getKeysSinceLastQuery();
-        for (var i = 0, curKeyPress; i < keysPressed.length; i++)
-        {
-            curKeyPress = keysPressed[i];
-  
-            if (37 == curKeyPress.keyCode)
-            {
-                Protagonist.userInputDirection(Math.PI, curKeyPress.timeElapsed);
-            }
-            else if (38 == curKeyPress.keyCode)
-            {
-                Protagonist.userInputDirection(Math.PI / 2 * 3, curKeyPress.timeElapsed);
-            }
-            else if (39 == curKeyPress.keyCode)
-            {
-                Protagonist.userInputDirection(0, curKeyPress.timeElapsed);
-            }
-            else if (40 == curKeyPress.keyCode)
-            {
-                Protagonist.userInputDirection(Math.PI / 2, curKeyPress.timeElapsed);
-            }
-            else if (32 == curKeyPress.keyCode)
-            {
-                Protagonist.spaceship.firingIntended();
-            }
-            else if (67 == curKeyPress.keyCode) {
-                Credits.ShowCredits();
-            }
-            else if (69 == curKeyPress.keyCode) {
-                Protagonist.spaceship.rotation = 0.5;
-            }
-            else if (81 == curKeyPress.keyCode) {
-                Protagonist.spaceship.rotation = Math.PI * 2 - 0.5;
-            }
-            else if (83 == curKeyPress.keyCode) {
-                spawnRandomEnemy();
-            }
-            else
-            {
-                Protagonist.spaceship.rotation = 0;
-                console.log("Key " + curKeyPress.keyCode + " was pressed");
-            }
-        }
+        UserInput.processInput();
+        EnemyWaves.waveIntention();
+    },
+    gameOver: function ()
+    {
+        alert("Game Over"); 
+        location.reload();
     }
 };
 
-function spawnEnemys()
-{    
-    spawnRandomEnemy();
-    spawnRandomEnemy();
-    spawnRandomEnemy();
-    WaveSettings.loopedAmount++;
-    
-    if(WaveSettings.spawnAllSeconds - WaveSettings.difficulty * WaveSettings.loopedAmount > 300)
-    {
-        clearInterval(myInterval);
-        myInterval = setInterval("spawnEnemys()", WaveSettings.spawnAllSeconds - WaveSettings.difficulty * WaveSettings.loopedAmount);
-    }
-}
 
 function spawnRandomEnemy()
 {
@@ -387,6 +340,47 @@ var UserInput = {
         UserInput.keysUsedQueue = newKeysUsedQueue;
 
 	return keysUsedArr;
+    },
+    processInput: function () {
+        var keysPressed = UserInput.getKeysSinceLastQuery();
+        for (var i = 0, curKeyPress; i < keysPressed.length; i++)
+        {
+            curKeyPress = keysPressed[i];
+            switch(curKeyPress.keyCode)
+            {
+              case 37:
+                Protagonist.userInputDirection(Math.PI, curKeyPress.timeElapsed);
+                break;
+              case 38:
+                Protagonist.userInputDirection(Math.PI / 2 * 3, curKeyPress.timeElapsed);
+                break;
+              case 39:
+                Protagonist.userInputDirection(0, curKeyPress.timeElapsed);
+                break;
+              case 40:
+                Protagonist.userInputDirection(Math.PI / 2, curKeyPress.timeElapsed);
+                break;
+              case 32:
+                Protagonist.spaceship.firingIntended();
+                break;
+              case 67:
+                Credits.ShowCredits();
+                break;
+              case 69:
+                Protagonist.spaceship.rotation = 0.5;
+                break;
+              case 81:
+                Protagonist.spaceship.rotation = Math.PI * 2 - 0.5;
+                break;
+              case 83:
+                spawnRandomEnemy();
+                break;
+              default :
+                Protagonist.spaceship.rotation = 0;
+                console.log("Key " + curKeyPress.keyCode + " was pressed");
+                break;
+            }
+        }
     }
 };
 
@@ -415,4 +409,3 @@ ParticlesTemplateRooster.addTemplate("reddot", curTemplate);
 
 setTimeout(ProgramExecuter.init, 150);
 
-var myInterval = setInterval("spawnEnemys()", WaveSettings.spawnAllSeconds - WaveSettings.difficulty * WaveSettings.loopedAmount);
