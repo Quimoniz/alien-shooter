@@ -33,6 +33,8 @@ var Protagonist = {
     lastDirectionSetTime: 0,
     minMomentumKeepDuration: 200,
     score: 0,
+    inputDirection: 0,
+    inputAmount: 0,
     init: function ()
     {
         Protagonist.spaceship = new Spaceship("Protagonist", "spieler_0", [3000, 7000], 500, 100),
@@ -45,8 +47,26 @@ var Protagonist = {
 
         Protagonist.spaceship.velocity = baseSpeed;
 
-        Protagonist.spaceship.moveDirection = direction;
-
+        
+        Protagonist.inputAmount++;
+        if(Protagonist.inputAmount > 1)
+        {
+                if((Protagonist.inputDirection == (Math.PI/2*3) && direction == 0) || (direction == (Math.PI/2*3) && Protagonist.inputDirection == 0))
+                {
+                        Protagonist.inputDirection = (( Math.PI*2 + Math.PI/2*3) / 2);
+                }
+                else {
+                    Protagonist.inputDirection +=direction;
+                    Protagonist.inputDirection = Protagonist.inputDirection/Protagonist.inputAmount;
+                }
+        }
+        else {
+            Protagonist.inputDirection +=direction;
+            Protagonist.inputDirection = Protagonist.inputDirection/Protagonist.inputAmount;
+        }
+        Protagonist.spaceship.moveDirection = 0;
+      //  console.log(Protagonist.inputDirection);
+        
         //Protagonist.spaceship.moveDirection = (Protagonist.spaceship.moveDirection + direction) / 2;
 //console.log("Protagonist.spaceship.velocity: " + Protagonist.spaceship.velocity);
 //console.log("Protagonist.spaceship.moveDirection: " + Protagonist.spaceship.moveDirection);
@@ -55,10 +75,15 @@ var Protagonist = {
     },
     update: function ()
     {
+        if(Protagonist.inputAmount > 0)
+            {
+                Protagonist.spaceship.moveDirection = Protagonist.inputDirection;
+                Protagonist.inputAmount = 0;
+            }
         var curTime = (new Date()).getTime();
         if ((curTime - Protagonist.lastDirectionSetTime) > Protagonist.minMomentumKeepDuration)
         {
-            Protagonist.spaceship.velocity *= 0.8;
+            Protagonist.spaceship.velocity *= 0.6;
         }
     }
     
@@ -343,6 +368,7 @@ var UserInput = {
     },
     processInput: function () {
         var keysPressed = UserInput.getKeysSinceLastQuery();
+        Protagonist.inputDirection = 0;
         for (var i = 0, curKeyPress; i < keysPressed.length; i++)
         {
             curKeyPress = keysPressed[i];
