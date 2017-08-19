@@ -4,8 +4,8 @@ function Spaceship (paramName, imgName, paramPosition, paramMass, paramInitialHe
     this.name = paramName;
     this.img = GraphicsRooster.getImgByName(imgName);
     this.position = paramPosition;
-    this.velocity = 0;
-    this.moveDirection = Math.PI / 2;
+    this.speed = 0;
+    this.moveDirection = new Vektor2(0, -1);
     this.curHealth = paramInitialHealth;
     this.maxHealth = paramInitialHealth;
     this.mass = paramMass;
@@ -14,16 +14,15 @@ function Spaceship (paramName, imgName, paramPosition, paramMass, paramInitialHe
     this.hitbox = [0,0,0,0];
     this.lastFired = 0;
     this.timeBetweenFiring = 250;
+
+
     this.engine = function()
     {
     }
     this.update = function(timeSinceLastFrame)
     {
         this.engine();
-
-        this.position[0] += Math.cos(this.moveDirection) * this.velocity * timeSinceLastFrame / 1000;
-     
-        this.position[1] += Math.sin(this.moveDirection) * this.velocity * timeSinceLastFrame / 1000 * -1;
+        this.position.Add(this.moveDirection.MultiplyNoChanges((this.speed * timeSinceLastFrame / 1000)));
         this.rotation += this.rotationSpeed * timeSinceLastFrame / 1000;
         if(this.rotation > (Math.PI * 2))
             this.rotation = this.rotation % (Math.PI * 2);
@@ -31,25 +30,25 @@ function Spaceship (paramName, imgName, paramPosition, paramMass, paramInitialHe
             this.rotation = (Math.PI * 2) - (this.rotation % (Math.PI * -2));
         if(this.id == Protagonist.spaceship.id)
         {
-            if(this.position[1] < Viewport.viewportOffset[1] + 700)
+            if(this.position.y < Viewport.viewportOffset[1] + 700)
             {
-                this.position[1] = Viewport.viewportOffset[1] + 700;
+                this.position.y = Viewport.viewportOffset[1] + 700;
             }
-            if(this.position[0] < Viewport.viewportOffset[0])
+            if(this.position.x < Viewport.viewportOffset[0])
             {
-                this.position[0] = Viewport.viewportOffset[0];
+                this.position.x = Viewport.viewportOffset[0];
             }
-            if(this.position[0] > (Viewport.viewportOffset[0] + Viewport.viewportSize[0]))
+            if(this.position.x > (Viewport.viewportOffset[0] + Viewport.viewportSize[0]))
             {
-                this.position[0] = Viewport.viewportOffset[0] + Viewport.viewportSize[0];
+                this.position.x = Viewport.viewportOffset[0] + Viewport.viewportSize[0];
             }
         }
         this.updateHitbox();
     }
     this.updateHitbox = function ()
     {
-        this.hitbox = [this.position[0] - this.img.width * 1000 / 2 / Viewport.pixelsPerThousand,
-                       this.position[1] - this.img.height* 1000 / 2 / Viewport.pixelsPerThousand,
+        this.hitbox = [this.position.x - this.img.width * 1000 / 2 / Viewport.pixelsPerThousand,
+                       this.position.y - this.img.height* 1000 / 2 / Viewport.pixelsPerThousand,
                        this.img.width * 1000 / Viewport.pixelsPerThousand,
                        this.img.height * 1000/ Viewport.pixelsPerThousand];
     }
@@ -60,7 +59,7 @@ function Spaceship (paramName, imgName, paramPosition, paramMass, paramInitialHe
         this.update(timeSinceLastFrame);
         
         var tileSource = [0,0,this.img.width,this.img.height];
-        var tileDest = [(this.position[0] - viewportOffset[0]) * Viewport.pixelsPerThousand / 1000, (Viewport.viewportSize[1] - this.position[1] + viewportOffset[1]) * Viewport.pixelsPerThousand / 1000, tileSource[2], tileSource[3]];
+        var tileDest = [(this.position.x - viewportOffset.x) * Viewport.pixelsPerThousand / 1000, (Viewport.viewportSize.y - this.position.y + viewportOffset.y) * Viewport.pixelsPerThousand / 1000, tileSource[2], tileSource[3]];
         var origPoints = [tileDest[0], tileDest[1]];
         if(this.rotation != 0) {
             tileDest[0] = Math.round(0 - this.img.width / 2);
@@ -84,7 +83,7 @@ function Spaceship (paramName, imgName, paramPosition, paramMass, paramInitialHe
             ctx.fillRect(origPoints[0] - 2, origPoints[1] - 10, 4, 20);
             ctx.fillRect(origPoints[0] - 10, origPoints[1] - 2, 20, 4);
             ctx.strokeStyle = "#0000FF";
-            ctx.strokeRect(Math.round((this.hitbox[0] - viewportOffset[0]) * Viewport.pixelsPerThousand / 1000), Math.round((this.hitbox[1] - viewportOffset[0]) * Viewport.pixelsPerThousand / 1000), this.img.width, this.img.height);
+            ctx.strokeRect(Math.round((this.hitbox[0] - viewportOffset.x) * Viewport.pixelsPerThousand / 1000), Math.round((this.hitbox[1] - viewportOffset.x) * Viewport.pixelsPerThousand / 1000), this.img.width, this.img.height);
         }
         
     }
@@ -176,11 +175,11 @@ function Spaceship (paramName, imgName, paramPosition, paramMass, paramInitialHe
                         }
                     }
                     if (false) {  //DEBUG draw cross-hair
-                        markerPosition[0] = Math.round(hitRect[0] + hitRect[2] / 2);
-                        markerPosition[1] = Math.round(hitRect[1] + hitRect[3] / 2);
+                        markerposition.x = Math.round(hitRect[0] + hitRect[2] / 2);
+                        markerposition.y = Math.round(hitRect[1] + hitRect[3] / 2);
                         Viewport.ctx.fillStyle = "#000080";
-                        Viewport.ctx.fillRect( Math.round((markerPosition[0] - Viewport.viewportOffset[0]) * Viewport.pixelsPerThousand / 1000)- 2, Math.round((markerPosition[1] - Viewport.viewportOffset[1]) * Viewport.pixelsPerThousand / 1000) - 10, 4, 20);
-                        Viewport.ctx.fillRect( Math.round((markerPosition[0] - Viewport.viewportOffset[0]) * Viewport.pixelsPerThousand / 1000) - 10, Math.round((markerPosition[1] - Viewport.viewportOffset[1]) * Viewport.pixelsPerThousand / 1000) - 2, 20, 4);
+                        Viewport.ctx.fillRect( Math.round((markerposition.x - Viewport.viewportOffset[0]) * Viewport.pixelsPerThousand / 1000)- 2, Math.round((markerposition.y - Viewport.viewportOffset[1]) * Viewport.pixelsPerThousand / 1000) - 10, 4, 20);
+                        Viewport.ctx.fillRect( Math.round((markerposition.x - Viewport.viewportOffset[0]) * Viewport.pixelsPerThousand / 1000) - 10, Math.round((markerposition.y - Viewport.viewportOffset[1]) * Viewport.pixelsPerThousand / 1000) - 2, 20, 4);
                     }
                 }
             }
@@ -198,12 +197,12 @@ function Spaceship (paramName, imgName, paramPosition, paramMass, paramInitialHe
         }
         for (var i = 0; i < numOfExplosions; i++)
         {
-            explosionParticle = MovablesEngine.createParticle("explosion", [this.position[0] + i / numOfExplosions * 3000, this.position[1]], this.moveDirection, this.velocity / 3);
+            explosionParticle = MovablesEngine.createParticle("explosion", new Vektor2(this.position.x + i / numOfExplosions * 3000, this.position.y), this.moveDirection, this.speed / 3);
             explosionParticle.template.minStepDuration = 70;
         }
         for (var i = 8 + Math.random() * 6; i > 0 ; i--)
         {
-            explosionParticle = MovablesEngine.createParticle("reddot", [this.position[0], this.position[1]], Math.PI * 2 * i / 10 + Math.random() * Math.PI * 2 / 10, 800 + Math.random() * 1500 + Math.random () * 1500);
+            explosionParticle = MovablesEngine.createParticle("reddot", new Vektor2(this.position.x, this.position.y), new Vektor2(Math.cos(Math.PI * 2 * i / 10 + Math.random() * Math.PI * 2 / 10), Math.sin(Math.PI * 2 * i / 10 + Math.random() * Math.PI * 2 / 10)), 800 + Math.random() * 1500 + Math.random () * 1500);
             explosionParticle.template.minStepDuration = 300;
         }
         
@@ -243,17 +242,17 @@ function Spaceship (paramName, imgName, paramPosition, paramMass, paramInitialHe
     {
         if("Protagonist" == this.name)
         {
-            var bullet = new Projectile(this, "bullet", [this.position[0]-440, this.position[1] +190], 25, this.rotation + Math.PI / 2, -5500);
+            var bullet = new Projectile(this, "bullet", new Vektor2(this.position.x-440, this.position.y +190), 25, this.rotation, this.speed + 2000);
             MovablesEngine.addObject(bullet);
-                bullet = new Projectile(this, "bullet", [this.position[0]+440, this.position[1] +190], 25, this.rotation + Math.PI / 2, -5500);
+                bullet = new Projectile(this, "bullet", new Vektor2(this.position.x+440, this.position.y +190), 25, this.rotation, this.speed + 2000);
             MovablesEngine.addObject(bullet);
         } else if("Boss" == this.name)
         {
-            var bullet = new Projectile(this, "bullet", [this.position[0], this.position[1] - 500], 25, this.rotation + Math.PI / 2 * 3, -2200);
+            var bullet = new Projectile(this, "bullet", new Vektor2(this.position.x, this.position.y - 500), 25, this.rotation, this.speed + 2200);
             MovablesEngine.addObject(bullet);
         } else
         {
-            var bullet = new Projectile(this, "bullet", [this.position[0], this.position[1]], 25, this.rotation, 2200);
+            var bullet = new Projectile(this, "bullet", new Vektor2(this.position.x, this.position.y), 25, this.rotation, this.speed + 2200);
             MovablesEngine.addObject(bullet);
         }
     }

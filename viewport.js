@@ -1,7 +1,7 @@
 var Viewport = {
     viewportCanvas: undefined,
-    viewportOffset: new Array(0,0),
-    viewportSize: new Array(20000, 12000),
+    viewportOffset: new Vektor2(0,0),
+    viewportSize: new Vektor2(20000, 12000),
     curTime: 0,
     ctx: undefined,
     pxWidth: 0,
@@ -35,8 +35,8 @@ var Viewport = {
         Viewport.pxHeight = newHeight; 
         Viewport.viewportCanvas.setAttribute("width" , Viewport.pxWidth);
         Viewport.viewportCanvas.setAttribute("height", Viewport.pxHeight);
-        Viewport.viewportSize[0] = Viewport.pxWidth  / Viewport.pixelsPerThousand * 1000;
-        Viewport.viewportSize[1] = Viewport.pxHeight / Viewport.pixelsPerThousand * 1000;
+        Viewport.viewportSize.x = Viewport.pxWidth  / Viewport.pixelsPerThousand * 1000;
+        Viewport.viewportSize.y = Viewport.pxHeight / Viewport.pixelsPerThousand * 1000;
     },
     debugTestingBackgroundPaint: function (curTime)
     {
@@ -59,7 +59,6 @@ var Viewport = {
     },
     update: function()
     {
-        
         Viewport.adjustIfResizedWindow();
         var curTime = (new Date()).getTime();
         Viewport.curTime = curTime;
@@ -72,7 +71,7 @@ var Viewport = {
         {
             timeSinceLastFrame = curTime - Viewport.lastFrameTime;
         }
-        Viewport.viewportOffset[1] += Viewport.movePerSecond * timeSinceLastFrame / 1000;
+        Viewport.viewportOffset.y += Viewport.movePerSecond * timeSinceLastFrame / 1000;
 
       
         
@@ -139,8 +138,8 @@ var Viewport = {
             if(movingObject.hitbox)
             {
                 var relationalHitbox = [
-                    movingObject.hitbox[0] - Viewport.viewportOffset[0],
-                    movingObject.hitbox[1] - Viewport.viewportOffset[1],
+                    movingObject.hitbox[0] - Viewport.viewportOffset.x,
+                    movingObject.hitbox[1] - Viewport.viewportOffset.y,
                     movingObject.hitbox[2],
                     movingObject.hitbox[3]
                 ];
@@ -172,10 +171,9 @@ var Viewport = {
                         intersectHitbox[i+2] = 0;
                     }
                 }
-                for (var i = 0; i < 2; i++)
-                {
-                    intersectHitbox[i] += Viewport.viewportOffset[i];
-                }
+                intersectHitbox[0] += Viewport.viewportOffset.x;
+                intersectHitbox[1] += Viewport.viewportOffset.y;
+                
                 
                 if (intersectHitbox[2] > 0 && intersectHitbox[3] > 0)
                 {
@@ -194,10 +192,10 @@ var Viewport = {
     return true;
             } else
             {
-                if(movingObject.position[0] > Viewport.viewportOffset[0] &&
-                   movingObject.position[0] < (Viewport.viewportOffset[0] + Viewport.viewportSize[0]) &&
-                   movingObject.position[1] > Viewport.viewportOffset[1] &&
-                   movingObject.position[1] < (Viewport.viewportOffset[1] + Viewport.viewportSize[1]))
+                if(movingObject.position.x > Viewport.viewportOffset.x &&
+                   movingObject.position.x < (Viewport.viewportOffset.x + Viewport.viewportSize.x) &&
+                   movingObject.position.y > Viewport.viewportOffset.y &&
+                   movingObject.position.y < (Viewport.viewportOffset.y + Viewport.viewportSize.y))
                 {
                     return true;
                 } else

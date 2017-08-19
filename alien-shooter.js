@@ -14,79 +14,45 @@ var UserInput;
 var objectIdCounter = 1;
 var particleIdCounter = 1;
 
-
 function flyingObject () {
     this.id = objectIdCounter++;
     this.name;
     this.position;
-    this.velocity;
-    this.moveDirection;
+    this.rotation;
     this.mass;
     this.rotation;
     this.rotationSpeed;
 }
-
-
 
 var Protagonist = {
     spaceship: undefined,
     lastDirectionSetTime: 0,
     minMomentumKeepDuration: 200,
     score: 0,
-    inputDirection: 0,
-    inputAmount: 0,
+    inputDirection: new Vektor2(0, 0),
+
     init: function ()
     {
-        Protagonist.spaceship = new Spaceship("Protagonist", "spieler_0", [3000, 7000], 500, 100),
+        Protagonist.spaceship = new Spaceship("Protagonist", "spieler_0", new Vektor2(3000, 7000), 500, 100);
+        Protagonist.spaceship.speed = 5000;
         MovablesEngine.addObject(Protagonist.spaceship);
     },
+
     userInputDirection: function (direction, elapsedTime)
     {
-        //console.log("userInputDirection(" + (direction * 360 / (Math.PI * 2)) + ", " + elapsedTime + " ms)");
-        var baseSpeed = 5000;
+        Protagonist.inputDirection.Add(direction);
 
-        Protagonist.spaceship.velocity = baseSpeed;
-
-        
-        Protagonist.inputAmount++;
-        if(Protagonist.inputAmount > 1)
-        {
-                if((Protagonist.inputDirection == (Math.PI/2*3) && direction == 0) || (direction == (Math.PI/2*3) && Protagonist.inputDirection == 0))
-                {
-                        Protagonist.inputDirection = (( Math.PI*2 + Math.PI/2*3) / 2);
-                }
-                else {
-                    Protagonist.inputDirection +=direction;
-                    Protagonist.inputDirection = Protagonist.inputDirection/Protagonist.inputAmount;
-                }
-        }
-        else {
-            Protagonist.inputDirection +=direction;
-            Protagonist.inputDirection = Protagonist.inputDirection/Protagonist.inputAmount;
-        }
-        Protagonist.spaceship.moveDirection = 0;
-      //  console.log(Protagonist.inputDirection);
-        
-        //Protagonist.spaceship.moveDirection = (Protagonist.spaceship.moveDirection + direction) / 2;
-//console.log("Protagonist.spaceship.velocity: " + Protagonist.spaceship.velocity);
-//console.log("Protagonist.spaceship.moveDirection: " + Protagonist.spaceship.moveDirection);
-//console.log("newMoveDirection: " + newMoveDirection.join(","));
         Protagonist.lastDirectionSetTime = (new Date()).getTime();
     },
+
     update: function ()
     {
-        if(Protagonist.inputAmount > 0)
-            {
-                Protagonist.spaceship.moveDirection = Protagonist.inputDirection;
-                Protagonist.inputAmount = 0;
-            }
         var curTime = (new Date()).getTime();
-        if ((curTime - Protagonist.lastDirectionSetTime) > Protagonist.minMomentumKeepDuration)
-        {
-            Protagonist.spaceship.velocity *= 0.6;
-        }
+
+        this.spaceship.moveDirection.Add(this.inputDirection.Normalize());
+
+        this.spaceship.moveDirection.Multiply(0.55);
     }
-    
 };
 
 var EnemyWaves =  {
@@ -190,15 +156,15 @@ var ProgramExecuter = {
     },
     startLevelLoop: function ()
     {
-	ProgramExecuter.oneTickLevelLoop();
+	    ProgramExecuter.oneTickLevelLoop();
         ProgramExecuter.currentRunningInterval = setInterval(ProgramExecuter.oneTickLevelLoop, 50);
     },
     oneTickLevelLoop: function ()
     {
-        Protagonist.update();
-        Viewport.update();
+        Viewport.update(); //Will also call update and paint on spaceship
         MovablesEngine.doHitcheck();
-        UserInput.processInput();
+        UserInput.processInput(); 
+        Protagonist.update();
         EnemyWaves.waveIntention();
     },
     gameOver: function ()
@@ -208,50 +174,55 @@ var ProgramExecuter = {
     }
 };
 
-
+//All the rotations are being converted to Vectors
 function spawnRandomEnemy()
 {
+
     var enemyType = Math.floor(Math.random() * 4 + 1);
     if(0 == Math.floor(Math.random() * 35))
     {
         enemyType = 5;
     }
-    var newEnemy = new Spaceship("Enemy " + enemyType, "gegner_" + enemyType, [Math.floor(Viewport.viewportOffset[0] + Math.random() * Viewport.viewportSize[0]), Math.floor(Viewport.viewportOffset[1] + Viewport.viewportSize[1] )], 10000, 100);
+    //Spawn a enemy with Name, Type and Position as Vector, Mass and Health
+    var newEnemy = new Spaceship("Enemy " + enemyType, "gegner_" + enemyType, new Vektor2(Math.floor(Viewport.viewportOffset.x + Math.random() * Viewport.viewportSize.x), Math.floor(Viewport.viewportOffset.y + Viewport.viewportSize.y )), 10000, 100);
     switch(enemyType)
     {
         case 1:
-            newEnemy.velocity = 1700;
+            newEnemy.speed = 1700;
             // move from left to right
             newEnemy.engine = function ()
             {
-                this.moveDirection = Math.PI * Math.round((Viewport.curTime + this.id * 5000) % 10000 / 5000);
-                this.velocity = Math.sin((Viewport.curTime + 2500 ) % 5000 * Math.PI / 5000) * 4000;
+                this.moveDirection.x = Math.cos(Math.PI * Math.round((Viewport.curTime + this.id * 5000) % 10000 / 5000));
+                this.moveDirection.y = Math.sin(Math.PI * Math.round((Viewport.curTime + this.id * 5000) % 10000 / 5000));
             }
             break;
         case 2:
-            newEnemy.velocity = 1100;
+            newEnemy.speed = 1100;
             // move in circle
             newEnemy.engine = function ()
             {
-                this.moveDirection = Math.PI / 4 * ((Viewport.curTime + this.id * 4000) % 32000 / 4000);
+                this.moveDirection.x = Math.cos(Math.PI / 4 * ((Viewport.curTime + this.id * 4000) % 32000 / 4000));
+                this.moveDirection.y = Math.sin(Math.PI / 4 * ((Viewport.curTime + this.id * 4000) % 32000 / 4000));
                 this.rotation = Math.PI * 2 + Math.PI / 2 * 3 - Math.PI / 4 * (Viewport.curTime % 32000 / 4000);
             }
             break;
         case 3:
-            newEnemy.velocity = 2000;
+            newEnemy.speed = 2000;
             // move octagonally
             newEnemy.engine = function ()
             {
-                this.moveDirection = Math.PI / 4 * Math.round(7 - ((Viewport.curTime + this.id * 1000) % 8000 / 1000));
+                this.moveDirection.x = Math.cos(Math.PI / 4 * Math.round(7 - ((Viewport.curTime + this.id * 1000) % 8000 / 1000)));
+                this.moveDirection.y = Math.sin(Math.PI / 4 * Math.round(7 - ((Viewport.curTime + this.id * 1000) % 8000 / 1000)));
             }
             break;
         case 4:
-            newEnemy.velocity = 450;
+            newEnemy.speed = 450;
             newEnemy.initHealth(200);
             // move up and down
             newEnemy.engine = function ()
             {
-                this.moveDirection = Math.PI / 2 * (Math.round((Viewport.curTime + this.id * 5000) % 10000 / 5000) * 2 + 1);
+                this.moveDirection.x = Math.cos(Math.PI / 2 * (Math.round((Viewport.curTime + this.id * 5000) % 10000 / 5000) * 2 + 1));
+                this.moveDirection.y = Math.sin(Math.PI / 2 * (Math.round((Viewport.curTime + this.id * 5000) % 10000 / 5000) * 2 + 1));
             }
             break;
         case 5:
@@ -261,9 +232,10 @@ function spawnRandomEnemy()
             newEnemy.initHealth(500);
             newEnemy.engine = function ()
             {
-                this.moveDirection = 
+                //Needs to be comented out to avoid crashes
+                /*this.moveDirection = 
                 this.velocity
-                this.firingIntended();
+                this.firingIntended();*/
             }
             break;
     }
@@ -368,23 +340,23 @@ var UserInput = {
     },
     processInput: function () {
         var keysPressed = UserInput.getKeysSinceLastQuery();
-        Protagonist.inputDirection = 0;
+        Protagonist.inputDirection = new Vektor2(0, 0);
         for (var i = 0, curKeyPress; i < keysPressed.length; i++)
         {
             curKeyPress = keysPressed[i];
             switch(curKeyPress.keyCode)
             {
               case 37:
-                Protagonist.userInputDirection(Math.PI, curKeyPress.timeElapsed);
+                Protagonist.userInputDirection(new Vektor2(-1, 0), curKeyPress.timeElapsed);
                 break;
               case 38:
-                Protagonist.userInputDirection(Math.PI / 2 * 3, curKeyPress.timeElapsed);
+                Protagonist.userInputDirection(new Vektor2(0, 1), curKeyPress.timeElapsed);
                 break;
               case 39:
-                Protagonist.userInputDirection(0, curKeyPress.timeElapsed);
+                Protagonist.userInputDirection(new Vektor2(1, 0), curKeyPress.timeElapsed);
                 break;
               case 40:
-                Protagonist.userInputDirection(Math.PI / 2, curKeyPress.timeElapsed);
+                Protagonist.userInputDirection(new Vektor2(0, -1), curKeyPress.timeElapsed);
                 break;
               case 32:
                 Protagonist.spaceship.firingIntended();
@@ -393,17 +365,20 @@ var UserInput = {
                 Credits.ShowCredits();
                 break;
               case 69:
-                Protagonist.spaceship.rotation = 0.5;
-                break;
+              //Takes care of pressing E
+                Protagonist.spaceship.rotation = Math.atan2(1, 1);
+                break; 
               case 81:
-                Protagonist.spaceship.rotation = Math.PI * 2 - 0.5;
+              //Takes care of pressing Q
+                Protagonist.spaceship.rotation = Math.atan2(1, 1) * 7;
                 break;
               case 83:
                 spawnRandomEnemy();
                 break;
               default :
-                Protagonist.spaceship.rotation = 0;
-                console.log("Key " + curKeyPress.keyCode + " was pressed");
+              //Takes care of pressing W
+                Protagonist.spaceship.rotation = Math.atan2(0, 0);
+                //console.log("Key " + curKeyPress.keyCode + " was pressed");
                 break;
             }
         }

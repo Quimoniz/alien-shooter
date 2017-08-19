@@ -6,15 +6,14 @@ function Projectile (paramOriginSpaceship, imgName, paramPosition, paramPower, p
     this.img = GraphicsRooster.getImgByName(imgName);
     this.position = paramPosition;
     this.power = paramPower;
-    this.moveDirection = paramMoveDirection;
-    this.velocity = paramVelocity;
-    this.rotation = paramMoveDirection + Math.PI / 2 * 3;
+    this.moveDirection = new Vektor2(Math.sin(paramMoveDirection), Math.cos(paramMoveDirection));
+    this.speed = paramVelocity;
+    this.rotation = paramMoveDirection;
     this.rotationSpeed = 0;
-    this.hitbox = [0,0,0,0];
+    this.hitbox = [0,0,0,0]; 
     this.update = function(timeSinceLastFrame)
     { /* same as for spaceship */
-        this.position[0] += Math.cos(this.moveDirection) * this.velocity * timeSinceLastFrame / 1000;
-        this.position[1] += Math.sin(this.moveDirection) * this.velocity * timeSinceLastFrame / 1000 * -1;
+        this.position.Add(this.moveDirection.Normalize().MultiplyNoChanges((this.speed * timeSinceLastFrame / 1000)));
         this.rotation += this.rotationSpeed * timeSinceLastFrame / 1000;
         if(this.rotation > (Math.PI * 2))
             this.rotation = this.rotation % (Math.PI * 2);
@@ -24,8 +23,8 @@ function Projectile (paramOriginSpaceship, imgName, paramPosition, paramPower, p
     } 
     this.updateHitbox = function ()
     {
-        this.hitbox = [this.position[0] - this.img.width * 1000 / 2 / Viewport.pixelsPerThousand,
-                       this.position[1] - this.img.height* 1000 / 2 / Viewport.pixelsPerThousand,
+        this.hitbox = [this.position.x - this.img.width * 1000 / 2 / Viewport.pixelsPerThousand,
+                       this.position.y - this.img.height* 1000 / 2 / Viewport.pixelsPerThousand,
                        this.img.width * 1000 / Viewport.pixelsPerThousand,
                        this.img.height * 1000/ Viewport.pixelsPerThousand];
     }
@@ -35,7 +34,7 @@ function Projectile (paramOriginSpaceship, imgName, paramPosition, paramPower, p
     { /* same as for spaceship */
         this.update(timeSinceLastFrame);
         var tileSource = [0,0,this.img.width,this.img.height];
-        var tileDest = [(this.position[0] - viewportOffset[0]) * Viewport.pixelsPerThousand / 1000, (Viewport.viewportSize[1] - this.position[1] + viewportOffset[1]) * Viewport.pixelsPerThousand / 1000, tileSource[2], tileSource[3]];
+        var tileDest = [(this.position.x - viewportOffset.x) * Viewport.pixelsPerThousand / 1000, (Viewport.viewportSize.y - this.position.y + viewportOffset.y) * Viewport.pixelsPerThousand / 1000, tileSource[2], tileSource[3]];
         var origPoints = [tileDest[0], tileDest[1]];
         if(this.rotation != 0) {
             tileDest[0] = Math.round(0 - this.img.width / 2);
@@ -100,10 +99,8 @@ function Projectile (paramOriginSpaceship, imgName, paramPosition, paramPower, p
                     for(var i = Math.floor(Math.random() * 5); i >= 0; i--)
                     {
                         var particleMoveDirection = this.moveDirection;
-                        particleMoveDirection += Math.random() * 2 - 1;
-                        if(particleMoveDirection < 0)
-                            particleMoveDirection = Math.PI * 2 - particleMoveDirection % (Math.PI * -2)
-                        MovablesEngine.createParticle("reddot", [this.position[0], this.position[1]], particleMoveDirection, this.velocity / 2);
+                        particleMoveDirection.Add(Math.random() * 2, Math.random() * 2);
+                        MovablesEngine.createParticle("reddot", new Vektor2(this.position.x, this.position.y), particleMoveDirection, this.speed / 20);
                     }
                     this.destroy();
                 }
