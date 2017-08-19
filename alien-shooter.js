@@ -29,11 +29,11 @@ var Protagonist = {
     lastDirectionSetTime: 0,
     minMomentumKeepDuration: 200,
     score: 0,
-    inputDirection: new Vektor2(0, 0),
+    inputDirection: new Vector2(0, 0),
 
     init: function ()
     {
-        Protagonist.spaceship = new Spaceship("Protagonist", "spieler_0", new Vektor2(3000, 7000), 500, 100);
+        Protagonist.spaceship = new Spaceship("Protagonist", "spieler_0", new Vector2(3000, 7000), 500, 100);
         Protagonist.spaceship.speed = 5000;
         MovablesEngine.addObject(Protagonist.spaceship);
     },
@@ -49,7 +49,7 @@ var Protagonist = {
     {
         var curTime = (new Date()).getTime();
 
-        this.spaceship.moveDirection.Add(this.inputDirection.Normalize());
+        this.spaceship.moveDirection.Add(this.inputDirection.Normalized);
 
         this.spaceship.moveDirection.Multiply(0.55);
     }
@@ -184,7 +184,7 @@ function spawnRandomEnemy()
         enemyType = 5;
     }
     //Spawn a enemy with Name, Type and Position as Vector, Mass and Health
-    var newEnemy = new Spaceship("Enemy " + enemyType, "gegner_" + enemyType, new Vektor2(Math.floor(Viewport.viewportOffset.x + Math.random() * Viewport.viewportSize.x), Math.floor(Viewport.viewportOffset.y + Viewport.viewportSize.y )), 10000, 100);
+    var newEnemy = new Spaceship("Enemy " + enemyType, "gegner_" + enemyType, new Vector2(Math.floor(Viewport.viewportOffset.x + Math.random() * Viewport.viewportSize.x), Math.floor(Viewport.viewportOffset.y + Viewport.viewportSize.y )), 10000, 100);
     switch(enemyType)
     {
         case 1:
@@ -192,8 +192,7 @@ function spawnRandomEnemy()
             // move from left to right
             newEnemy.engine = function ()
             {
-                this.moveDirection.x = Math.cos(Math.PI * Math.round((Viewport.curTime + this.id * 5000) % 10000 / 5000));
-                this.moveDirection.y = Math.sin(Math.PI * Math.round((Viewport.curTime + this.id * 5000) % 10000 / 5000));
+                this.moveDirection = Vector2.RadToVector(Math.PI * Math.round((Viewport.curTime + this.id * 5000) % 10000 / 5000)).Normalized;
             }
             break;
         case 2:
@@ -201,8 +200,7 @@ function spawnRandomEnemy()
             // move in circle
             newEnemy.engine = function ()
             {
-                this.moveDirection.x = Math.cos(Math.PI / 4 * ((Viewport.curTime + this.id * 4000) % 32000 / 4000));
-                this.moveDirection.y = Math.sin(Math.PI / 4 * ((Viewport.curTime + this.id * 4000) % 32000 / 4000));
+                this.moveDirection = Vector2.RadToVector((Math.PI / 4 * ((Viewport.curTime + this.id * 4000) % 32000 / 4000))).Normalized;
                 this.rotation = Math.PI * 2 + Math.PI / 2 * 3 - Math.PI / 4 * (Viewport.curTime % 32000 / 4000);
             }
             break;
@@ -211,8 +209,7 @@ function spawnRandomEnemy()
             // move octagonally
             newEnemy.engine = function ()
             {
-                this.moveDirection.x = Math.cos(Math.PI / 4 * Math.round(7 - ((Viewport.curTime + this.id * 1000) % 8000 / 1000)));
-                this.moveDirection.y = Math.sin(Math.PI / 4 * Math.round(7 - ((Viewport.curTime + this.id * 1000) % 8000 / 1000)));
+                this.moveDirection = Vector2.RadToVector(Math.PI / 4 * Math.round(7 - ((Viewport.curTime + this.id * 1000) % 8000 / 1000))).Normalized;
             }
             break;
         case 4:
@@ -221,8 +218,7 @@ function spawnRandomEnemy()
             // move up and down
             newEnemy.engine = function ()
             {
-                this.moveDirection.x = Math.cos(Math.PI / 2 * (Math.round((Viewport.curTime + this.id * 5000) % 10000 / 5000) * 2 + 1));
-                this.moveDirection.y = Math.sin(Math.PI / 2 * (Math.round((Viewport.curTime + this.id * 5000) % 10000 / 5000) * 2 + 1));
+                this.moveDirection = Vector2.RadToVector(Math.PI / 2 * (Math.round((Viewport.curTime + this.id * 5000) % 10000 / 5000) * 2 + 1)).Normalized;
             }
             break;
         case 5:
@@ -340,23 +336,23 @@ var UserInput = {
     },
     processInput: function () {
         var keysPressed = UserInput.getKeysSinceLastQuery();
-        Protagonist.inputDirection = new Vektor2(0, 0);
+        Protagonist.inputDirection = new Vector2(0, 0);
         for (var i = 0, curKeyPress; i < keysPressed.length; i++)
         {
             curKeyPress = keysPressed[i];
             switch(curKeyPress.keyCode)
             {
               case 37:
-                Protagonist.userInputDirection(new Vektor2(-1, 0), curKeyPress.timeElapsed);
+                Protagonist.userInputDirection(new Vector2(-1, 0), curKeyPress.timeElapsed);
                 break;
               case 38:
-                Protagonist.userInputDirection(new Vektor2(0, 1), curKeyPress.timeElapsed);
+                Protagonist.userInputDirection(new Vector2(0, 1), curKeyPress.timeElapsed);
                 break;
               case 39:
-                Protagonist.userInputDirection(new Vektor2(1, 0), curKeyPress.timeElapsed);
+                Protagonist.userInputDirection(new Vector2(1, 0), curKeyPress.timeElapsed);
                 break;
               case 40:
-                Protagonist.userInputDirection(new Vektor2(0, -1), curKeyPress.timeElapsed);
+                Protagonist.userInputDirection(new Vector2(0, -1), curKeyPress.timeElapsed);
                 break;
               case 32:
                 Protagonist.spaceship.firingIntended();
@@ -366,18 +362,18 @@ var UserInput = {
                 break;
               case 69:
               //Takes care of pressing E
-                Protagonist.spaceship.rotation = Math.atan2(1, 1);
+                Protagonist.spaceship.rotation = Vector2.VectorToRad(1, 1);
                 break; 
               case 81:
               //Takes care of pressing Q
-                Protagonist.spaceship.rotation = Math.atan2(1, 1) * 7;
+                Protagonist.spaceship.rotation = Vector2.VectorToRad(1, 1) * 7;
                 break;
               case 83:
                 spawnRandomEnemy();
                 break;
               default :
               //Takes care of pressing W
-                Protagonist.spaceship.rotation = Math.atan2(0, 0);
+                Protagonist.spaceship.rotation = Vector2.VectorToRad(0, 0);
                 //console.log("Key " + curKeyPress.keyCode + " was pressed");
                 break;
             }

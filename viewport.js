@@ -1,7 +1,7 @@
 var Viewport = {
     viewportCanvas: undefined,
-    viewportOffset: new Vektor2(0,0),
-    viewportSize: new Vektor2(20000, 12000),
+    viewportOffset: new Vector2(0,0),
+    viewportSize: new Vector2(20000, 12000),
     curTime: 0,
     ctx: undefined,
     pxWidth: 0,

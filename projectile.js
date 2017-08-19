@@ -6,14 +6,14 @@ function Projectile (paramOriginSpaceship, imgName, paramPosition, paramPower, p
     this.img = GraphicsRooster.getImgByName(imgName);
     this.position = paramPosition;
     this.power = paramPower;
-    this.moveDirection = new Vektor2(Math.sin(paramMoveDirection), Math.cos(paramMoveDirection));
+    this.moveDirection = new Vector2(Math.sin(paramMoveDirection), Math.cos(paramMoveDirection));
     this.speed = paramVelocity;
     this.rotation = paramMoveDirection;
     this.rotationSpeed = 0;
     this.hitbox = [0,0,0,0]; 
     this.update = function(timeSinceLastFrame)
     { /* same as for spaceship */
-        this.position.Add(this.moveDirection.Normalize().MultiplyNoChanges((this.speed * timeSinceLastFrame / 1000)));
+        this.position.Add(this.moveDirection.Normalized.MultiplyNoChanges((this.speed * timeSinceLastFrame / 1000)));
         this.rotation += this.rotationSpeed * timeSinceLastFrame / 1000;
         if(this.rotation > (Math.PI * 2))
             this.rotation = this.rotation % (Math.PI * 2);
@@ -100,7 +100,7 @@ function Projectile (paramOriginSpaceship, imgName, paramPosition, paramPower, p
                     {
                         var particleMoveDirection = this.moveDirection;
                         particleMoveDirection.Add(Math.random() * 2, Math.random() * 2);
-                        MovablesEngine.createParticle("reddot", new Vektor2(this.position.x, this.position.y), particleMoveDirection, this.speed / 20);
+                        MovablesEngine.createParticle("reddot", new Vector2(this.position.x, this.position.y), particleMoveDirection, this.speed / 20);
                     }
                     this.destroy();
                 }

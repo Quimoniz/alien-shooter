@@ -5,7 +5,7 @@ function Spaceship (paramName, imgName, paramPosition, paramMass, paramInitialHe
     this.img = GraphicsRooster.getImgByName(imgName);
     this.position = paramPosition;
     this.speed = 0;
-    this.moveDirection = new Vektor2(0, -1);
+    this.moveDirection = new Vector2(0, -1);
     this.curHealth = paramInitialHealth;
     this.maxHealth = paramInitialHealth;
     this.mass = paramMass;
@@ -197,12 +197,12 @@ function Spaceship (paramName, imgName, paramPosition, paramMass, paramInitialHe
         }
         for (var i = 0; i < numOfExplosions; i++)
         {
-            explosionParticle = MovablesEngine.createParticle("explosion", new Vektor2(this.position.x + i / numOfExplosions * 3000, this.position.y), this.moveDirection, this.speed / 3);
+            explosionParticle = MovablesEngine.createParticle("explosion", new Vector2(this.position.x + i / numOfExplosions * 3000, this.position.y), this.moveDirection, this.speed / 3);
             explosionParticle.template.minStepDuration = 70;
         }
         for (var i = 8 + Math.random() * 6; i > 0 ; i--)
         {
-            explosionParticle = MovablesEngine.createParticle("reddot", new Vektor2(this.position.x, this.position.y), new Vektor2(Math.cos(Math.PI * 2 * i / 10 + Math.random() * Math.PI * 2 / 10), Math.sin(Math.PI * 2 * i / 10 + Math.random() * Math.PI * 2 / 10)), 800 + Math.random() * 1500 + Math.random () * 1500);
+            explosionParticle = MovablesEngine.createParticle("reddot", new Vector2(this.position.x, this.position.y), Vector2.RadToVector(Math.PI * 2 * i / 10 + Math.random() * Math.PI * 2 / 10), 800 + Math.random() * 1500 + Math.random () * 1500);
             explosionParticle.template.minStepDuration = 300;
         }
         
@@ -242,17 +242,17 @@ function Spaceship (paramName, imgName, paramPosition, paramMass, paramInitialHe
     {
         if("Protagonist" == this.name)
         {
-            var bullet = new Projectile(this, "bullet", new Vektor2(this.position.x-440, this.position.y +190), 25, this.rotation, this.speed + 2000);
+            var bullet = new Projectile(this, "bullet", new Vector2(this.position.x-440, this.position.y +190), 25, this.rotation, this.speed + 2000);
             MovablesEngine.addObject(bullet);
-                bullet = new Projectile(this, "bullet", new Vektor2(this.position.x+440, this.position.y +190), 25, this.rotation, this.speed + 2000);
+                bullet = new Projectile(this, "bullet", new Vector2(this.position.x+440, this.position.y +190), 25, this.rotation, this.speed + 2000);
             MovablesEngine.addObject(bullet);
         } else if("Boss" == this.name)
         {
-            var bullet = new Projectile(this, "bullet", new Vektor2(this.position.x, this.position.y - 500), 25, this.rotation, this.speed + 2200);
+            var bullet = new Projectile(this, "bullet", new Vector2(this.position.x, this.position.y - 500), 25, this.rotation, this.speed + 2200);
             MovablesEngine.addObject(bullet);
         } else
         {
-            var bullet = new Projectile(this, "bullet", new Vektor2(this.position.x, this.position.y), 25, this.rotation, this.speed + 2200);
+            var bullet = new Projectile(this, "bullet", new Vector2(this.position.x, this.position.y), 25, this.rotation, this.speed + 2200);
             MovablesEngine.addObject(bullet);
         }
     }
