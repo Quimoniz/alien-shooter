@@ -104,6 +104,11 @@ class Vector2
         console.log(optionalText + ": (" + this.x + "|" + this.y + ")");
     }
 
+    clone()
+    {
+        return new Vector2(this.x, this.y);
+    }
+
     static RadToVector(rad)
     {
         return new Vector2(Math.cos(rad), Math.sin(rad));

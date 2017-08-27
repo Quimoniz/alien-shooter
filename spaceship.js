@@ -30,17 +30,17 @@ function Spaceship (paramName, imgName, paramPosition, paramMass, paramInitialHe
             this.rotation = (Math.PI * 2) - (this.rotation % (Math.PI * -2));
         if(this.id == Protagonist.spaceship.id)
         {
-            if(this.position.y < Viewport.viewportOffset[1] + 700)
+            if(this.position.y < Viewport.viewportOffset.y + 700)
             {
-                this.position.y = Viewport.viewportOffset[1] + 700;
+                this.position.y = Viewport.viewportOffset.y + 700;
             }
-            if(this.position.x < Viewport.viewportOffset[0])
+            if(this.position.x < Viewport.viewportOffset.x)
             {
-                this.position.x = Viewport.viewportOffset[0];
+                this.position.x = Viewport.viewportOffset.x;
             }
-            if(this.position.x > (Viewport.viewportOffset[0] + Viewport.viewportSize[0]))
+            if(this.position.x > (Viewport.viewportOffset.x + Viewport.viewportSize.x))
             {
-                this.position.x = Viewport.viewportOffset[0] + Viewport.viewportSize[0];
+                this.position.x = Viewport.viewportOffset.x + Viewport.viewportSize.x;
             }
         }
         this.updateHitbox();
@@ -242,17 +242,17 @@ function Spaceship (paramName, imgName, paramPosition, paramMass, paramInitialHe
     {
         if("Protagonist" == this.name)
         {
-            var bullet = new Projectile(this, "bullet", new Vector2(this.position.x-440, this.position.y +190), 25, this.rotation, this.speed + 2000);
+            var bullet = new Projectile(this, "bullet", new Vector2(this.position.x-440, this.position.y +190), 25, this.rotation * -1 + Math.PI /2, this.speed + 2000);
             MovablesEngine.addObject(bullet);
-                bullet = new Projectile(this, "bullet", new Vector2(this.position.x+440, this.position.y +190), 25, this.rotation, this.speed + 2000);
+                bullet = new Projectile(this, "bullet", new Vector2(this.position.x+440, this.position.y +190), 25, this.rotation * -1 + Math.PI /2, this.speed + 2000);
             MovablesEngine.addObject(bullet);
         } else if("Boss" == this.name)
         {
-            var bullet = new Projectile(this, "bullet", new Vector2(this.position.x, this.position.y - 500), 25, this.rotation, this.speed + 2200);
+            var bullet = new Projectile(this, "bullet", new Vector2(this.position.x, this.position.y - 500), 25, this.rotation + Math.PI/2 * 3, this.speed + 2200);
             MovablesEngine.addObject(bullet);
         } else
         {
-            var bullet = new Projectile(this, "bullet", new Vector2(this.position.x, this.position.y), 25, this.rotation, this.speed + 2200);
+            var bullet = new Projectile(this, "bullet", new Vector2(this.position.x, this.position.y), 25, this.rotation * -1 + Math.PI /2, this.speed + 2200);
             MovablesEngine.addObject(bullet);
         }
     }

@@ -228,10 +228,7 @@ function spawnRandomEnemy()
             newEnemy.initHealth(500);
             newEnemy.engine = function ()
             {
-                //Needs to be comented out to avoid crashes
-                /*this.moveDirection = 
-                this.velocity
-                this.firingIntended();*/
+                this.firingIntended();
             }
             break;
     }
