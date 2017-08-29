@@ -64,7 +64,7 @@ var Viewport = {
         Viewport.curTime = curTime;
 
 //TESTING CODE, to be REMOVED in alpha stage
-        Viewport.debugTestingBackgroundPaint(curTime);
+//Viewport.debugTestingBackgroundPaint(curTime);
 
         var timeSinceLastFrame = 0;
         if ( Viewport.wasRunning  )

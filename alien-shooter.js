@@ -137,8 +137,34 @@ var MovablesEngine = {
 };
 
 var Landscape = {
-    tilesetSrc: ""
-    //TODO: implement me
+    tilesetSrc: "", //TODO: implement me
+    tileSize: new Vector2(50, 50),
+    paint: function ()
+    {
+        var startX = Math.floor(Viewport.viewportOffset.x * Viewport.pixelsPerThousand / 1000 / Landscape.tileSize.x);
+        var endX =  Math.ceil((Viewport.viewportOffset.x + Viewport.viewportSize.x) * Viewport.pixelsPerThousand / 1000 / Landscape.tileSize.x);
+        var startY = Math.floor(Viewport.viewportOffset.y * Viewport.pixelsPerThousand / 1000 / Landscape.tileSize.y);
+        var endY = Math.ceil((Viewport.viewportOffset.y + Viewport.viewportSize.y) * Viewport.pixelsPerThousand / 1000 / Landscape.tileSize.y);
+        var offsetX = startX * Landscape.tileSize.x - Viewport.viewportOffset.x * Viewport.pixelsPerThousand / 1000;
+        var offsetY = startY * Landscape.tileSize.y - Viewport.viewportOffset.y * Viewport.pixelsPerThousand / 1000;
+//console.log("X range:" + startX + " to " + endX);
+//console.log("Y range:" + startY + " to " + endY);
+        var destX = 0, destY = 0;
+        for(var curY = startY; curY <= endY; curY++)
+        {
+            for(var curX = startX; curX <= endX; curX++)
+            {
+                Viewport.ctx.fillStyle= "#" + getHexForRGB(Math.floor((255/endX*curX) % 255),225,225);
+                destX = Math.round(offsetX + (curX - startX) * Landscape.tileSize.x);
+                destY = Math.round(Viewport.pxHeight - (curY - startY) * Landscape.tileSize.y - Landscape.tileSize.y + (offsetY * -1));
+                Viewport.ctx.fillRect(destX,
+                                        destY,
+                                        50,50);
+//console.log("Destination: " + destX + "|" + destY );
+            }
+        }
+    }
+
 }
 
 var ProgramExecuter = {
@@ -161,6 +187,7 @@ var ProgramExecuter = {
     },
     oneTickLevelLoop: function ()
     {
+		Landscape.paint();
         Viewport.update(); //Will also call update and paint on spaceship
         MovablesEngine.doHitcheck();
         UserInput.processInput(); 
