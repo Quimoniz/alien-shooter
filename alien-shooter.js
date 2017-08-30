@@ -138,7 +138,12 @@ var MovablesEngine = {
 
 var Landscape = {
     tilesetSrc: "", //TODO: implement me
+    tilesetImg: undefined,
     tileSize: new Vector2(50, 50),
+    init: function ()
+    {
+        Landscape.tilesetImg = GraphicsRooster.getImgByName("grass_0");
+    },
     paint: function ()
     {
         var startX = Math.floor(Viewport.viewportOffset.x * Viewport.pixelsPerThousand / 1000 / Landscape.tileSize.x);
@@ -150,6 +155,8 @@ var Landscape = {
 //console.log("X range:" + startX + " to " + endX);
 //console.log("Y range:" + startY + " to " + endY);
         var destX = 0, destY = 0;
+        var srcX = 0, srcY;
+        
         for(var curY = startY; curY <= endY; curY++)
         {
             for(var curX = startX; curX <= endX; curX++)
@@ -157,10 +164,25 @@ var Landscape = {
                 Viewport.ctx.fillStyle= "#" + getHexForRGB(Math.floor((255/endX*curX) % 255),225,225);
                 destX = Math.round(offsetX + (curX - startX) * Landscape.tileSize.x);
                 destY = Math.round(Viewport.pxHeight - (curY - startY) * Landscape.tileSize.y - Landscape.tileSize.y + (offsetY * -1));
-                Viewport.ctx.fillRect(destX,
-                                        destY,
-                                        50,50);
+                //this is supposed to be read out from array Landscape.map
+                //TODO: implement a generator function to generate new tiles on-the-fly
+                srcX=curX%3*Landscape.tileSize.x;
+                srcY=curY%3*Landscape.tileSize.y;
+                //Viewport.ctx.fillRect(destX,
+                //                        destY,
+                //                        50,50);
 //console.log("Destination: " + destX + "|" + destY );
+                Viewport.ctx.drawImage(
+                  Landscape.tilesetImg.src,
+                  srcX,
+                  srcY,
+                  Landscape.tileSize.x,
+                  Landscape.tileSize.y,
+                  destX,
+                  destY,
+                  Landscape.tileSize.x,
+                  Landscape.tileSize.y
+                );
             }
         }
     }
@@ -171,6 +193,7 @@ var ProgramExecuter = {
     currentRunningInterval: -1,
     init: function()
     {
+        Landscape.init();
         Viewport.init();
         UserInput.init();
         Menu.showMenu();
@@ -419,6 +442,7 @@ GraphicsRooster.addImage("spieler_0", "spieler_schiff_0.png", 70, 70);
 GraphicsRooster.addImage("bullet", "bullet.png", 5, 20); 
 GraphicsRooster.addImage("particle_explosion", "sample_explosion_from_vampires-dawn-2.png", 480, 288);
 GraphicsRooster.addImage("particle_dot", "particle-dot.png", 96, 16);
+GraphicsRooster.addImage("grass_0","landscape-grass.png", 50, 50);
 var curTemplate = new ParticleTemplate("particle_explosion");
 curTemplate.addAnimStepsPerRow([96,96],[0,0],5);
 curTemplate.addAnimStepsPerRow([96,96],[0,96],5);
