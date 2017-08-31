@@ -242,6 +242,20 @@ var Landscape = {
             }
           } else if(belowTile[0] == 2 && belowTile[1] == 1)
           {
+            if(0 == j)
+            {
+              newTile = Landscape.oneElementOf([[2,0],[2,1]]);
+            } else
+            {
+              if(Landscape.map[i][j-1][1] == 0)
+              {
+                newTile = [2,0];
+              } else
+              {
+                newTile = [2,1];
+              }
+            }
+
             newTile = Landscape.oneElementOf([[2,0],[2,1]]);
           } else if(belowTile[0] == 0 && belowTile[1] == 2)
           {
