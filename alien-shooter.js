@@ -140,6 +140,7 @@ var Landscape = {
     tilesetSrc: "", //TODO: implement me
     tilesetImg: undefined,
     tileSize: new Vector2(50, 50),
+    map: new Array(),
     init: function ()
     {
         Landscape.tilesetImg = GraphicsRooster.getImgByName("grass_0");
@@ -156,9 +157,11 @@ var Landscape = {
 //console.log("Y range:" + startY + " to " + endY);
         var destX = 0, destY = 0;
         var srcX = 0, srcY;
+
         
         for(var curY = startY; curY <= endY; curY++)
         {
+            Landscape.provideMapLine(curY, startX, endX);
             for(var curX = startX; curX <= endX; curX++)
             {
                 Viewport.ctx.fillStyle= "#" + getHexForRGB(Math.floor((255/endX*curX) % 255),225,225);
@@ -166,8 +169,10 @@ var Landscape = {
                 destY = Math.round(Viewport.pxHeight - (curY - startY) * Landscape.tileSize.y - Landscape.tileSize.y + (offsetY * -1));
                 //this is supposed to be read out from array Landscape.map
                 //TODO: implement a generator function to generate new tiles on-the-fly
-                srcX=curX%3*Landscape.tileSize.x;
-                srcY=curY%3*Landscape.tileSize.y;
+                //srcX=curX%3*Landscape.tileSize.x;
+                //srcY=(2-curY%3)*Landscape.tileSize.y;
+                srcX = Landscape.map[curY][curX][0] * Landscape.tileSize.x;
+                srcY = Landscape.map[curY][curX][1] * Landscape.tileSize.x;
                 //Viewport.ctx.fillRect(destX,
                 //                        destY,
                 //                        50,50);
@@ -185,8 +190,78 @@ var Landscape = {
                 );
             }
         }
+    },
+  provideMapLine: function(lineNumber, startX, endX) {
+    var belowTile;
+    var newTile;
+    for (var i=Landscape.map.length; i<=lineNumber; i++)
+    {
+      Landscape.map.push(new Array(endX+1));
+      for(var j=0; j<=endX; j++)
+      {
+        if(0 == i)
+        {
+          newTile= [4,1];
+        } else
+        {
+          belowTile=Landscape.map[i-1][j];
+          if((belowTile[0] == 4 && belowTile[1] == 1)
+            || belowTile[1] == 0)
+          {
+            //newTile = Landscape.oneElementOf([[0,2],[1,2],[2,2],[4,1]]);
+            if(0 == j)
+            {
+              newTile = Landscape.oneElementOf([[0,2],[4,1]]);
+            } else
+            {
+              if(Landscape.map[i][j-1][0] < 2)
+              {
+                newTile = Landscape.oneElementOf([[1,2],[2,2]]);
+              } else
+              {
+                newTile = Landscape.oneElementOf([[0,2],[4,1]]);
+              }
+            }
+          } else if(belowTile[0] == 0 && belowTile[1] == 1)
+          {
+            newTile = Landscape.oneElementOf([[0,0],[0,1]]);
+          } else if(belowTile[0] == 1 && belowTile[1] == 1)
+          {
+            if(0 == j)
+            {
+              newTile = Landscape.oneElementOf([[1,0],[1,1]]);
+            } else
+            {
+              if(Landscape.map[i][j-1][1] == 0)
+              {
+                newTile = [1,0];
+              } else
+              {
+                newTile = [1,1];
+              }
+            }
+          } else if(belowTile[0] == 2 && belowTile[1] == 1)
+          {
+            newTile = Landscape.oneElementOf([[2,0],[2,1]]);
+          } else if(belowTile[0] == 0 && belowTile[1] == 2)
+          {
+            newTile = Landscape.oneElementOf([[0,0],[0,1]]);
+          } else if(belowTile[0] == 1 && belowTile[1] == 2)
+          {
+            newTile = Landscape.oneElementOf([[1,0],[1,1]]);
+          } else if(belowTile[0] == 2 && belowTile[1] == 2)
+          {
+            newTile = Landscape.oneElementOf([[2,0],[2,1]]);
+          }
+        }
+        Landscape.map[i][j] = newTile;
+      }
     }
-
+    //TODO here: check if currentLine also contains startX and endX, generate them if necessary
+  },
+  oneElementOf: function(arr) {
+    return arr[Math.floor(Math.random() * arr.length)];
+  }
 }
 
 var ProgramExecuter = {
@@ -250,8 +325,8 @@ function spawnRandomEnemy()
             // move in circle
             newEnemy.engine = function ()
             {
-                this.moveDirection = Vector2.RadToVector((Math.PI / 4 * ((Viewport.curTime + this.id * 4000) % 32000 / 4000))).Normalized;
-                this.rotation = Math.PI * 2 + Math.PI / 2 * 3 - Math.PI / 4 * (Viewport.curTime % 32000 / 4000);
+                this.moveDirection = Vector2.RadToVector((Math.PI / 4 * ((Viewport.curTime + this.id * 2000) % 16000 / 2000))).Normalized;
+                this.rotation = Math.PI * 2 + Math.PI / 2 * 2.5  - Math.PI / 4 * ((Viewport.curTime + this.id * 2000) % 16000 / 2000);
             }
             break;
         case 3:

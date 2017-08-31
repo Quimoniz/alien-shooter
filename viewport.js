@@ -8,7 +8,7 @@ var Viewport = {
     pxHeight: 0,
     lastFrameTime: 0,
     pixelsPerThousand: 50,
-    movePerSecond: 800,
+    movePerSecond: 0,
     init: function()
     {
         Viewport.initCanvas();
