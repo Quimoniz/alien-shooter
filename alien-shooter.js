@@ -555,13 +555,10 @@ GraphicsRooster.addImage("spieler_0", "spieler_schiff_0.png", 70, 70);
 GraphicsRooster.addImage("bullet", "bullet.png", 5, 20); 
 GraphicsRooster.addImage("particle_explosion", "sample_explosion_from_vampires-dawn-2.png", 480, 288);
 GraphicsRooster.addImage("particle_dot", "particle-dot.png", 96, 16);
-<<<<<<< HEAD
 GraphicsRooster.addImage("powerup_1", "powerup_1.png", 36, 36);
 GraphicsRooster.addImage("powerup_2", "powerup_2.png", 36, 36);
 GraphicsRooster.addImage("powerup_3", "powerup_3.png", 36, 36);
-=======
 GraphicsRooster.addImage("grass_0","landscape-grass.png", 50, 50);
->>>>>>> a3bb22bc7af4ad2ecd77eafb711e1570a783c75f
 var curTemplate = new ParticleTemplate("particle_explosion");
 curTemplate.addAnimStepsPerRow([96,96],[0,0],5);
 curTemplate.addAnimStepsPerRow([96,96],[0,96],5);

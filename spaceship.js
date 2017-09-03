@@ -248,10 +248,8 @@ function Spaceship (paramName, imgName, paramPosition, paramMass, paramInitialHe
     {
         if("Protagonist" == this.name)
         {
-<<<<<<< HEAD
             if(Protagonist.amountOfBullets == 1)
             {
-
                 var bullet = new Projectile(this, "bullet", new Vector2(this.position.x, this.position.y +190), 25, this.rotation, this.speed + 2000);
                 MovablesEngine.addObject(bullet);
             } else if(Protagonist.amountOfBullets == 2)
@@ -273,12 +271,6 @@ function Spaceship (paramName, imgName, paramPosition, paramMass, paramInitialHe
 
         //        bullet = new Projectile(this, "bullet", new Vector2(this.position.x+440, this.position.y +190), 25, this.rotation, this.speed + 2000);
      //       MovablesEngine.addObject(bullet);
-=======
-            var bullet = new Projectile(this, "bullet", new Vector2(this.position.x-440, this.position.y +190), 25, this.rotation * -1 + Math.PI /2, this.speed + 2000);
-            MovablesEngine.addObject(bullet);
-                bullet = new Projectile(this, "bullet", new Vector2(this.position.x+440, this.position.y +190), 25, this.rotation * -1 + Math.PI /2, this.speed + 2000);
-            MovablesEngine.addObject(bullet);
->>>>>>> a3bb22bc7af4ad2ecd77eafb711e1570a783c75f
         } else if("Boss" == this.name)
         {
             var bullet = new Projectile(this, "bullet", new Vector2(this.position.x, this.position.y - 500), 25, this.rotation + Math.PI/2 * 3, this.speed + 2200);
