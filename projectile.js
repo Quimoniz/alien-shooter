@@ -6,9 +6,9 @@ function Projectile (paramOriginSpaceship, imgName, paramPosition, paramPower, p
     this.img = GraphicsRooster.getImgByName(imgName);
     this.position = paramPosition;
     this.power = paramPower;
-    this.moveDirection = new Vector2(Math.sin(paramMoveDirection), Math.cos(paramMoveDirection));
+    this.moveDirection = new Vector2(Math.cos(paramMoveDirection), Math.sin(paramMoveDirection));
     this.speed = paramVelocity;
-    this.rotation = paramMoveDirection;
+    this.rotation = Math.PI/2 - paramMoveDirection ;
     this.rotationSpeed = 0;
     this.hitbox = [0,0,0,0]; 
     this.update = function(timeSinceLastFrame)
@@ -96,11 +96,11 @@ function Projectile (paramOriginSpaceship, imgName, paramPosition, paramPower, p
                 if (hitRect[2] > 0 && hitRect[3] > 0)
                 {
                     otherSpaceship.projectileHit(this.power);
-                    for(var i = Math.floor(Math.random() * 5); i >= 0; i--)
+                    for(var i = Math.floor(Math.random() * 5),particleMoveDirection; i >= 0; i--)
                     {
-                        var particleMoveDirection = this.moveDirection;
-                        particleMoveDirection.Add(Math.random() * 2, Math.random() * 2);
-                        MovablesEngine.createParticle("reddot", new Vector2(this.position.x, this.position.y), particleMoveDirection, this.speed / 20);
+                        particleMoveDirection = this.moveDirection.clone();
+                        particleMoveDirection.Add(Math.random() * 2 - 1 , Math.random() * 2 - 1);
+                        MovablesEngine.createParticle("reddot", new Vector2(this.position.x, this.position.y), particleMoveDirection, this.speed / 4);
                     }
                     this.destroy();
                 }

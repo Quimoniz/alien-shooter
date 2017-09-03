@@ -1,7 +1,8 @@
 var Menu = {
     showMenu: function() {
       var overlayEle = Menu.createOverlay();
-      Menu.createButton(overlayEle, (window.innerHeight - 100) / 2, "New Game", Menu.newGameClicked);
+      var newGameButton = Menu.createButton(overlayEle, (window.innerHeight - 100) / 2, "New Game", Menu.newGameClicked);
+      newGameButton.focus();
     },
     createOverlay: function ()
     {
