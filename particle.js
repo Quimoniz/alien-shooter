@@ -1,4 +1,4 @@
-function Particle(particleTemplate, paramPosition, paramMoveDirection, paramVelocity) {
+function Particle (particleTemplate, paramPosition, paramMoveDirection, paramVelocity)  {
     this.id = particleIdCounter++;
     this.type = "particle";
     this.template = ParticlesTemplateRooster.getTemplate(particleTemplate);

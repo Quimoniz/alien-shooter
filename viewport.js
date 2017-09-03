@@ -77,6 +77,7 @@ var Viewport = {
         
         Viewport.paintMovables(timeSinceLastFrame);
         Viewport.paintParticles(timeSinceLastFrame);
+        Viewport.paintPowerups(timeSinceLastFrame);
         Viewport.ctx.fillStyle = "red";
         Credits.DrawCredits();
         Viewport.ctx.fillText("Score: " +  Protagonist.score,10,50);
@@ -130,6 +131,19 @@ var Viewport = {
             }
         }
         MovablesEngine.arrParticles = newParticleArr;
+    },
+    paintPowerups: function(timeSinceLastFrame)
+    {
+        var curPowerup;
+        var powerupCount = allPowerups.length;
+        for ( var i = 0; i < powerupCount; i++)
+        {
+            curPowerup = allPowerups[i];
+            if(Viewport.objInsideViewport(curPowerup))
+            {
+                curPowerup.paint(Viewport.ctx, Viewport.viewportOffset, timeSinceLastFrame);
+            }
+        }
     },
     objInsideViewport: function (movingObject)
     {

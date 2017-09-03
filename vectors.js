@@ -23,6 +23,18 @@ class Vector2
         return this;
     }
 
+    AddVectorNoChanges(param1)
+    {
+        var result = new Vector2(0, 0);
+
+
+        result.x += this.x + param1.x;
+        result.y += this.y + param1.y;
+
+
+        return result;
+    }
+
     Subtract(param1, param2)
     {
         //If only 1 argument then assume its a vector2 and if not 2 numbers are given

@@ -194,6 +194,7 @@ function Spaceship (paramName, imgName, paramPosition, paramMass, paramInitialHe
         if ("Boss" == this.name)
         {
             numOfExplosions = 3;
+            new Powerup(2, this.position);
         }
         for (var i = 0; i < numOfExplosions; i++)
         {
@@ -214,6 +215,11 @@ function Spaceship (paramName, imgName, paramPosition, paramMass, paramInitialHe
             Protagonist.score += this.maxHealth;  
              
             console.log("Spaceship with the ID: " + this.name + " has been destroyed!"); //Error for some reason?? Is this called too often? or the Hitbox not removed properly?
+        
+            if(Math.floor(Math.random() * 100) < 10)
+            {
+                new Powerup(3, this.position.AddVectorNoChanges(new Vector2(Math.floor(Math.random() * 400), Math.floor(Math.random() * 400))));
+            }
         }
 		 MovablesEngine.removeObject(this);
     }
@@ -242,10 +248,30 @@ function Spaceship (paramName, imgName, paramPosition, paramMass, paramInitialHe
     {
         if("Protagonist" == this.name)
         {
-            var bullet = new Projectile(this, "bullet", new Vector2(this.position.x-440, this.position.y +190), 25, this.rotation, this.speed + 2000);
-            MovablesEngine.addObject(bullet);
-                bullet = new Projectile(this, "bullet", new Vector2(this.position.x+440, this.position.y +190), 25, this.rotation, this.speed + 2000);
-            MovablesEngine.addObject(bullet);
+            if(Protagonist.amountOfBullets == 1)
+            {
+
+                var bullet = new Projectile(this, "bullet", new Vector2(this.position.x, this.position.y +190), 25, this.rotation, this.speed + 2000);
+                MovablesEngine.addObject(bullet);
+            } else if(Protagonist.amountOfBullets == 2)
+            {
+                var bullet = new Projectile(this, "bullet", new Vector2(this.position.x-440, this.position.y +190), 25, this.rotation, this.speed + 2000);
+                MovablesEngine.addObject(bullet);
+                var bullet = new Projectile(this, "bullet", new Vector2(this.position.x+440, this.position.y +190), 25, this.rotation, this.speed + 2000);
+                MovablesEngine.addObject(bullet);
+            }
+            else {
+                var bullet = new Projectile(this, "bullet", new Vector2(this.position.x, this.position.y +190), 25, this.rotation, this.speed + 2000);
+                MovablesEngine.addObject(bullet);
+                var bullet = new Projectile(this, "bullet", new Vector2(this.position.x-440, this.position.y +190), 25, this.rotation, this.speed + 2000);
+                MovablesEngine.addObject(bullet);
+                var bullet = new Projectile(this, "bullet", new Vector2(this.position.x+440, this.position.y +190), 25, this.rotation, this.speed + 2000);
+                MovablesEngine.addObject(bullet);
+            }
+          
+
+        //        bullet = new Projectile(this, "bullet", new Vector2(this.position.x+440, this.position.y +190), 25, this.rotation, this.speed + 2000);
+     //       MovablesEngine.addObject(bullet);
         } else if("Boss" == this.name)
         {
             var bullet = new Projectile(this, "bullet", new Vector2(this.position.x, this.position.y - 500), 25, this.rotation, this.speed + 2200);

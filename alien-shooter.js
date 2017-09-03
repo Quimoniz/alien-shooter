@@ -30,6 +30,7 @@ var Protagonist = {
     minMomentumKeepDuration: 200,
     score: 0,
     inputDirection: new Vector2(0, 0),
+    amountOfBullets : 1,
 
     init: function ()
     {
@@ -57,9 +58,11 @@ var Protagonist = {
 
 var EnemyWaves =  {
     spawnAllSeconds: 2000, //Miliseconds
+    powerupsAllSeconds: 15000,
     difficulty: 4,
     loopedAmount: 0,
     lastWaveTime: 0,
+    lastPowerupTime: 0,
     waveIntention: function() {
         var timeElapsed = Viewport.curTime - EnemyWaves.lastWaveTime;
         if(timeElapsed >= (EnemyWaves.spawnAllSeconds - EnemyWaves.difficulty * EnemyWaves.loopedAmount))
@@ -67,6 +70,12 @@ var EnemyWaves =  {
             spawnEnemies();
             EnemyWaves.loopedAmount++;
             EnemyWaves.lastWaveTime = Viewport.curTime;
+        }
+        var powerupTimeElapsed = Viewport.curTime - EnemyWaves.lastPowerupTime;
+        if(powerupTimeElapsed >= (EnemyWaves.powerupsAllSeconds + EnemyWaves.difficulty))
+        {
+            new Powerup(1, new Vector2(Math.floor(Viewport.viewportOffset.x + Math.random() * Viewport.viewportSize.x), Math.floor(Viewport.viewportOffset.y + Viewport.viewportSize.y )));
+            EnemyWaves.lastPowerupTime = Viewport.curTime;
         }
     }
 };
@@ -122,7 +131,9 @@ var MovablesEngine = {
     doHitcheck: function()
     {
         var movablesLength = MovablesEngine.arrObjects.length;
+        var allPowerupsLength = allPowerups.length;
         for ( var i = 0; i < movablesLength; i++)
+        {
             for ( var j = 0; j < movablesLength; j++)
             {
                 if (i != j)
@@ -133,6 +144,15 @@ var MovablesEngine = {
                     }
                 }
             }
+        }
+        
+        for(var i = 0; i < allPowerupsLength; i++)
+        {
+            if(allPowerups[i])
+            {
+                allPowerups[i].hitcheck(MovablesEngine.arrObjects[0]);
+            }
+        }        
     }
 };
 
@@ -177,11 +197,15 @@ var ProgramExecuter = {
 //All the rotations are being converted to Vectors
 function spawnRandomEnemy()
 {
+    var enemyType;
 
-    var enemyType = Math.floor(Math.random() * 4 + 1);
     if(0 == Math.floor(Math.random() * 35))
     {
         enemyType = 5;
+    }
+    else 
+    {
+        enemyType = Math.floor(Math.random() * 4 + 1);
     }
     //Spawn a enemy with Name, Type and Position as Vector, Mass and Health
     var newEnemy = new Spaceship("Enemy " + enemyType, "gegner_" + enemyType, new Vector2(Math.floor(Viewport.viewportOffset.x + Math.random() * Viewport.viewportSize.x), Math.floor(Viewport.viewportOffset.y + Viewport.viewportSize.y )), 10000, 100);
@@ -395,6 +419,9 @@ GraphicsRooster.addImage("spieler_0", "spieler_schiff_0.png", 70, 70);
 GraphicsRooster.addImage("bullet", "bullet.png", 5, 20); 
 GraphicsRooster.addImage("particle_explosion", "sample_explosion_from_vampires-dawn-2.png", 480, 288);
 GraphicsRooster.addImage("particle_dot", "particle-dot.png", 96, 16);
+GraphicsRooster.addImage("powerup_1", "powerup_1.png", 36, 36);
+GraphicsRooster.addImage("powerup_2", "powerup_2.png", 36, 36);
+GraphicsRooster.addImage("powerup_3", "powerup_3.png", 36, 36);
 var curTemplate = new ParticleTemplate("particle_explosion");
 curTemplate.addAnimStepsPerRow([96,96],[0,0],5);
 curTemplate.addAnimStepsPerRow([96,96],[0,96],5);
