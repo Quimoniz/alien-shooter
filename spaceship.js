@@ -250,21 +250,21 @@ function Spaceship (paramName, imgName, paramPosition, paramMass, paramInitialHe
         {
             if(Protagonist.amountOfBullets == 1)
             {
-                var bullet = new Projectile(this, "bullet", new Vector2(this.position.x, this.position.y +190), 25, this.rotation, this.speed + 2000);
+                var bullet = new Projectile(this, "bullet", new Vector2(this.position.x, this.position.y +190), 25, this.rotation * -1 + Math.PI/2, this.speed + 2000);
                 MovablesEngine.addObject(bullet);
             } else if(Protagonist.amountOfBullets == 2)
             {
-                var bullet = new Projectile(this, "bullet", new Vector2(this.position.x-440, this.position.y +190), 25, this.rotation, this.speed + 2000);
+                var bullet = new Projectile(this, "bullet", new Vector2(this.position.x-440, this.position.y +190), 25, this.rotation * -1 + Math.PI/2, this.speed + 2000);
                 MovablesEngine.addObject(bullet);
-                var bullet = new Projectile(this, "bullet", new Vector2(this.position.x+440, this.position.y +190), 25, this.rotation, this.speed + 2000);
+                var bullet = new Projectile(this, "bullet", new Vector2(this.position.x+440, this.position.y +190), 25, this.rotation * -1 + Math.PI/2, this.speed + 2000);
                 MovablesEngine.addObject(bullet);
             }
             else {
-                var bullet = new Projectile(this, "bullet", new Vector2(this.position.x, this.position.y +190), 25, this.rotation, this.speed + 2000);
+                var bullet = new Projectile(this, "bullet", new Vector2(this.position.x, this.position.y +190), 25, this.rotation * -1 + Math.PI/2, this.speed + 2000);
                 MovablesEngine.addObject(bullet);
-                var bullet = new Projectile(this, "bullet", new Vector2(this.position.x-440, this.position.y +190), 25, this.rotation, this.speed + 2000);
+                var bullet = new Projectile(this, "bullet", new Vector2(this.position.x-440, this.position.y +190), 25, this.rotation * -1 + Math.PI/2, this.speed + 2000);
                 MovablesEngine.addObject(bullet);
-                var bullet = new Projectile(this, "bullet", new Vector2(this.position.x+440, this.position.y +190), 25, this.rotation, this.speed + 2000);
+                var bullet = new Projectile(this, "bullet", new Vector2(this.position.x+440, this.position.y +190), 25, this.rotation * -1 + Math.PI/2, this.speed + 2000);
                 MovablesEngine.addObject(bullet);
             }
           

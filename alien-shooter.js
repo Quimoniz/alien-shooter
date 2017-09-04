@@ -231,20 +231,39 @@ var Landscape = {
             //newTile = Landscape.oneElementOf([[0,2],[1,2],[2,2],[4,1]]);
             if(0 == j)
             {
-              newTile = Landscape.oneElementOf([[0,2],[4,1]]);
+               newTile = Landscape.oneElementOf([[0,2],[4,1],[4,1]]);
             } else
             {
               if(Landscape.map[i][j-1][0] < 2)
               {
-                newTile = Landscape.oneElementOf([[1,2],[2,2]]);
+                if(Landscape.map[i][j-1][1] == 0)
+                {
+                  newTile = [2,0];
+                } else if (Landscape.map[i][j-1][1] == 1)
+                {
+                  newTile = [2,1];
+                } else
+                {
+                  newTile = [2,2];
+                }
+                //newTile = Landscape.oneElementOf([[1,2],[2,2]]);
               } else
               {
-                newTile = Landscape.oneElementOf([[0,2],[4,1]]);
+                newTile = Landscape.oneElementOf([[0,2],[1,2],[4,1],[4,1]]);
               }
             }
           } else if(belowTile[0] == 0 && belowTile[1] == 1)
           {
-            newTile = Landscape.oneElementOf([[0,0],[0,1]]);
+            if(0 == j)
+            {
+              newTile = Landscape.oneElementOf([[0,0],[0,1]]);
+            } else
+            {
+              if(Landscape.map[i][j-1][0] < 2)
+              {
+                newTile = [1,1];
+              }
+            }
           } else if(belowTile[0] == 1 && belowTile[1] == 1)
           {
             if(0 == j)
@@ -252,7 +271,10 @@ var Landscape = {
               newTile = Landscape.oneElementOf([[1,0],[1,1]]);
             } else
             {
-              if(Landscape.map[i][j-1][1] == 0)
+              if(Landscape.map[i][j-1][0] == 0)
+              {
+                newTile = [1,1];
+              } else if(Landscape.map[i][j-1][1] == 0)
               {
                 newTile = [1,0];
               } else
@@ -282,10 +304,37 @@ var Landscape = {
             newTile = Landscape.oneElementOf([[0,0],[0,1]]);
           } else if(belowTile[0] == 1 && belowTile[1] == 2)
           {
-            newTile = Landscape.oneElementOf([[1,0],[1,1]]);
+             if(0 == j)
+             {
+               newTile = Landscape.oneElementOf([[1,0],[1,1]]);
+             } else
+             {
+               if(Landscape.map[i][j-1][0] == 0
+                  || (Landscape.map[i][j-1][0] == 1 && Landscape.map[i][j-1][1] == 1))
+               {
+                 newTile = [1,1];
+               } else
+               {
+                 newTile = [1,0];
+               }
+             }
+
+
           } else if(belowTile[0] == 2 && belowTile[1] == 2)
           {
-            newTile = Landscape.oneElementOf([[2,0],[2,1]]);
+            if(0 == j)
+            {
+              newTile = Landscape.oneElementOf([[2,0],[2,1]]);
+            } else
+            {
+              if(Landscape.map[i][j-1][1] == 0)
+              {
+                newTile = [2,0];
+              } else
+              {
+                newTile = [2,1];
+              }
+            }
           }
         }
         Landscape.map[i][j] = newTile;
