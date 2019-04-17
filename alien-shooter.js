@@ -161,6 +161,7 @@ var Landscape = {
     tilesetImg: undefined,
     tileSize: new Vector2(50, 50),
     map: new Array(),
+    showGrid: false,
     init: function ()
     {
         Landscape.tilesetImg = GraphicsRooster.getImgByName("grass_0");
@@ -184,7 +185,6 @@ var Landscape = {
             Landscape.provideMapLine(curY, startX, endX);
             for(var curX = startX; curX <= endX; curX++)
             {
-                Viewport.ctx.fillStyle= "#" + getHexForRGB(Math.floor((255/endX*curX) % 255),225,225);
                 destX = Math.round(offsetX + (curX - startX) * Landscape.tileSize.x);
                 destY = Math.round(Viewport.pxHeight - (curY - startY) * Landscape.tileSize.y - Landscape.tileSize.y + (offsetY * -1));
                 //this is supposed to be read out from array Landscape.map
@@ -193,9 +193,6 @@ var Landscape = {
                 //srcY=(2-curY%3)*Landscape.tileSize.y;
                 srcX = Landscape.map[curY][curX][0] * Landscape.tileSize.x;
                 srcY = Landscape.map[curY][curX][1] * Landscape.tileSize.x;
-                //Viewport.ctx.fillRect(destX,
-                //                        destY,
-                //                        50,50);
 //console.log("Destination: " + destX + "|" + destY );
                 Viewport.ctx.drawImage(
                   Landscape.tilesetImg.src,
@@ -208,6 +205,13 @@ var Landscape = {
                   Landscape.tileSize.x,
                   Landscape.tileSize.y
                 );
+                if(Landscape.showGrid)
+                {
+                    Viewport.ctx.strokeStyle= "#" + getHexForRGB(Math.floor((255/endX*curX) % 255),225,225);
+                    Viewport.ctx.strokeRect(destX,
+                                          destY,
+                                          50,50);
+                }
             }
         }
     },
@@ -262,6 +266,9 @@ var Landscape = {
               if(Landscape.map[i][j-1][0] < 2)
               {
                 newTile = [1,1];
+              } else
+              {
+                newTile = Landscape.oneElementOf([[0,1],[0,0]]);
               }
             }
           } else if(belowTile[0] == 1 && belowTile[1] == 1)
