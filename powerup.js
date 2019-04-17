@@ -109,7 +109,7 @@ class Powerup
 
     hitcheck (otherSpaceship)
     {
-        if (otherSpaceship && Protagonist.spaceship.id == otherSpaceship.id && !this.isCollected)
+        if (otherSpaceship && Protagonist.spaceship.id == otherSpaceship.id && !this.isCollected && this.hitbox)
         {
             if (this.hitbox[0] <= (otherSpaceship.hitbox[0] + otherSpaceship.hitbox[2]) &&
                 (this.hitbox[0] + this.hitbox[2]) >= otherSpaceship.hitbox[0] &&
