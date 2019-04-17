@@ -159,12 +159,12 @@ var MovablesEngine = {
 var Landscape = {
     tilesetSrc: "", //TODO: implement me
     tilesetImg: undefined,
-    tileSize: new Vector2(50, 50),
+    tileSize: new Vector2(32, 32),
     map: new Array(),
     showGrid: false,
     init: function ()
     {
-        Landscape.tilesetImg = GraphicsRooster.getImgByName("grass_0");
+        Landscape.tilesetImg = GraphicsRooster.getImgByName("01_tiles");
     },
     paint: function ()
     {
@@ -229,7 +229,7 @@ var Landscape = {
         } else
         {
           belowTile=Landscape.map[i-1][j];
-          if((belowTile[0] == 4 && belowTile[1] == 1)
+          if((belowTile[0] == 10 && belowTile[1] == 1)
             || belowTile[1] == 0)
           {
             //newTile = Landscape.oneElementOf([[0,2],[1,2],[2,2],[4,1]]);
@@ -238,7 +238,7 @@ var Landscape = {
                newTile = Landscape.oneElementOf([[0,2],[4,1],[4,1]]);
             } else
             {
-              if(Landscape.map[i][j-1][0] < 2)
+              if(Landscape.map[i][j-1][0] < 8)
               {
                 if(Landscape.map[i][j-1][1] == 0)
                 {
@@ -256,14 +256,14 @@ var Landscape = {
                 newTile = Landscape.oneElementOf([[0,2],[1,2],[4,1],[4,1]]);
               }
             }
-          } else if(belowTile[0] == 0 && belowTile[1] == 1)
+          } else if(belowTile[0] == 6 && belowTile[1] == 1)
           {
             if(0 == j)
             {
               newTile = Landscape.oneElementOf([[0,0],[0,1]]);
             } else
             {
-              if(Landscape.map[i][j-1][0] < 2)
+              if(Landscape.map[i][j-1][0] < 8)
               {
                 newTile = [1,1];
               } else
@@ -271,14 +271,14 @@ var Landscape = {
                 newTile = Landscape.oneElementOf([[0,1],[0,0]]);
               }
             }
-          } else if(belowTile[0] == 1 && belowTile[1] == 1)
+          } else if(belowTile[0] == 7 && belowTile[1] == 1)
           {
             if(0 == j)
             {
               newTile = Landscape.oneElementOf([[1,0],[1,1]]);
             } else
             {
-              if(Landscape.map[i][j-1][0] == 0)
+              if(Landscape.map[i][j-1][0] == 6)
               {
                 newTile = [1,1];
               } else if(Landscape.map[i][j-1][1] == 0)
@@ -289,7 +289,7 @@ var Landscape = {
                 newTile = [1,1];
               }
             }
-          } else if(belowTile[0] == 2 && belowTile[1] == 1)
+          } else if(belowTile[0] == 8 && belowTile[1] == 1)
           {
             if(0 == j)
             {
@@ -306,18 +306,18 @@ var Landscape = {
             }
 
             newTile = Landscape.oneElementOf([[2,0],[2,1]]);
-          } else if(belowTile[0] == 0 && belowTile[1] == 2)
+          } else if(belowTile[0] == 6 && belowTile[1] == 2)
           {
             newTile = Landscape.oneElementOf([[0,0],[0,1]]);
-          } else if(belowTile[0] == 1 && belowTile[1] == 2)
+          } else if(belowTile[0] == 7 && belowTile[1] == 2)
           {
              if(0 == j)
              {
                newTile = Landscape.oneElementOf([[1,0],[1,1]]);
              } else
              {
-               if(Landscape.map[i][j-1][0] == 0
-                  || (Landscape.map[i][j-1][0] == 1 && Landscape.map[i][j-1][1] == 1))
+               if(Landscape.map[i][j-1][0] == 6
+                  || (Landscape.map[i][j-1][0] == 7 && Landscape.map[i][j-1][1] == 1))
                {
                  newTile = [1,1];
                } else
@@ -327,7 +327,7 @@ var Landscape = {
              }
 
 
-          } else if(belowTile[0] == 2 && belowTile[1] == 2)
+          } else if(belowTile[0] == 8 && belowTile[1] == 2)
           {
             if(0 == j)
             {
@@ -344,6 +344,7 @@ var Landscape = {
             }
           }
         }
+        newTile[0] = newTile[0] + 6;
         Landscape.map[i][j] = newTile;
       }
     }
@@ -614,7 +615,7 @@ GraphicsRooster.addImage("particle_dot", "particle-dot.png", 96, 16);
 GraphicsRooster.addImage("powerup_1", "powerup_1.png", 36, 36);
 GraphicsRooster.addImage("powerup_2", "powerup_2.png", 36, 36);
 GraphicsRooster.addImage("powerup_3", "powerup_3.png", 36, 36);
-GraphicsRooster.addImage("grass_0","landscape-grass.png", 50, 50);
+GraphicsRooster.addImage("01_tiles","gfx/01%20tiles.png", 50, 50);
 var curTemplate = new ParticleTemplate("particle_explosion");
 curTemplate.addAnimStepsPerRow([96,96],[0,0],5);
 curTemplate.addAnimStepsPerRow([96,96],[0,96],5);
