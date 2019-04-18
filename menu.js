@@ -1,8 +1,15 @@
 var Menu = {
-    showMenu: function() {
+    showMenu: function(whichMenu) {
       var overlayEle = Menu.createOverlay();
-      var newGameButton = Menu.createButton(overlayEle, (window.innerHeight - 100) / 2, "New Game", Menu.newGameClicked);
-      newGameButton.focus();
+      if("new" == whichMenu)
+      {
+        var newGameButton = Menu.createButton(overlayEle, (window.innerHeight - 100) / 2, "New Game", Menu.newGameClicked);
+        newGameButton.focus();
+      } else if("end" == whichMenu)
+      {
+        Menu.createText(overlayEle, (window.innerHeight - 300) / 2, "Game Over");
+        Menu.createButton(overlayEle, 100, "Reload", Menu.reloadClicked);
+      }
     },
     createOverlay: function ()
     {
@@ -43,10 +50,23 @@ var Menu = {
 
       return buttonEle;
     },
+    createText: function(parentNode, marginTop, text)
+    {
+      var textEle = document.createElement("div");
+      textEle.setAttribute("class", "menu_text");
+      textEle.style.zIndex = "991";
+      textEle.style.margin = marginTop + "px auto 0px auto";
+      parentNode.appendChild(textEle);
+      textEle.appendChild(document.createTextNode(text));
+    },
     newGameClicked: function () 
     {
       Menu.clearMenu();
       ProgramExecuter.initGame();
+    },
+    reloadClicked: function ()
+    {
+      location.reload();
     },
     clearMenu: function ()
     {

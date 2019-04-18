@@ -1,3 +1,8 @@
+.menu_text {
+  font-size: 40pt;
+  color: #202020;
+}
+
 .menu_button {
   margin: 3px;
   padding: 0px;

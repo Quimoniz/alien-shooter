@@ -361,12 +361,16 @@ var Landscape = {
 
 var ProgramExecuter = {
     currentRunningInterval: -1,
+    keepTicking: true,
+    fadeOutMax: 30,
+    fadeOutCounter: 0,
+    fadeOutEle: undefined,
     init: function()
     {
         Landscape.init();
         Viewport.init();
         UserInput.init();
-        Menu.showMenu();
+        Menu.showMenu("new");
     },
     initGame: function ()
     {
@@ -378,21 +382,57 @@ var ProgramExecuter = {
 	    ProgramExecuter.oneTickLevelLoop();
         ProgramExecuter.currentRunningInterval = setInterval(ProgramExecuter.oneTickLevelLoop, 50);
     },
+    stopLevelLoop: function ()
+    {
+        clearInterval(ProgramExecuter.currentRunningInterval);
+    },
     oneTickLevelLoop: function ()
     {
+        if(ProgramExecuter.keepTicking)
+        {
 		Landscape.paint();
-        Viewport.update(); //Will also call update and paint on spaceship
-        MovablesEngine.doHitcheck();
-        UserInput.processInput(); 
-        Protagonist.update();
-        EnemyWaves.waveIntention();
+          Viewport.update(); //Will also call update and paint on spaceship
+          MovablesEngine.doHitcheck();
+          UserInput.processInput(); 
+          Protagonist.update();
+          EnemyWaves.waveIntention();
+        }
     },
     gameOver: function ()
     {
-        alert("Game Over"); 
-        location.reload();
-    }
+        ProgramExecuter.keepTicking = false;
+        ProgramExecuter.stopLevelLoop();
+        var veil = document.createElement("div");
+        veil.style.position = "absolute";
+        veil.style.left = 0;
+        veil.style.top = 0;
+        veil.style.backgroundColor = "#000000";
+        veil.style.opacity = 0;
+        veil.style.zIndex = 1000;
+        veil.style.width = window.innerWidth + "px";
+        veil.style.height = window.innerHeight + "px";
+        veil.appendChild(document.createTextNode(" "));
+        ProgramExecuter.fadeOutEle = document.getElementsByTagName("body")[0].appendChild(veil);
+        ProgramExecuter.fadeOut();
+    },
+    fadeOut: function ()
+    {
+        Landscape.paint();
+        Viewport.update();
+        ProgramExecuter.fadeOutEle.style.opacity = 1.00/ProgramExecuter.fadeOutMax * ProgramExecuter.fadeOutCounter;
+        ProgramExecuter.fadeOutCounter++;
+        if(ProgramExecuter.fadeOutMax > ProgramExecuter.fadeOutCounter)
+        {
+          setTimeout(ProgramExecuter.fadeOut, 50);
+        } else
+        {
+          ProgramExecuter.fadeOutEle.style.opacity = 1;
+          Menu.showMenu("end");
+          ProgramExecuter.fadeOutEle.parentNode.removeChild(ProgramExecuter.fadeOutEle);
+        }
+    },
 };
+
 
 //All the rotations are being converted to Vectors
 function spawnRandomEnemy()
