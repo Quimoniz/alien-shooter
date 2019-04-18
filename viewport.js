@@ -82,6 +82,12 @@ var Viewport = {
         Credits.DrawCredits();
         Viewport.ctx.fillText("Score: " +  Protagonist.score,10,50);
         Viewport.ctx.fillText("Wave: " + EnemyWaves.loopedAmount,10,100);
+        
+        Viewport.ctx.strokeStyle = "#e00000";
+        Viewport.ctx.fillStyle   = "#e00000";
+        Viewport.ctx.strokeRect(Viewport.pxWidth / 2 - Viewport.pxWidth / 6, Viewport.pxHeight - 40, Viewport.pxWidth / 3, 30);
+        Viewport.ctx.fillRect(Viewport.pxWidth / 2 - Viewport.pxWidth / 6, Viewport.pxHeight - 40, Protagonist.spaceship.curHealth * (Viewport.pxWidth / 3) / Protagonist.spaceship.maxHealth, 30);
+
         Viewport.finishUpdating(curTime);
         
     },
