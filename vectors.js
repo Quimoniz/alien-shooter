@@ -140,5 +140,9 @@ class Vector2
     {
         return (this.x == 0 && this.y == 0)?true:false;
     }
+    toString()
+    {
+        return "[" + this.x + "," + this.y + "]";
+    }
 }
 

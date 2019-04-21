@@ -4,8 +4,10 @@ function Spaceship (paramName, imgName, paramPosition, paramMass, paramInitialHe
     this.name = paramName;
     this.img = GraphicsRooster.getImgByName(imgName);
     this.position = paramPosition;
+    this.defaultSpeed = 800;
     this.speed = 0;
     this.moveDirection = new Vector2(0, -1);
+    this.steerIntention = undefined;
     this.curHealth = paramInitialHealth;
     this.maxHealth = paramInitialHealth;
     this.mass = paramMass;
@@ -19,9 +21,29 @@ function Spaceship (paramName, imgName, paramPosition, paramMass, paramInitialHe
     this.engine = function()
     {
     }
+    this.steerTowardsMoveDirection = function(intendedMoveDirection)
+    {
+      this.steerIntention = intendedMoveDirection;
+    }
     this.update = function(timeSinceLastFrame)
     {
         this.engine();
+        if(this.steerIntention)
+        {
+          var appliedCurrentSpeed = this.moveDirection.MultiplyNoChanges(this.speed);
+          var deltaSpeed = this.steerIntention.MultiplyNoChanges(this.defaultSpeed).Subtract(appliedCurrentSpeed);
+          if(deltaSpeed.length < this.defaultSpeed * 0.10)
+          {
+            this.moveDirection = this.steerIntention;
+            this.speed = this.defaultSpeed;
+            this.steerIntention = undefined;
+          }
+          appliedCurrentSpeed.Add(deltaSpeed.Normalized.MultiplyNoChanges(this.defaultSpeed * timeSinceLastFrame / 1000));
+          this.speed = appliedCurrentSpeed.length;
+          this.moveDirection = appliedCurrentSpeed.Normalized;
+
+          
+        }
         this.position.Add(this.moveDirection.MultiplyNoChanges((this.speed * timeSinceLastFrame / 1000)));
         this.rotation += this.rotationSpeed * timeSinceLastFrame / 1000;
         if(this.rotation > (Math.PI * 2))
@@ -37,10 +59,16 @@ function Spaceship (paramName, imgName, paramPosition, paramMass, paramInitialHe
             if(this.position.x < Viewport.viewportOffset.x)
             {
                 this.position.x = Viewport.viewportOffset.x;
+                this.moveDirection.x = 0;
+                this.speed = this.moveDirection.y * this.speed;
+                this.moveDirection.Normalize();
             }
             if(this.position.x > (Viewport.viewportOffset.x + Viewport.viewportSize.x))
             {
                 this.position.x = Viewport.viewportOffset.x + Viewport.viewportSize.x;
+                this.moveDirection.x = 0;
+                this.speed = this.moveDirection.y * this.speed;
+                this.moveDirection.Normalize();
             }
         }
         this.updateHitbox();
@@ -129,10 +157,14 @@ function Spaceship (paramName, imgName, paramPosition, paramMass, paramInitialHe
     
                 if (hitRect[2] > 0 && hitRect[3] > 0)
                 {
+/*
                     if(otherSpaceship.id == Protagonist.spaceship.id)
                     {
                         Protagonist.spaceship.collisionDamage();
                     }
+*/
+                    //will be handled by MovablesEngine
+                    //otherSpaceship.collision(this, hitRect);
     //DEBUG
                     if (false) //DEBUG draw rectangle
                     {
@@ -181,10 +213,12 @@ function Spaceship (paramName, imgName, paramPosition, paramMass, paramInitialHe
                         Viewport.ctx.fillRect( Math.round((markerposition.x - Viewport.viewportOffset[0]) * Viewport.pixelsPerThousand / 1000)- 2, Math.round((markerposition.y - Viewport.viewportOffset[1]) * Viewport.pixelsPerThousand / 1000) - 10, 4, 20);
                         Viewport.ctx.fillRect( Math.round((markerposition.x - Viewport.viewportOffset[0]) * Viewport.pixelsPerThousand / 1000) - 10, Math.round((markerposition.y - Viewport.viewportOffset[1]) * Viewport.pixelsPerThousand / 1000) - 2, 20, 4);
                     }
+                    return hitRect;
                 }
             }
 
         }
+        return false;
     }
     
     this.destroy = function ()
@@ -239,6 +273,28 @@ function Spaceship (paramName, imgName, paramPosition, paramMass, paramInitialHe
     this.projectileHit = function (powerOfImpact)
     {
         this.damage(powerOfImpact);
+    }
+    this.collision = function (otherSpaceship, collisionBox)
+    {
+        var collisionCenter = [
+          collisionBox[0] + collisionBox[2] / 2,
+          collisionBox[1] + collisionBox[3] / 2
+        ];
+        var collisionVec = new Vector2(
+          (this.hitbox[0] + this.hitbox[2] / 2) - collisionCenter[0],
+          (this.hitbox[1] + this.hitbox[3] / 2) - collisionCenter[1]
+        );
+        var totalColisionMass = this.mass + otherSpaceship.mass;
+        var speedFactor = 1 - (this.mass / totalColisionMass);
+        collisionVec.Multiply(speedFactor).Normalize();
+        console.log(this.moveDirection + " multiplied with collisionVec " + collisionVec);
+        //this.moveDirection.Add(collisionVec);
+        this.moveDirection = collisionVec;
+        this.speed = 8000 * speedFactor;
+        console.log("results in" + this.moveDirection);
+        
+        
+        //this.collisionDamage();
     }
     this.collisionDamage = function ()
     {

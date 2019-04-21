@@ -35,6 +35,7 @@ var Protagonist = {
     init: function ()
     {
         Protagonist.spaceship = new Spaceship("Protagonist", "spieler_0", new Vector2(3000, 7000), 500, 100);
+        Protagonist.spaceship.defaultSpeed = 14000;
         Protagonist.spaceship.speed = 5000;
         MovablesEngine.addObject(Protagonist.spaceship);
     },
@@ -48,11 +49,7 @@ var Protagonist = {
 
     update: function ()
     {
-        var curTime = (new Date()).getTime();
-
-        this.spaceship.moveDirection.Add(this.inputDirection.Normalized);
-
-        this.spaceship.moveDirection.Multiply(0.55);
+        this.spaceship.steerTowardsMoveDirection(this.inputDirection.Normalized);
     }
 };
 
@@ -90,6 +87,7 @@ function spawnEnemies()
 var MovablesEngine = {
     arrObjects: new Array(),
     arrParticles: new Array(),
+    collisionList: new Array(),
     addObject: function (newObject)
     {
         this.arrObjects.push(newObject);
@@ -140,7 +138,48 @@ var MovablesEngine = {
                 {
                     if (MovablesEngine.arrObjects[i])
                     {
-                        MovablesEngine.arrObjects[i].hitcheck(MovablesEngine.arrObjects[j]);
+                        var curReturnVal = MovablesEngine.arrObjects[i].hitcheck(MovablesEngine.arrObjects[j]);
+                        if(curReturnVal)
+                        {
+                          var collision = {
+                            "subjectA": MovablesEngine.arrObjects[i],
+                            "subjectB": MovablesEngine.arrObjects[j],
+                            "hitbox":   curReturnVal
+                          };
+                          if(j < i)
+                          {
+                            collision.subjectA = MovablesEngine.arrObjects[j];
+                            collision.subjectB = MovablesEngine.arrObjects[i];
+                          }
+                          // INSERT ORDERLY
+                          var k;
+                          for(k = 0; k < MovablesEngine.collisionList.length; ++k)
+                          {
+                            if(collision.subjectA <= MovablesEngine.collisionList[k].subjectA)
+                            {
+                              if(collision.subjectA == MovablesEngine.collisionList[k].subjectA)
+                              {
+                                if(collision.subjectB < MovablesEngine.collisionList[k].subjectB)
+                                {
+                                  MovablesEngine.collisionList.splice(k, 0, collision);
+                                  break;
+                                } else if (collision.subjectB == MovablesEngine.collisionList[k].subjectB)
+                                {
+                                  // Duplicate, throw away the collision object
+                                  break;
+                                }
+                              } else
+                              {
+                                MovablesEngine.collisionList.splice(k, 0, collision);
+                                break;
+                              }
+                            }
+                          }
+                          if(k == MovablesEngine.collisionList.length)
+                          {
+                            MovablesEngine.collisionList.push(collision);
+                          }
+                        }
                     }
                 }
             }
@@ -152,7 +191,31 @@ var MovablesEngine = {
             {
                 allPowerups[i].hitcheck(MovablesEngine.arrObjects[0]);
             }
-        }        
+        }
+        for(var i = 0; i < MovablesEngine.collisionList.length; ++i)
+        {
+            MovablesEngine.performCollision(MovablesEngine.collisionList[i]);
+        }
+        MovablesEngine.collisionList = new Array();
+    },
+    performCollision: function(collision)
+    {
+        var appliedSpeedA = collision.subjectA.moveDirection.MultiplyNoChanges(collision.subjectA.speed);
+        var appliedSpeedB = collision.subjectB.moveDirection.MultiplyNoChanges(collision.subjectB.speed);
+
+        var newSpeedA = appliedSpeedA.clone();
+        newSpeedA.Multiply(collision.subjectA.mass).Add(appliedSpeedB.MultiplyNoChanges(collision.subjectB.mass)).Divide(collision.subjectA.mass + collision.subjectB.mass).Multiply(2).Subtract(appliedSpeedA);
+        var newSpeedB = appliedSpeedB.clone();
+        newSpeedB.Multiply(collision.subjectB.mass).Add(appliedSpeedA.MultiplyNoChanges(collision.subjectA.mass)).Divide(collision.subjectA.mass + collision.subjectB.mass).Multiply(2).Subtract(appliedSpeedB);
+
+        collision.subjectA.speed = newSpeedA.length;
+        collision.subjectA.moveDirection = newSpeedA.Normalize();
+        collision.subjectB.speed = newSpeedB.length;
+        collision.subjectB.moveDirection = newSpeedB.Normalize();
+
+        collision.subjectA.collisionDamage();
+        collision.subjectB.collisionDamage();
+        console.log("Performed collision between " + collision.subjectA.name + " and " + collision.subjectB.name);
     }
 };
 
@@ -408,7 +471,7 @@ var ProgramExecuter = {
         veil.style.top = 0;
         veil.style.backgroundColor = "#000000";
         veil.style.opacity = 0;
-        veil.style.zIndex = 1000;
+        veil.style.zIndex = 900;
         veil.style.width = window.innerWidth + "px";
         veil.style.height = window.innerHeight + "px";
         veil.appendChild(document.createTextNode(" "));
@@ -428,7 +491,7 @@ var ProgramExecuter = {
         {
           ProgramExecuter.fadeOutEle.style.opacity = 1;
           Menu.showMenu("end");
-          ProgramExecuter.fadeOutEle.parentNode.removeChild(ProgramExecuter.fadeOutEle);
+          //ProgramExecuter.fadeOutEle.parentNode.removeChild(ProgramExecuter.fadeOutEle);
         }
     },
 };
@@ -448,41 +511,50 @@ function spawnRandomEnemy()
         enemyType = Math.floor(Math.random() * 4 + 1);
     }
     //Spawn a enemy with Name, Type and Position as Vector, Mass and Health
-    var newEnemy = new Spaceship("Enemy " + enemyType, "gegner_" + enemyType, new Vector2(Math.floor(Viewport.viewportOffset.x + Math.random() * Viewport.viewportSize.x), Math.floor(Viewport.viewportOffset.y + Viewport.viewportSize.y )), 10000, 100);
+    var newEnemy = new Spaceship("Enemy " + enemyType, "gegner_" + enemyType, new Vector2(Math.floor(Viewport.viewportOffset.x + Math.random() * Viewport.viewportSize.x), Math.floor(Viewport.viewportOffset.y + Viewport.viewportSize.y )), 5000, 100);
     switch(enemyType)
     {
         case 1:
-            newEnemy.speed = 1700;
+            newEnemy.defaultSpeed = newEnemy.speed = 1700;
             // move from left to right
             newEnemy.engine = function ()
             {
-                this.moveDirection = Vector2.RadToVector(Math.PI * Math.round((Viewport.curTime + this.id * 5000) % 10000 / 5000)).Normalized;
+                this.steerTowardsMoveDirection(
+                  Vector2.RadToVector(Math.PI * Math.round((Viewport.curTime + this.id * 5000) % 10000 / 5000)).Normalized
+                );
             }
             break;
         case 2:
-            newEnemy.speed = 1100;
+            newEnemy.defaultSpeed = newEnemy.speed = 1100;
             // move in circle
             newEnemy.engine = function ()
             {
-                this.moveDirection = Vector2.RadToVector((Math.PI / 4 * ((Viewport.curTime + this.id * 2000) % 16000 / 2000))).Normalized;
+                this.steerTowardsMoveDirection(
+                  Vector2.RadToVector((Math.PI / 4 * ((Viewport.curTime + this.id * 2000) % 16000 / 2000))).Normalized
+                );
                 this.rotation = Math.PI * 2 + Math.PI / 2 * 2.5  - Math.PI / 4 * ((Viewport.curTime + this.id * 2000) % 16000 / 2000);
             }
             break;
         case 3:
-            newEnemy.speed = 2000;
+            newEnemy.defaultSpeed = newEnemy.speed = 2000;
             // move octagonally
             newEnemy.engine = function ()
             {
-                this.moveDirection = Vector2.RadToVector(Math.PI / 4 * Math.round(7 - ((Viewport.curTime + this.id * 1000) % 8000 / 1000))).Normalized;
+                this.steerTowardsMoveDirection(
+                  Vector2.RadToVector(Math.PI / 4 * Math.round(7 - ((Viewport.curTime + this.id * 1000) % 8000 / 1000))).Normalized
+                );
             }
             break;
         case 4:
-            newEnemy.speed = 450;
-            newEnemy.initHealth(200);
+            newEnemy.defaultSpeed = newEnemy.speed = 700;//450;
+            newEnemy.initHealth(300);
+            newEnemy.mass = 15000;
             // move up and down
             newEnemy.engine = function ()
             {
-                this.moveDirection = Vector2.RadToVector(Math.PI / 2 * (Math.round((Viewport.curTime + this.id * 5000) % 10000 / 5000) * 2 + 1)).Normalized;
+                this.steerTowardsMoveDirection(
+                  Vector2.RadToVector(Math.PI / 2 * (Math.round((Viewport.curTime + this.id * 5000) % 10000 / 5000) * 2 + 1)).Normalized
+                );
             }
             break;
         case 5:
@@ -490,6 +562,7 @@ function spawnRandomEnemy()
             newEnemy.velocity = 300;
             newEnemy.timeBetweenFiring = 1000;
             newEnemy.initHealth(500);
+            newEnemy.mass = 200000;
             newEnemy.engine = function ()
             {
                 this.firingIntended();

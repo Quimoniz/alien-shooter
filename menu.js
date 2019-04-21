@@ -7,7 +7,7 @@ var Menu = {
         newGameButton.focus();
       } else if("end" == whichMenu)
       {
-        Menu.createText(overlayEle, (window.innerHeight - 300) / 2, "Game Over");
+        Menu.createText(overlayEle, (window.innerHeight - 300) / 2, "Game Over").style.color = "#ffffff";
         Menu.createButton(overlayEle, 100, "Reload", Menu.reloadClicked);
       }
     },
@@ -58,6 +58,8 @@ var Menu = {
       textEle.style.margin = marginTop + "px auto 0px auto";
       parentNode.appendChild(textEle);
       textEle.appendChild(document.createTextNode(text));
+
+      return textEle;
     },
     newGameClicked: function () 
     {
