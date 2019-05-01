@@ -7,7 +7,14 @@ var Menu = {
         newGameButton.focus();
       } else if("end" == whichMenu)
       {
-        Menu.createText(overlayEle, (window.innerHeight - 300) / 2, "Game Over").style.color = "#ffffff";
+        var gameOverText = Menu.createText(overlayEle, (window.innerHeight) / 2 - 200, "Game Over");
+        gameOverText.style.color = "#ffffff";
+        gameOverText.style.fontFamily = "Open Sans, Sans, Georgia";
+        gameOverText.style.fontSize = "64pt";
+        gameOverText.style.fontWeight = "bold";
+        gameOverText.style.letterSpacing = "3px";
+        gameOverText.style.wordSpacing = "5px";
+        gameOverText.style.textShadow = "#d0d0d0 0px 2px 5px";
         Menu.createButton(overlayEle, 100, "Reload", Menu.reloadClicked);
       }
     },
