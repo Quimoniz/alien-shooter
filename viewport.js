@@ -20,6 +20,13 @@ var Viewport = {
         Viewport.ctx = Viewport.viewportCanvas.getContext("2d");
         Viewport.ctx.font = "32px Sans, Sans-Serif";
     },
+    moveToProtagonist: function()
+    {
+        if(Protagonist.spaceship.position.y > (Viewport.viewportOffset.y + Viewport.viewportSize.y - Protagonist.spaceship.hitbox[3] * 2))
+        {
+            Viewport.viewportOffset.y = Protagonist.spaceship.position.y - Viewport.viewportSize.y + Protagonist.spaceship.hitbox[3] * 2;
+        }
+    },
     adjustIfResizedWindow: function()
     {
         var newWidth = window.innerWidth,
@@ -60,6 +67,7 @@ var Viewport = {
     update: function()
     {
         Viewport.adjustIfResizedWindow();
+        Viewport.moveToProtagonist();
         var curTime = (new Date()).getTime();
         Viewport.curTime = curTime;
 

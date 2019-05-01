@@ -463,6 +463,7 @@ var ProgramExecuter = {
     },
     gameOver: function ()
     {
+        Viewport.movePerSecond = 0;
         ProgramExecuter.keepTicking = false;
         ProgramExecuter.stopLevelLoop();
         var veil = document.createElement("div");
