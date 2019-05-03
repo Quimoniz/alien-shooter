@@ -2,6 +2,9 @@ var Viewport = {
     viewportCanvas: undefined,
     viewportOffset: new Vector2(0,0),
     viewportSize: new Vector2(20000, 12000),
+    paintOffset: [0,0],
+    paintSize: [200,200],
+    hudPlacement: "right",
     curTime: 0,
     ctx: undefined,
     pxWidth: 0,
@@ -9,6 +12,7 @@ var Viewport = {
     lastFrameTime: 0,
     pixelsPerThousand: 50,
     movePerSecond: 800,//default: 800
+    hudSum: 0,
     init: function()
     {
         Viewport.initCanvas();
@@ -42,8 +46,17 @@ var Viewport = {
         Viewport.pxHeight = newHeight; 
         Viewport.viewportCanvas.setAttribute("width" , Viewport.pxWidth);
         Viewport.viewportCanvas.setAttribute("height", Viewport.pxHeight);
-        Viewport.viewportSize.x = Viewport.pxWidth  / Viewport.pixelsPerThousand * 1000;
-        Viewport.viewportSize.y = Viewport.pxHeight / Viewport.pixelsPerThousand * 1000;
+        if(Viewport.pxWidth >= Viewport.pxHeight)
+        {
+            Viewport.paintSize = [ Viewport.pxWidth - 250, Viewport.pxHeight];
+            Viewport.hudPlacement = "right";
+        } else
+        {
+            Viewport.paintSize = [ Viewport.pxWidth, Viewport.pxHeight - 200];
+            Viewport.hudPlacement = "bottom";
+        }
+        Viewport.viewportSize.x = Viewport.paintSize[0] / Viewport.pixelsPerThousand * 1000;
+        Viewport.viewportSize.y = Viewport.paintSize[1] / Viewport.pixelsPerThousand * 1000;
     },
     debugTestingBackgroundPaint: function (curTime)
     {
@@ -88,13 +101,6 @@ var Viewport = {
         Viewport.paintPowerups(timeSinceLastFrame);
         Viewport.ctx.fillStyle = "red";
         Credits.DrawCredits();
-        Viewport.ctx.fillText("Score: " +  Protagonist.score,10,50);
-        Viewport.ctx.fillText("Wave: " + EnemyWaves.loopedAmount,10,100);
-        
-        Viewport.ctx.strokeStyle = "#e00000";
-        Viewport.ctx.fillStyle   = "#e00000";
-        Viewport.ctx.strokeRect(Viewport.pxWidth / 2 - Viewport.pxWidth / 6, Viewport.pxHeight - 40, Viewport.pxWidth / 3, 30);
-        Viewport.ctx.fillRect(Viewport.pxWidth / 2 - Viewport.pxWidth / 6, Viewport.pxHeight - 40, Protagonist.spaceship.curHealth * (Viewport.pxWidth / 3) / Protagonist.spaceship.maxHealth, 30);
 
         Viewport.finishUpdating(curTime);
         
@@ -116,12 +122,6 @@ var Viewport = {
                 curObj.paint(Viewport.ctx, Viewport.viewportOffset, timeSinceLastFrame);
             } else
             {
-/*DEBUG
-                if(curObj)
-                {
-                    console.log("Object (" + curObj.id + ", " + curObj.img.name + ") left viewport. Deleting.");
-                }
-*/
                 MovablesEngine.removeObject(curObj);
             }
         }
@@ -156,6 +156,54 @@ var Viewport = {
             if(Viewport.objInsideViewport(curPowerup))
             {
                 curPowerup.paint(Viewport.ctx, Viewport.viewportOffset, timeSinceLastFrame);
+            }
+        }
+    },
+    paintHud: function()
+    {
+        var curHudSum = (EnemyWaves.loopedAmount << 20) + (Protagonist.score  << 10) + Protagonist.spaceship.curHealth;
+        if(curHudSum != Viewport.hudSum)
+        {
+            Viewport.hudSum = curHudSum;
+        
+            if("bottom" == Viewport.hudPlacement)
+            {
+                //do a clear:
+                Viewport.ctx.fillStyle = "#ffffff";
+                Viewport.ctx.fillRect(0,
+                                      Viewport.paintOffset[1] + Viewport.paintSize[1],
+                                      Viewport.pxWidth,
+                                      Viewport.pxHeight - (Viewport.paintOffset[1] + Viewport.paintSize[1]));
+
+                Viewport.ctx.strokeStyle = "#e00000";
+                Viewport.ctx.fillStyle   = "#e00000";
+                Viewport.ctx.fillText("Score: " +  Protagonist.score,10,Viewport.paintOffset[1] + Viewport.paintSize[1] + 90);
+                Viewport.ctx.fillText("Wave: " + EnemyWaves.loopedAmount,10,Viewport.paintOffset[1] + Viewport.paintSize[1] + 140);
+                Viewport.ctx.strokeRect(Viewport.pxWidth / 2 - Viewport.pxWidth / 8 * 3, Viewport.paintOffset[1] + Viewport.paintSize[1], Viewport.pxWidth / 4 * 3, 30);
+                Viewport.ctx.fillRect(Viewport.pxWidth / 2 - Viewport.pxWidth / 8 * 3, Viewport.paintOffset[1] + Viewport.paintSize[1], Protagonist.spaceship.curHealth * (Viewport.pxWidth / 4 * 3) / Protagonist.spaceship.maxHealth, 30);
+            } else if("right" == Viewport.hudPlacement)
+            {
+                //do a clear:
+                Viewport.ctx.fillStyle = "#ffffff";
+                Viewport.ctx.fillRect(Viewport.paintOffset[0] + Viewport.paintSize[0],
+                                      0,
+                                      Viewport.pxWidth - (Viewport.paintOffset[0] + Viewport.paintSize[0]),
+                                      Viewport.pxHeight);
+                
+                Viewport.ctx.strokeStyle = "#e00000";
+                Viewport.ctx.fillStyle   = "#e00000";
+                Viewport.ctx.fillText("Score: " +  Protagonist.score,Viewport.paintOffset[0] + Viewport.paintSize[0],40);
+                Viewport.ctx.fillText("Wave: " + EnemyWaves.loopedAmount,Viewport.paintOffset[0] + Viewport.paintSize[0],80);
+                Viewport.ctx.strokeRect(Viewport.paintOffset[0] + Viewport.paintSize[0],
+                                        100,
+                                        40,
+                                        Viewport.pxHeight - 100);
+                var healthHeight = Math.floor((Viewport.pxHeight - 100) * (Protagonist.spaceship.curHealth / Protagonist.spaceship.maxHealth));
+                Viewport.ctx.fillRect(Viewport.paintOffset[0] + Viewport.paintSize[0],
+                                      Viewport.pxHeight - healthHeight,
+                                      40,
+                                      healthHeight);
+//                Viewport.ctx.fillRect(Viewport.paintOffset[0] + Viewport.paintSize[0], 0, 100, 100);
             }
         }
     },

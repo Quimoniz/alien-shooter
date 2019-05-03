@@ -242,14 +242,13 @@ var Landscape = {
         var destX = 0, destY = 0;
         var srcX = 0, srcY;
 
-        
         for(var curY = startY; curY <= endY; curY++)
         {
             Landscape.provideMapLine(curY, startX, endX);
             for(var curX = startX; curX <= endX; curX++)
             {
-                destX = Math.round(offsetX + (curX - startX) * Landscape.tileSize.x);
-                destY = Math.round(Viewport.pxHeight - (curY - startY) * Landscape.tileSize.y - Landscape.tileSize.y + (offsetY * -1));
+                destX = Viewport.paintOffset[0] + Math.round(offsetX + (curX - startX) * Landscape.tileSize.x);
+                destY = Viewport.paintOffset[1] + Math.round(Viewport.paintOffset[1] + Viewport.paintSize[1] - (curY - startY) * Landscape.tileSize.y - Landscape.tileSize.y + (offsetY * -1));
                 //this is supposed to be read out from array Landscape.map
                 //TODO: implement a generator function to generate new tiles on-the-fly
                 //srcX=curX%3*Landscape.tileSize.x;
@@ -453,13 +452,23 @@ var ProgramExecuter = {
     {
         if(ProgramExecuter.keepTicking)
         {
-		Landscape.paint();
-          Viewport.update(); //Will also call update and paint on spaceship
+          ProgramExecuter.doPerTickPainting();
           MovablesEngine.doHitcheck();
           UserInput.processInput(); 
           Protagonist.update();
           EnemyWaves.waveIntention();
         }
+    },
+    doPerTickPainting: function()
+    {
+        Viewport.ctx.save();
+        Viewport.ctx.rect(Viewport.paintOffset[0], Viewport.paintOffset[1],
+                          Viewport.paintSize[0],   Viewport.paintSize[1]);
+        Viewport.ctx.clip();
+        Landscape.paint();
+        Viewport.update(); //Will also call update and paint on spaceship
+        Viewport.ctx.restore();
+        Viewport.paintHud();
     },
     gameOver: function ()
     {
@@ -481,8 +490,7 @@ var ProgramExecuter = {
     },
     fadeOut: function ()
     {
-        Landscape.paint();
-        Viewport.update();
+        ProgramExecuter.doPerTickPainting();
         ProgramExecuter.fadeOutEle.style.opacity = 1.00/ProgramExecuter.fadeOutMax * ProgramExecuter.fadeOutCounter;
         ProgramExecuter.fadeOutCounter++;
         if(ProgramExecuter.fadeOutMax > ProgramExecuter.fadeOutCounter)
