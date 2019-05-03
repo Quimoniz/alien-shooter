@@ -166,6 +166,9 @@ var MovablesEngine = {
                                 } else if (collision.subjectB == MovablesEngine.collisionList[k].subjectB)
                                 {
                                   // Duplicate, throw away the collision object
+                                  collision.subjectA = undefined;
+                                  collision.subjectB = undefined;
+                                  delete collision;
                                   break;
                                 }
                               } else
@@ -194,7 +197,12 @@ var MovablesEngine = {
         }
         for(var i = 0; i < MovablesEngine.collisionList.length; ++i)
         {
-            MovablesEngine.performCollision(MovablesEngine.collisionList[i]);
+            var curCollision = MovablesEngine.collisionList[i];
+            MovablesEngine.performCollision(curCollision);
+            curCollision.subjectA = undefined;
+            curCollision.subjectb = undefined;
+            delete curCollision;
+            
         }
         MovablesEngine.collisionList = new Array();
     },
@@ -241,7 +249,6 @@ var Landscape = {
 //console.log("Y range:" + startY + " to " + endY);
         var destX = 0, destY = 0;
         var srcX = 0, srcY;
-
         for(var curY = startY; curY <= endY; curY++)
         {
             Landscape.provideMapLine(curY, startX, endX);
@@ -462,6 +469,8 @@ var ProgramExecuter = {
     doPerTickPainting: function()
     {
         Viewport.ctx.save();
+        Viewport.ctx.beginPath(); // this single line saves
+                                  // a ton of ressources
         Viewport.ctx.rect(Viewport.paintOffset[0], Viewport.paintOffset[1],
                           Viewport.paintSize[0],   Viewport.paintSize[1]);
         Viewport.ctx.clip();
