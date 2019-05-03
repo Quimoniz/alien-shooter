@@ -236,17 +236,26 @@ var Viewport = {
                         intersectHitbox[i] = relationalHitbox[i];
                     }
                 }
-                for (var i = 0; i < 2; i++)
+                if(intersectHitbox[0] > Viewport.viewportSize.x)
                 {
-                    if ((intersectHitbox[i] + intersectHitbox[i+2]) > Viewport.viewportSize[i])
-                    {
-                        intersectHitbox[i+2] = Viewport.viewportSize[i] - intersectHitbox[i];
-                    }
-                    if(intersectHitbox[i+2] < 0)
-                    {
-                        intersectHitbox[i+2] = 0;
-                    }
+                    intersectHitbox[2] = 0;
+                } else if ((intersectHitbox[0] + intersectHitbox[2]) > Viewport.viewportSize.x)
+                {
+                    intersectHitbox[2] = Viewport.viewportSize.x - intersectHitbox[0];
                 }
+                if(intersectHitbox[1] > Viewport.viewportSize.y)
+                {
+                    intersectHitbox[3] = 0;
+                } else if ((intersectHitbox[1] + intersectHitbox[3]) > Viewport.viewportSize.y)
+                {
+                    intersectHitbox[3] = Viewport.viewportSize.y - intersectHitbox[1];
+                }
+                /* not necessary
+                if(intersectHitbox[i+2] < 0)
+                {
+                    intersectHitbox[i+2] = 0;
+                }
+                */
                 intersectHitbox[0] += Viewport.viewportOffset.x;
                 intersectHitbox[1] += Viewport.viewportOffset.y;
                 
