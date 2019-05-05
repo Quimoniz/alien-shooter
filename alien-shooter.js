@@ -765,6 +765,10 @@ var UserInput = {
           offsetDirection.Multiply(3);
           Protagonist.userInputDirection(offsetDirection, offsetDirection.length, 500);
         }
+        if(Viewport.mousedown)
+        {
+          Protagonist.spaceship.firingIntended();
+        }
     }
 };
 

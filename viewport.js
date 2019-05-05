@@ -14,6 +14,7 @@ var Viewport = {
     movePerSecond: 800,//default: 800
     hudSum: 0,
     mouse: undefined,
+    mousedown: false,
     init: function()
     {
         Viewport.initCanvas();
@@ -30,6 +31,8 @@ var Viewport = {
         window.onmousemove = Viewport.mouseHover;
         window.onmouseover = Viewport.mouseHover;
         window.onmouseenter = Viewport.mouseHover;
+        window.onmousedown = function () { Viewport.mousedown = true; };
+        window.onmouseup = function () { Viewport.mousedown = false; };
     },
     mouseHover: function(evt)
     {
