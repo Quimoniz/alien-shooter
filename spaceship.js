@@ -31,7 +31,14 @@ function Spaceship (paramName, imgName, paramPosition, paramMass, paramInitialHe
         if(this.steerIntention)
         {
           var appliedCurrentSpeed = this.moveDirection.MultiplyNoChanges(this.speed);
-          var deltaSpeed = this.steerIntention.MultiplyNoChanges(this.defaultSpeed).Subtract(appliedCurrentSpeed);
+          var deltaSpeed;
+          if(this.steerIntention.length <= 1)
+          {
+            deltaSpeed =  this.steerIntention.MultiplyNoChanges(this.defaultSpeed).Subtract(appliedCurrentSpeed);
+          } else
+          {
+            deltaSpeed =  this.steerIntention.Subtract(appliedCurrentSpeed);
+          }
           if(deltaSpeed.length < this.defaultSpeed * 0.10)
           {
             this.moveDirection = this.steerIntention;
@@ -39,6 +46,11 @@ function Spaceship (paramName, imgName, paramPosition, paramMass, paramInitialHe
             this.steerIntention = undefined;
           }
           appliedCurrentSpeed.Add(deltaSpeed.Normalized.MultiplyNoChanges(this.defaultSpeed * timeSinceLastFrame / 1000));
+          // maximum speed is default speed
+          if(appliedCurrentSpeed.length > this.defaultSpeed)
+          {
+            appliedCurrentSpeed.Multiply(this.defaultSpeed / appliedCurrentSpeed.length)
+          }
           this.speed = appliedCurrentSpeed.length;
           this.moveDirection = appliedCurrentSpeed.Normalized;
 

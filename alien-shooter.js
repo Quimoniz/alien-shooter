@@ -14,6 +14,7 @@ var UserInput;
 var objectIdCounter = 1;
 var particleIdCounter = 1;
 
+// object prototype (Spaceship or Projectile)
 function flyingObject () {
     this.id = objectIdCounter++;
     this.name;
@@ -40,16 +41,23 @@ var Protagonist = {
         MovablesEngine.addObject(Protagonist.spaceship);
     },
 
-    userInputDirection: function (direction, elapsedTime)
+    userInputDirection: function (direction, speed, elapsedTime)
     {
-        Protagonist.inputDirection.Add(direction);
+        //Protagonist.inputDirection.Add(direction);
+        if(direction.length <= 1)
+        {
+          Protagonist.inputDirection = direction.MultiplyNoChanges(speed);
+        } else
+        {
+          Protagonist.inputDirection = direction;
+        }
 
         Protagonist.lastDirectionSetTime = (new Date()).getTime();
     },
 
     update: function ()
     {
-        this.spaceship.steerTowardsMoveDirection(this.inputDirection.Normalized);
+        this.spaceship.steerTowardsMoveDirection(this.inputDirection);
     }
 };
 
@@ -60,19 +68,28 @@ var EnemyWaves =  {
     loopedAmount: 0,
     lastWaveTime: 0,
     lastPowerupTime: 0,
+    freeTimeAtStart: 5000,
+    timeStart: 0,
     waveIntention: function() {
-        var timeElapsed = Viewport.curTime - EnemyWaves.lastWaveTime;
-        if(timeElapsed >= (EnemyWaves.spawnAllSeconds - EnemyWaves.difficulty * EnemyWaves.loopedAmount))
+        if(0 == EnemyWaves.timeStart)
         {
-            spawnEnemies();
-            EnemyWaves.loopedAmount++;
-            EnemyWaves.lastWaveTime = Viewport.curTime;
+            EnemyWaves.timeStart = (new Date()).getTime();
         }
-        var powerupTimeElapsed = Viewport.curTime - EnemyWaves.lastPowerupTime;
-        if(powerupTimeElapsed >= (EnemyWaves.powerupsAllSeconds + EnemyWaves.difficulty))
+        if(Viewport.curTime > (EnemyWaves.timeStart + EnemyWaves.freeTimeAtStart))
         {
-            new Powerup(1, new Vector2(Math.floor(Viewport.viewportOffset.x + Math.random() * Viewport.viewportSize.x), Math.floor(Viewport.viewportOffset.y + Viewport.viewportSize.y )));
+            var timeElapsed = Viewport.curTime - EnemyWaves.lastWaveTime;
+            if(timeElapsed >= (EnemyWaves.spawnAllSeconds - EnemyWaves.difficulty * EnemyWaves.loopedAmount))
+            {
+                spawnEnemies();
+                EnemyWaves.loopedAmount++;
+                EnemyWaves.lastWaveTime = Viewport.curTime;
+            }
+            var powerupTimeElapsed = Viewport.curTime - EnemyWaves.lastPowerupTime;
+            if(powerupTimeElapsed >= (EnemyWaves.powerupsAllSeconds + EnemyWaves.difficulty))
+            {
+                new Powerup(1, new Vector2(Math.floor(Viewport.viewportOffset.x + Math.random() * Viewport.viewportSize.x), Math.floor(Viewport.viewportOffset.y + Viewport.viewportSize.y )));
             EnemyWaves.lastPowerupTime = Viewport.curTime;
+            }
         }
     }
 };
@@ -694,18 +711,6 @@ var UserInput = {
             curKeyPress = keysPressed[i];
             switch(curKeyPress.keyCode)
             {
-              case 37:
-                Protagonist.userInputDirection(new Vector2(-1, 0), curKeyPress.timeElapsed);
-                break;
-              case 38:
-                Protagonist.userInputDirection(new Vector2(0, 1), curKeyPress.timeElapsed);
-                break;
-              case 39:
-                Protagonist.userInputDirection(new Vector2(1, 0), curKeyPress.timeElapsed);
-                break;
-              case 40:
-                Protagonist.userInputDirection(new Vector2(0, -1), curKeyPress.timeElapsed);
-                break;
               case 32:
                 Protagonist.spaceship.firingIntended();
                 break;
@@ -729,6 +734,36 @@ var UserInput = {
                 //console.log("Key " + curKeyPress.keyCode + " was pressed");
                 break;
             }
+            if(!Viewport.mouse)
+            {
+              var defaultSpeed = Protagonist.spaceship.defaultSpeed;
+              switch(curKeyPress.keyCode)
+              {
+                case 37:
+                  Protagonist.userInputDirection(new Vector2(-1, 0), defaultSpeed, curKeyPress.timeElapsed);
+                  break;
+                case 38:
+                  Protagonist.userInputDirection(new Vector2(0, 1), defaultSpeed, curKeyPress.timeElapsed);
+                  break;
+                case 39:
+                  Protagonist.userInputDirection(new Vector2(1, 0), defaultSpeed, curKeyPress.timeElapsed);
+                  break;
+                case 40:
+                  Protagonist.userInputDirection(new Vector2(0, -1), defaultSpeed, curKeyPress.timeElapsed);
+                  break;
+              }
+            }
+        }
+        if(Viewport.mouse)
+        {
+          var calculatedPos = [Viewport.mouse.x, Viewport.mouse.y];
+          calculatedPos[0] = ((calculatedPos[0] - Viewport.paintOffset[0]) * 1000 / Viewport.pixelsPerThousand) + Viewport.viewportOffset.x;
+          calculatedPos[1] = (((Viewport.paintSize[1] + Viewport.paintOffset[1]) - calculatedPos[1]) * 1000 / Viewport.pixelsPerThousand) + Viewport.viewportOffset.y;
+          var offsetDirection = new Vector2(calculatedPos[0] - Protagonist.spaceship.position.x, calculatedPos[1] - Protagonist.spaceship.position.y);
+//          Protagonist.spaceship.steerTowardsMoveDirection(offsetDirection);
+          //speed it up a little
+          offsetDirection.Multiply(3);
+          Protagonist.userInputDirection(offsetDirection, offsetDirection.length, 500);
         }
     }
 };

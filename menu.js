@@ -5,6 +5,7 @@ var Menu = {
       {
         var newGameButton = Menu.createButton(overlayEle, (window.innerHeight - 100) / 2, "New Game", Menu.newGameClicked);
         newGameButton.focus();
+        var hintText = Menu.createHintText(overlayEle, (window.innerHeight - 200) / 2, "Now with mouse support");
       } else if("end" == whichMenu)
       {
         var gameOverText = Menu.createText(overlayEle, (window.innerHeight) / 2 - 200, "Game Over");
@@ -63,6 +64,21 @@ var Menu = {
       textEle.setAttribute("class", "menu_text");
       textEle.style.zIndex = "991";
       textEle.style.margin = marginTop + "px auto 0px auto";
+      parentNode.appendChild(textEle);
+      textEle.appendChild(document.createTextNode(text));
+
+      return textEle;
+    },
+    createHintText: function(parentNode, marginTop, text)
+    {
+      var textEle = document.createElement("div");
+      textEle.setAttribute("class", "menu_text");
+      textEle.style.zIndex = "991";
+      textEle.style.position = "absolute";
+      textEle.style.left = window.innerWidth / 2 + "px";
+      textEle.style.top = marginTop + "px";
+      textEle.style.transform = "rotate(10deg)";
+      textEle.style.fontSize = "16pt";
       parentNode.appendChild(textEle);
       textEle.appendChild(document.createTextNode(text));
 

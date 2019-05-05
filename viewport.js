@@ -13,6 +13,7 @@ var Viewport = {
     pixelsPerThousand: 50,
     movePerSecond: 800,//default: 800
     hudSum: 0,
+    mouse: undefined,
     init: function()
     {
         Viewport.initCanvas();
@@ -23,6 +24,17 @@ var Viewport = {
         Viewport.setPxSize(window.innerWidth, window.innerHeight);
         Viewport.ctx = Viewport.viewportCanvas.getContext("2d");
         Viewport.ctx.font = "32px Sans, Sans-Serif";
+        //Viewport.viewportCanvas.addEventListener("mousemove", Viewport.mouseHover);
+        //Viewport.viewportCanvas.addEventListener("mouseover", Viewport.mouseHover);
+        //Viewport.viewportCanvas.addEventListener("mouseenter", Viewport.mouseHover);
+        window.onmousemove = Viewport.mouseHover;
+        window.onmouseover = Viewport.mouseHover;
+        window.onmouseenter = Viewport.mouseHover;
+    },
+    mouseHover: function(evt)
+    {
+      Viewport.mouse = new Vector2(evt.pageX, evt.pageY);
+      return true;
     },
     moveToProtagonist: function()
     {
