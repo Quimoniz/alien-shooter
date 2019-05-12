@@ -32,7 +32,12 @@ var Viewport = {
         window.onmouseover = Viewport.mouseHover;
         window.onmouseenter = Viewport.mouseHover;
         window.onmousedown = function () { Viewport.mousedown = true; };
+        window.ontouchstart = function () { Viewport.mousedown = true; };
         window.onmouseup = function () { Viewport.mousedown = false; };
+        window.ontouchend = function () { Viewport.mousedown = false; };
+        window.ontouchenter = Viewport.mouseHover;
+        window.ontouchmove = Viewport.mouseHover;
+        window.ontouchleave = Viewport.mouseHover;
     },
     mouseHover: function(evt)
     {

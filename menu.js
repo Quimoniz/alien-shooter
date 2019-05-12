@@ -5,7 +5,11 @@ var Menu = {
       {
         var newGameButton = Menu.createButton(overlayEle, (window.innerHeight - 100) / 2, "New Game", Menu.newGameClicked);
         newGameButton.focus();
-        var hintText = Menu.createHintText(overlayEle, (window.innerHeight - 200) / 2, "Now with mouse support");
+        var hints = [
+           "Now with mouse support",
+           "Now with homogenous Enemy Waves"
+          ];
+        var hintText = Menu.createHintText(overlayEle, (window.innerHeight - 200) / 2, hints[Math.floor(Math.random() * hints.length)]);
       } else if("end" == whichMenu)
       {
         var gameOverText = Menu.createText(overlayEle, (window.innerHeight) / 2 - 200, "Game Over");
