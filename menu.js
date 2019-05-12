@@ -7,7 +7,8 @@ var Menu = {
         newGameButton.focus();
         var hints = [
            "Now with mouse support",
-           "Now with homogenous Enemy Waves"
+           "Now with homogenous Enemy Waves",
+           "Now playable on mobile"
           ];
         var hintText = Menu.createHintText(overlayEle, (window.innerHeight - 200) / 2, hints[Math.floor(Math.random() * hints.length)]);
       } else if("end" == whichMenu)
