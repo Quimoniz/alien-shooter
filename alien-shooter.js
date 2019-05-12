@@ -62,7 +62,7 @@ var Protagonist = {
 };
 
 var EnemyWaves =  {
-    spawnAllSeconds: 2000, //Miliseconds
+    spawnAllSeconds: 3500, //Miliseconds
     powerupsAllSeconds: 15000,
     difficulty: 4,
     loopedAmount: 0,
@@ -80,7 +80,7 @@ var EnemyWaves =  {
             var timeElapsed = Viewport.curTime - EnemyWaves.lastWaveTime;
             if(timeElapsed >= (EnemyWaves.spawnAllSeconds - EnemyWaves.difficulty * EnemyWaves.loopedAmount))
             {
-                spawnEnemies();
+                spawnWave(EnemyWaves.loopedAmount);
                 EnemyWaves.loopedAmount++;
                 EnemyWaves.lastWaveTime = Viewport.curTime;
             }
@@ -94,11 +94,44 @@ var EnemyWaves =  {
     }
 };
 
-function spawnEnemies()
-{    
-    spawnRandomEnemy();
-    spawnRandomEnemy();
-    spawnRandomEnemy();
+function spawnWave(waveNum)
+{
+    var screenTopPos = Math.floor(Viewport.viewportOffset.y + Viewport.viewportSize.y);
+    switch(waveNum % 5)
+    {
+        case 0:
+          var randomXPos = Math.floor(Viewport.viewportOffset.x + 500 + (Math.random() * (Viewport.viewportSize.x - 5000)));
+          spawnEnemyOfType(1, new Vector2(randomXPos, screenTopPos));
+          spawnEnemyOfType(1, new Vector2(randomXPos + 1666, screenTopPos - 3000));
+          spawnEnemyOfType(1, new Vector2(randomXPos + 3333, screenTopPos));
+          spawnEnemyOfType(1, new Vector2(randomXPos + 4999, screenTopPos - 3000));
+          break;
+        case 1:
+          spawnEnemyOfType(2, new Vector2(Viewport.viewportOffset.x + 4000, screenTopPos));
+          spawnEnemyOfType(2, new Vector2(Viewport.viewportOffset.x + Viewport.viewportSize.x/2, screenTopPos));
+          spawnEnemyOfType(2, new Vector2(Viewport.viewportOffset.x + Viewport.viewportSize.x - 4000, screenTopPos));
+          break;
+        case 2:
+          var xFraction = (Viewport.viewportSize.x - 4000) / 3;
+          var xOffset = 2000;
+          spawnEnemyOfType(3, new Vector2(xOffset, screenTopPos));
+          spawnEnemyOfType(3, new Vector2(xOffset + xFraction * 1, screenTopPos));
+          spawnEnemyOfType(3, new Vector2(xOffset + xFraction * 2, screenTopPos));
+          break;
+        case 3:
+          var randomXPos = Math.floor(Viewport.viewportOffset.x + 500 + (Math.random() * (Viewport.viewportSize.x - 7500)));
+          spawnEnemyOfType(4, new Vector2(randomXPos + 750, screenTopPos - 40));
+          spawnEnemyOfType(4, new Vector2(randomXPos + 2250, screenTopPos - 40));
+          spawnEnemyOfType(4, new Vector2(randomXPos + 3750, screenTopPos - 40));
+          spawnEnemyOfType(4, new Vector2(randomXPos + 5250, screenTopPos - 40));
+          spawnEnemyOfType(4, new Vector2(randomXPos + 6750, screenTopPos - 40));
+          break;
+        case 4:
+          var randomXPos = Math.floor(Viewport.viewportOffset.x + 500 + (Math.random() * (Viewport.viewportSize.x - 2000)));
+          spawnEnemyOfType(5, new Vector2(randomXPos, screenTopPos));
+          break;
+    }
+    setTimeout(spawnRandomEnemy, 800);
 }
 
 var MovablesEngine = {
@@ -545,8 +578,14 @@ function spawnRandomEnemy()
     {
         enemyType = Math.floor(Math.random() * 4 + 1);
     }
+    var newPos = new Vector2(Math.floor(Viewport.viewportOffset.x + Math.random() * Viewport.viewportSize.x), Math.floor(Viewport.viewportOffset.y + Viewport.viewportSize.y ));
+
+    return spawnEnemyOfType(enemyType, newPos);
+}
+function spawnEnemyOfType(enemyType, enemyPos)
+{
     //Spawn a enemy with Name, Type and Position as Vector, Mass and Health
-    var newEnemy = new Spaceship("Enemy " + enemyType, "gegner_" + enemyType, new Vector2(Math.floor(Viewport.viewportOffset.x + Math.random() * Viewport.viewportSize.x), Math.floor(Viewport.viewportOffset.y + Viewport.viewportSize.y )), 5000, 100);
+    var newEnemy = new Spaceship("Enemy " + enemyType, "gegner_" + enemyType, enemyPos, 5000, 100);
     switch(enemyType)
     {
         case 1:
@@ -611,6 +650,7 @@ function spawnRandomEnemy()
             break;
     }
     MovablesEngine.addObject(newEnemy);
+    return newEnemy;
 }
 
 
