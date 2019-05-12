@@ -555,7 +555,7 @@ function spawnRandomEnemy()
             newEnemy.engine = function ()
             {
                 this.steerTowardsMoveDirection(
-                  Vector2.RadToVector(Math.PI * Math.round((Viewport.curTime + this.id * 5000) % 10000 / 5000)).Normalized
+                  Vector2.RadToVector(Math.PI * Math.round((Viewport.curTime + this.id * 5000) % 10000 / 5000)).Normalized.Multiply(this.defaultSpeed)
                 );
             }
             break;
@@ -565,7 +565,7 @@ function spawnRandomEnemy()
             newEnemy.engine = function ()
             {
                 this.steerTowardsMoveDirection(
-                  Vector2.RadToVector((Math.PI / 4 * ((Viewport.curTime + this.id * 2000) % 16000 / 2000))).Normalized
+                  Vector2.RadToVector((Math.PI / 4 * ((Viewport.curTime + this.id * 2000) % 16000 / 2000))).Normalized.Multiply(this.defaultSpeed)
                 );
                 this.rotation = Math.PI * 2 + Math.PI / 2 * 2.5  - Math.PI / 4 * ((Viewport.curTime + this.id * 2000) % 16000 / 2000);
             }
@@ -576,19 +576,19 @@ function spawnRandomEnemy()
             newEnemy.engine = function ()
             {
                 this.steerTowardsMoveDirection(
-                  Vector2.RadToVector(Math.PI / 4 * Math.round(7 - ((Viewport.curTime + this.id * 1000) % 8000 / 1000))).Normalized
+                  Vector2.RadToVector(Math.PI / 4 * Math.round(7 - ((Viewport.curTime + this.id * 1000) % 8000 / 1000))).Normalized.Multiply(this.defaultSpeed)
                 );
             }
             break;
         case 4:
             newEnemy.defaultSpeed = newEnemy.speed = 700;//450;
-            newEnemy.initHealth(300);
+            newEnemy.initHealth(225);
             newEnemy.mass = 15000;
             // move up and down
             newEnemy.engine = function ()
             {
                 this.steerTowardsMoveDirection(
-                  Vector2.RadToVector(Math.PI / 2 * (Math.round((Viewport.curTime + this.id * 5000) % 10000 / 5000) * 2 + 1)).Normalized
+                  Vector2.RadToVector(Math.PI / 2 * (Math.round((Viewport.curTime + this.id * 5000) % 10000 / 5000) * 2 + 1)).Normalized.Multiply(this.defaultSpeed)
                 );
             }
             break;
@@ -596,10 +596,16 @@ function spawnRandomEnemy()
             newEnemy.name = "Boss";
             newEnemy.velocity = 300;
             newEnemy.timeBetweenFiring = 1000;
-            newEnemy.initHealth(500);
+            newEnemy.initHealth(600);
             newEnemy.mass = 200000;
+            newEnemy.defaultSpeed = 4000;
             newEnemy.engine = function ()
             {
+                // try to escape upwards when health is low
+                if(175 > this.curHealth)
+                {
+                  this.steerTowardsMoveDirection((new Vector2(0, 1)).Multiply(this.defaultSpeed));
+                }
                 this.firingIntended();
             }
             break;
@@ -762,7 +768,13 @@ var UserInput = {
           var offsetDirection = new Vector2(calculatedPos[0] - Protagonist.spaceship.position.x, calculatedPos[1] - Protagonist.spaceship.position.y);
 //          Protagonist.spaceship.steerTowardsMoveDirection(offsetDirection);
           //speed it up a little
-          offsetDirection.Multiply(3);
+          if(offsetDirection.length > Protagonist.spaceship.defaultSpeed)
+          {
+            offsetDirection.Multiply(Protagonist.spaceship.defaultSpeed / offsetDirection.length);
+          }
+          var newSpeed = Math.asin(Math.min(1, offsetDirection.length / Protagonist.spaceship.defaultSpeed)) / (Math.PI * 2) * 400;
+          offsetDirection.Multiply(newSpeed);
+          //console.log("calculatedPos:" + calculatedPos.join(",") + ". newSpeed:" + newSpeed + ". offsetDirection.length" + offsetDirection.length);
           Protagonist.userInputDirection(offsetDirection, offsetDirection.length, 500);
         }
         if(Viewport.mousedown)

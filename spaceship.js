@@ -32,13 +32,7 @@ function Spaceship (paramName, imgName, paramPosition, paramMass, paramInitialHe
         {
           var appliedCurrentSpeed = this.moveDirection.MultiplyNoChanges(this.speed);
           var deltaSpeed;
-          if(this.steerIntention.length <= 1)
-          {
-            deltaSpeed =  this.steerIntention.MultiplyNoChanges(this.defaultSpeed).Subtract(appliedCurrentSpeed);
-          } else
-          {
-            deltaSpeed =  this.steerIntention.Subtract(appliedCurrentSpeed);
-          }
+          deltaSpeed =  this.steerIntention.clone().Subtract(appliedCurrentSpeed);
           if(deltaSpeed.length < this.defaultSpeed * 0.10)
           {
             this.moveDirection = this.steerIntention;
