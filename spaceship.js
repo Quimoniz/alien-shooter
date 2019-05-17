@@ -344,16 +344,15 @@ function Spaceship (paramName, imgName, paramPosition, paramMass, paramInitialHe
             MovablesEngine.addObject(bullet);
         } else
         {
-            var bullet = new Projectile(this, "laser_1", new Vector2(this.position.x, this.position.y), 25, this.rotation * -1 + Math.PI /2, Math.max(0, this.speed * this.moveDirection.y) + 2200);
+            var bullet = new Projectile(this, "laser_1", new Vector2(this.position.x, this.position.y - 200), 25, this.rotation + Math.PI /2 * 3, Math.max(0, this.speed * this.moveDirection.y) + 2200);
             MovablesEngine.addObject(bullet);
         }
     }
     this.firingIntended = function ()
     {
-        var curTime = (new Date()).getTime();
-        if(this.timeBetweenFiring <= (curTime - this.lastFired))
+        if(this.timeBetweenFiring <= (Viewport.curTime - this.lastFired))
         {
-            this.lastFired = curTime;
+            this.lastFired = Viewport.curTime;
             this.fireProjectile();
         }
     }

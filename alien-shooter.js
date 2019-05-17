@@ -620,13 +620,15 @@ function spawnEnemyOfType(enemyType, enemyPos)
             break;
         case 3:
             newEnemy.defaultSpeed = newEnemy.speed = 2000;
-            newEnemy.mass = 500;
+            newEnemy.mass = 300;
+            newEnemy.timeBetweenFiring = 2000;
             // move octagonally
             newEnemy.engine = function ()
             {
                 this.steerTowardsMoveDirection(
                   Vector2.RadToVector(Math.PI / 4 * Math.round(7 - ((Viewport.curTime + this.id * 1000) % 8000 / 1000))).Normalized.Multiply(this.defaultSpeed)
                 );
+                this.firingIntended();
             }
             break;
         case 4:
