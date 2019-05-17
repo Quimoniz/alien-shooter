@@ -340,11 +340,11 @@ function Spaceship (paramName, imgName, paramPosition, paramMass, paramInitialHe
      //       MovablesEngine.addObject(bullet);
         } else if("Boss" == this.name)
         {
-            var bullet = new Projectile(this, "bullet", new Vector2(this.position.x, this.position.y - 500), 25, this.rotation + Math.PI/2 * 3, Math.max(0, this.speed * this.moveDirection.y) + 2200);
+            var bullet = new Projectile(this, "laser_2", new Vector2(this.position.x, this.position.y - 500), 25, this.rotation + Math.PI/2 * 3, Math.max(0, this.speed * this.moveDirection.y) + 2200);
             MovablesEngine.addObject(bullet);
         } else
         {
-            var bullet = new Projectile(this, "bullet", new Vector2(this.position.x, this.position.y), 25, this.rotation * -1 + Math.PI /2, Math.max(0, this.speed * this.moveDirection.y) + 2200);
+            var bullet = new Projectile(this, "laser_1", new Vector2(this.position.x, this.position.y), 25, this.rotation * -1 + Math.PI /2, Math.max(0, this.speed * this.moveDirection.y) + 2200);
             MovablesEngine.addObject(bullet);
         }
     }
