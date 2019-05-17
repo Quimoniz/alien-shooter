@@ -847,7 +847,7 @@ GraphicsRooster.addImage("gegner_3", "gfx/gegner_3.png", 50, 44);
 GraphicsRooster.addImage("gegner_4", "gfx/gegner_4.png", 60, 50);
 GraphicsRooster.addImage("gegner_5", "gfx/gegner_5.png", 120, 76);
 GraphicsRooster.addImage("spieler_0", "gfx/spieler_schiff_0.png", 70, 70);
-GraphicsRooster.addImage("bullet", "gfx/Geschoss%203.png", 28, 28); 
+GraphicsRooster.addImage("bullet", "gfx/geschoss_2.png", 14, 14); 
 GraphicsRooster.addImage("laser_1", "gfx/laser-1.png", 3, 10); 
 GraphicsRooster.addImage("laser_2", "gfx/laser-2.png", 3, 10); 
 GraphicsRooster.addImage("particle_explosion", "gfx/explosion-whole.png", 480, 288);
