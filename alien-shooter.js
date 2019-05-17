@@ -275,7 +275,6 @@ var MovablesEngine = {
 
         collision.subjectA.collisionDamage();
         collision.subjectB.collisionDamage();
-        console.log("Performed collision between " + collision.subjectA.name + " and " + collision.subjectB.name);
     }
 };
 
@@ -621,6 +620,7 @@ function spawnEnemyOfType(enemyType, enemyPos)
             break;
         case 3:
             newEnemy.defaultSpeed = newEnemy.speed = 2000;
+            newEnemy.mass = 500;
             // move octagonally
             newEnemy.engine = function ()
             {

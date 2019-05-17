@@ -255,7 +255,7 @@ function Spaceship (paramName, imgName, paramPosition, paramMass, paramInitialHe
         {
             Protagonist.score += this.maxHealth;  
              
-            console.log("Spaceship with the ID: " + this.name + " has been destroyed!"); //Error for some reason?? Is this called too often? or the Hitbox not removed properly?
+            //console.log("Spaceship with the ID: " + this.name + " has been destroyed!"); //Error for some reason?? Is this called too often? or the Hitbox not removed properly?
         
             if(Math.floor(Math.random() * 100) < 10)
             {
