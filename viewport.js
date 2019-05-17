@@ -184,7 +184,7 @@ var Viewport = {
     },
     paintHud: function()
     {
-        var curHudSum = (EnemyWaves.loopedAmount << 20) + (Protagonist.score  << 10) + Protagonist.spaceship.curHealth;
+        var curHudSum = (EnemyWaves.loopedAmount << 24) + (Protagonist.score  << 16) + (Protagonist.spaceship.curHealth << 8) + (Protagonist.spaceship.shieldCurHealth);
         if(curHudSum != Viewport.hudSum)
         {
             Viewport.hudSum = curHudSum;
@@ -226,6 +226,21 @@ var Viewport = {
                                       Viewport.pxHeight - healthHeight,
                                       40,
                                       healthHeight);
+
+                if(Protagonist.spaceship.hasShield)
+                {
+                  Viewport.ctx.strokeStyle = "#60b0ea";
+                  Viewport.ctx.fillStyle   = "#60b0ea";
+                  Viewport.ctx.strokeRect(Viewport.paintOffset[0] + Viewport.paintSize[0] + 50,
+                                          100,
+                                          40,
+                                          Viewport.pxHeight - 100);
+                  var shieldHeight = Math.floor((Viewport.pxHeight - 100) * (Protagonist.spaceship.shieldCurHealth / Protagonist.spaceship.shieldMaxHealth));
+                  Viewport.ctx.fillRect(Viewport.paintOffset[0] + Viewport.paintSize[0] + 50,
+                                        Viewport.pxHeight - shieldHeight,
+                                        40,
+                                        shieldHeight);
+                }
 //                Viewport.ctx.fillRect(Viewport.paintOffset[0] + Viewport.paintSize[0], 0, 100, 100);
             }
         }

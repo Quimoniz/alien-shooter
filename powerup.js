@@ -39,20 +39,7 @@ class Powerup
         {
             case(1):
             {
-                var randomValue = Math.floor(Math.random() * 2 + 1);
-                if(randomValue == 0)
-                {
-                    Protagonist.score += 100;
-                    break;
-                } else if(randomValue == 1)
-                {
-                    Protagonist.score += 500;
-                    break;
-                } else
-                {
-                    Protagonist.score += 1000;
-                    break;
-                }
+                Protagonist.spaceship.addToShield(100);
             }
             case(2):
                 Protagonist.amountOfBullets++;

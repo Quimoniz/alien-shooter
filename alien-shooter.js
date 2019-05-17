@@ -852,6 +852,7 @@ GraphicsRooster.addImage("bullet_2", "gfx/geschoss_2.png", 14, 14);
 GraphicsRooster.addImage("bullet_3", "gfx/geschoss_3.png", 28, 28); 
 GraphicsRooster.addImage("laser_1", "gfx/laser-1.png", 3, 10); 
 GraphicsRooster.addImage("laser_2", "gfx/laser-2.png", 3, 10); 
+GraphicsRooster.addImage("shield", "gfx/shield.png", 90, 105); 
 GraphicsRooster.addImage("particle_explosion", "gfx/explosion-whole.png", 480, 288);
 GraphicsRooster.addImage("particle_dot", "gfx/particle-dot.png", 96, 16);
 GraphicsRooster.addImage("powerup_1", "gfx/powerup_1.png", 36, 36);

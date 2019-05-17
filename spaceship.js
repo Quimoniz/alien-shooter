@@ -3,6 +3,7 @@ function Spaceship (paramName, imgName, paramPosition, paramMass, paramInitialHe
     this.type = "spaceship";
     this.name = paramName;
     this.img = GraphicsRooster.getImgByName(imgName);
+    this.shieldImg = GraphicsRooster.getImgByName("shield");
     this.position = paramPosition;
     this.defaultSpeed = 800;
     this.speed = 0;
@@ -17,6 +18,9 @@ function Spaceship (paramName, imgName, paramPosition, paramMass, paramInitialHe
     this.lastFired = 0;
     this.timeBetweenFiring = 250;
     this.invincible = false;
+    this.hasShield = false;
+    this.shieldCurHealth = 0;
+    this.shieldMaxHealth = 0;
 
 
     this.engine = function()
@@ -86,6 +90,13 @@ function Spaceship (paramName, imgName, paramPosition, paramMass, paramInitialHe
                        this.position.y - this.img.height* 1000 / 2 / Viewport.pixelsPerThousand,
                        this.img.width * 1000 / Viewport.pixelsPerThousand,
                        this.img.height * 1000/ Viewport.pixelsPerThousand];
+        if(this.hasShield)
+        {
+          this.hitbox = [this.position.x - this.shieldImg.width * 1000 / 2 / Viewport.pixelsPerThousand,
+                         this.position.y - this.shieldImg.height* 1000 / 2 / Viewport.pixelsPerThousand,
+                         this.shieldImg.width * 1000 / Viewport.pixelsPerThousand,
+                         this.shieldImg.height * 1000/ Viewport.pixelsPerThousand];
+        }
     }
     this.updateHitbox();
 
@@ -109,6 +120,10 @@ function Spaceship (paramName, imgName, paramPosition, paramMass, paramInitialHe
             tileDest[0] = Math.round(tileDest[0] - this.img.width / 2);
             tileDest[1] = Math.round(tileDest[1] - this.img.height/ 2);
             ctx.drawImage(this.img.src, tileSource[0], tileSource[1], tileSource[2], tileSource[3], tileDest[0], tileDest[1], tileDest[2], tileDest[3]);
+        }
+        if(this.hasShield)
+        {
+            ctx.drawImage(this.shieldImg.src, 0, 0, this.shieldImg.width, this.shieldImg.height, origPoints[0] + Math.round(0 - this.shieldImg.width / 2), origPoints[1] + Math.round(0 - this.shieldImg.width / 2), this.shieldImg.width, this.shieldImg.height);
         }
 
 //DEBUG
@@ -269,10 +284,42 @@ function Spaceship (paramName, imgName, paramPosition, paramMass, paramInitialHe
         this.maxHealth = paramHealth;
         this.curHealth = paramHealth;
     }
+    this.addToShield = function (shieldPower)
+    {
+        if(!this.hasShield)
+        {
+          this.activateShield(shieldPower);
+        } else
+        {
+          this.shieldCurHealth += shieldPower;
+          if(this.shieldCurHealth > this.shieldMaxHealth)
+          {
+            this.shieldMaxHealth = this.shieldCurHealth;
+          }
+        }
+    }
+    this.activateShield = function (paramShieldHealth)
+    {
+        if(0 < paramShieldHealth)
+        {
+          this.shieldCurHealth = paramShieldHealth;
+          this.shieldMaxHealth = paramShieldHealth;
+          this.hasShield = true;
+        }
+    }
     this.damage = function (amountOfDamage)
     {
         if(this.invincible)
         {
+          return;
+        } else if(this.hasShield)
+        {
+          this.shieldCurHealth -= amountOfDamage;
+          if(0 >= this.shieldCurHealth)
+          {
+            this.hasShield = 0;
+          }
+          // abort, we don't want to have damage happening to the main spaceship
           return;
         }
         this.curHealth = this.curHealth - amountOfDamage;  
