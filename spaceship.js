@@ -16,6 +16,7 @@ function Spaceship (paramName, imgName, paramPosition, paramMass, paramInitialHe
     this.hitbox = [0,0,0,0];
     this.lastFired = 0;
     this.timeBetweenFiring = 250;
+    this.invincible = false;
 
 
     this.engine = function()
@@ -270,6 +271,10 @@ function Spaceship (paramName, imgName, paramPosition, paramMass, paramInitialHe
     }
     this.damage = function (amountOfDamage)
     {
+        if(this.invincible)
+        {
+          return;
+        }
         this.curHealth = this.curHealth - amountOfDamage;  
         if ( this.curHealth <= 0)
         {
@@ -351,5 +356,15 @@ function Spaceship (paramName, imgName, paramPosition, paramMass, paramInitialHe
             this.lastFired = curTime;
             this.fireProjectile();
         }
+    }
+    this.showText = function(text)
+    {
+      var screenPos = [ 
+        (this.position.x - Viewport.viewportOffset.x) / 1000 * Viewport.pixelsPerThousand + Viewport.paintOffset[0],
+        (Viewport.viewportSize.y - (this.position.y  - Viewport.viewportOffset.y)) / 1000 * Viewport.pixelsPerThousand + Viewport.paintOffset[0]
+      ];  
+      Viewport.ctx.fillStyle = "#000000";
+      Viewport.ctx.fillText(text, screenPos[0], screenPos[1]);
+
     }
 }

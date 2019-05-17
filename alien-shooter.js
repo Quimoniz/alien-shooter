@@ -39,6 +39,10 @@ var Protagonist = {
         Protagonist.spaceship.defaultSpeed = 14000;
         Protagonist.spaceship.speed = 5000;
         MovablesEngine.addObject(Protagonist.spaceship);
+        if(-1 < location.href.indexOf("invincible"))
+        {
+          Protagonist.spaceship.invincible = true;
+        }
     },
 
     userInputDirection: function (direction, speed, elapsedTime)
@@ -102,9 +106,7 @@ function spawnWave(waveNum)
         case 0:
           var randomXPos = Math.floor(Viewport.viewportOffset.x + 500 + (Math.random() * (Viewport.viewportSize.x - 5000)));
           spawnEnemyOfType(1, new Vector2(randomXPos, screenTopPos));
-          spawnEnemyOfType(1, new Vector2(randomXPos + 1666, screenTopPos - 3000));
-          spawnEnemyOfType(1, new Vector2(randomXPos + 3333, screenTopPos));
-          spawnEnemyOfType(1, new Vector2(randomXPos + 4999, screenTopPos - 3000));
+          spawnEnemyOfType(1, new Vector2(randomXPos + 4999, screenTopPos));
           break;
         case 1:
           spawnEnemyOfType(2, new Vector2(Viewport.viewportOffset.x + 4000, screenTopPos));
@@ -589,13 +591,21 @@ function spawnEnemyOfType(enemyType, enemyPos)
     switch(enemyType)
     {
         case 1:
-            newEnemy.defaultSpeed = newEnemy.speed = 1700;
-            // move from left to right
+            newEnemy.defaultSpeed = newEnemy.speed = 4500;
+            // follow the player
             newEnemy.engine = function ()
             {
+                var newDirection = Protagonist.spaceship.position.clone().Subtract(this.position);
+                if(newDirection.length > 0)
+                {
+                  newDirection.Divide(newDirection.length / this.defaultSpeed);
+                }
                 this.steerTowardsMoveDirection(
-                  Vector2.RadToVector(Math.PI * Math.round((Viewport.curTime + this.id * 5000) % 10000 / 5000)).Normalized.Multiply(this.defaultSpeed)
+                  newDirection
                 );
+                var normalized = this.moveDirection.Normalized;
+                this.rotation = Math.PI*2 - Vector2.VectorToRad(normalized.x , normalized.y);
+                this.rotation = (Math.PI / 2 * 3 + this.rotation) % (Math.PI*2);
             }
             break;
         case 2:
