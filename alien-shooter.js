@@ -61,7 +61,7 @@ var Protagonist = {
 
     update: function ()
     {
-        this.spaceship.steerTowardsMoveDirection(this.inputDirection);
+        this.spaceship.steerTowardsDirection(this.inputDirection);
     }
 };
 
@@ -599,7 +599,7 @@ function spawnEnemyOfType(enemyType, enemyPos)
                 {
                   newDirection.Divide(newDirection.length / this.defaultSpeed);
                 }
-                this.steerTowardsMoveDirection(
+                this.steerTowardsDirection(
                   newDirection
                 );
                 var normalized = this.moveDirection.Normalized;
@@ -612,7 +612,7 @@ function spawnEnemyOfType(enemyType, enemyPos)
             // move in circle
             newEnemy.engine = function ()
             {
-                this.steerTowardsMoveDirection(
+                this.steerTowardsDirection(
                   Vector2.RadToVector((Math.PI / 4 * ((Viewport.curTime + this.id * 2000) % 16000 / 2000))).Normalized.Multiply(this.defaultSpeed)
                 );
                 this.rotation = Math.PI * 2 + Math.PI / 2 * 2.5  - Math.PI / 4 * ((Viewport.curTime + this.id * 2000) % 16000 / 2000);
@@ -625,7 +625,7 @@ function spawnEnemyOfType(enemyType, enemyPos)
             // move octagonally
             newEnemy.engine = function ()
             {
-                this.steerTowardsMoveDirection(
+                this.steerTowardsDirection(
                   Vector2.RadToVector(Math.PI / 4 * Math.round(7 - ((Viewport.curTime + this.id * 1000) % 8000 / 1000))).Normalized.Multiply(this.defaultSpeed)
                 );
                 this.firingIntended();
@@ -638,7 +638,7 @@ function spawnEnemyOfType(enemyType, enemyPos)
             // move up and down
             newEnemy.engine = function ()
             {
-                this.steerTowardsMoveDirection(
+                this.steerTowardsDirection(
                   Vector2.RadToVector(Math.PI / 2 * (Math.round((Viewport.curTime + this.id * 5000) % 10000 / 5000) * 2 + 1)).Normalized.Multiply(this.defaultSpeed)
                 );
             }
@@ -655,7 +655,7 @@ function spawnEnemyOfType(enemyType, enemyPos)
                 // try to escape upwards when health is low
                 if(175 > this.curHealth)
                 {
-                  this.steerTowardsMoveDirection((new Vector2(0, 1)).Multiply(this.defaultSpeed));
+                  this.steerTowardsDirection((new Vector2(0, 1)).Multiply(this.defaultSpeed));
                 }
                 this.firingIntended();
             }
@@ -818,7 +818,7 @@ var UserInput = {
           calculatedPos[0] = ((calculatedPos[0] - Viewport.paintOffset[0]) * 1000 / Viewport.pixelsPerThousand) + Viewport.viewportOffset.x;
           calculatedPos[1] = (((Viewport.paintSize[1] + Viewport.paintOffset[1]) - calculatedPos[1]) * 1000 / Viewport.pixelsPerThousand) + Viewport.viewportOffset.y;
           var offsetDirection = new Vector2(calculatedPos[0] - Protagonist.spaceship.position.x, calculatedPos[1] - Protagonist.spaceship.position.y);
-//          Protagonist.spaceship.steerTowardsMoveDirection(offsetDirection);
+//          Protagonist.spaceship.steerTowardsDirection(offsetDirection);
           //speed it up a little
           if(offsetDirection.length > Protagonist.spaceship.defaultSpeed)
           {

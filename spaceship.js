@@ -5,6 +5,7 @@ function Spaceship (paramName, imgName, paramPosition, paramMass, paramInitialHe
     this.img = GraphicsRooster.getImgByName(imgName);
     this.shieldImg = GraphicsRooster.getImgByName("shield");
     this.position = paramPosition;
+    this.previousPosition = paramPosition;
     this.defaultSpeed = 800;
     this.speed = 0;
     this.moveDirection = new Vector2(0, -1);
@@ -26,7 +27,7 @@ function Spaceship (paramName, imgName, paramPosition, paramMass, paramInitialHe
     this.engine = function()
     {
     }
-    this.steerTowardsMoveDirection = function(intendedMoveDirection)
+    this.steerTowardsDirection = function(intendedMoveDirection)
     {
       this.steerIntention = intendedMoveDirection;
     }
@@ -55,6 +56,7 @@ function Spaceship (paramName, imgName, paramPosition, paramMass, paramInitialHe
 
           
         }
+        this.previousPosition = this.position.clone();
         this.position.Add(this.moveDirection.MultiplyNoChanges((this.speed * timeSinceLastFrame / 1000)));
         this.rotation += this.rotationSpeed * timeSinceLastFrame / 1000;
         if(this.rotation > (Math.PI * 2))
