@@ -306,7 +306,7 @@ var Landscape = {
             for(var curX = startX; curX <= endX; curX++)
             {
                 destX = Viewport.paintOffset[0] + Math.round(offsetX + (curX - startX) * Landscape.tileSize.x);
-                destY = Viewport.paintOffset[1] + Math.round(Viewport.paintOffset[1] + Viewport.paintSize[1] - (curY - startY) * Landscape.tileSize.y - Landscape.tileSize.y + (offsetY * -1));
+                destY = Math.round(Viewport.paintOffset[1] + Viewport.paintSize[1] - (curY - startY) * Landscape.tileSize.y - Landscape.tileSize.y + (offsetY * -1));
                 //this is supposed to be read out from array Landscape.map
                 //TODO: implement a generator function to generate new tiles on-the-fly
                 //srcX=curX%3*Landscape.tileSize.x;

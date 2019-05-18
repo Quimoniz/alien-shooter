@@ -8,7 +8,8 @@ var Menu = {
         var hints = [
            "Now with mouse support",
            "Now with homogenous Enemy Waves",
-           "Now playable on mobile"
+           "Now playable on mobile",
+           "Now with energy shield"
           ];
         var hintText = Menu.createHintText(overlayEle, (window.innerHeight - 200) / 2, hints[Math.floor(Math.random() * hints.length)]);
       } else if("end" == whichMenu)

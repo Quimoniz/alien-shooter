@@ -34,7 +34,7 @@ function Particle (particleTemplate, paramPosition, paramMoveDirection, paramVel
         {
             this.update(timeSinceLastFrame);
             var tileSource = this.template.getAnimStep(this.curAnimStep);
-            var tileDest = [(this.position.x - viewportOffset.x) * Viewport.pixelsPerThousand / 1000, (Viewport.viewportSize.y - this.position.y + viewportOffset.y) * Viewport.pixelsPerThousand / 1000, tileSource[2], tileSource[3]];
+            var tileDest = [Viewport.paintOffset[0] + (this.position.x - viewportOffset.x) * Viewport.pixelsPerThousand / 1000, Viewport.paintOffset[1] + (Viewport.viewportSize.y - this.position.y + viewportOffset.y) * Viewport.pixelsPerThousand / 1000, tileSource[2], tileSource[3]];
             var origPoints = [tileDest[0], tileDest[1]];
             if(this.rotation != 0) {
                 tileDest[0] = Math.round(0 - tileSource[2] / 2);

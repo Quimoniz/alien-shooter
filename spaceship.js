@@ -105,7 +105,7 @@ function Spaceship (paramName, imgName, paramPosition, paramMass, paramInitialHe
         this.update(timeSinceLastFrame);
         
         var tileSource = [0,0,this.img.width,this.img.height];
-        var tileDest = [(this.position.x - viewportOffset.x) * Viewport.pixelsPerThousand / 1000, (Viewport.viewportSize.y - this.position.y + viewportOffset.y) * Viewport.pixelsPerThousand / 1000, tileSource[2], tileSource[3]];
+        var tileDest = [Viewport.paintOffset[0] + (this.position.x - viewportOffset.x) * Viewport.pixelsPerThousand / 1000, Viewport.paintOffset[1] + (Viewport.viewportSize.y - this.position.y + viewportOffset.y) * Viewport.pixelsPerThousand / 1000, tileSource[2], tileSource[3]];
         var origPoints = [tileDest[0], tileDest[1]];
         if(this.rotation != 0) {
             tileDest[0] = Math.round(0 - this.img.width / 2);

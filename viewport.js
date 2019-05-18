@@ -71,12 +71,14 @@ var Viewport = {
         Viewport.viewportCanvas.setAttribute("height", Viewport.pxHeight);
         if(Viewport.pxWidth >= Viewport.pxHeight)
         {
-            Viewport.paintSize = [ Viewport.pxWidth - 250, Viewport.pxHeight];
+            Viewport.paintOffset = [ 0, 0];
+            Viewport.paintSize = [ Viewport.pxWidth - 230, Viewport.pxHeight];
             Viewport.hudPlacement = "right";
         } else
         {
-            Viewport.paintSize = [ Viewport.pxWidth, Viewport.pxHeight - 200];
-            Viewport.hudPlacement = "bottom";
+            Viewport.paintOffset = [ 0, 170];
+            Viewport.paintSize = [ Viewport.pxWidth, Viewport.pxHeight - 170];
+            Viewport.hudPlacement = "top";
         }
         Viewport.viewportSize.x = Viewport.paintSize[0] / Viewport.pixelsPerThousand * 1000;
         Viewport.viewportSize.y = Viewport.paintSize[1] / Viewport.pixelsPerThousand * 1000;
@@ -189,7 +191,29 @@ var Viewport = {
         {
             Viewport.hudSum = curHudSum;
         
-            if("bottom" == Viewport.hudPlacement)
+            if("top" == Viewport.hudPlacement)
+            {
+                //do a clear:
+                Viewport.ctx.fillStyle = "#ffffff";
+                Viewport.ctx.fillRect(0,
+                                      0,
+                                      Viewport.pxWidth,
+                                      Viewport.paintOffset[1]);
+
+                Viewport.ctx.strokeStyle = "#e00000";
+                Viewport.ctx.fillStyle   = "#e00000";
+                Viewport.ctx.fillText("Score: " +  Protagonist.score,10, 30);
+                Viewport.ctx.fillText("Wave: " + EnemyWaves.loopedAmount,10, 70);
+                Viewport.ctx.strokeRect(Viewport.pxWidth / 2 - Viewport.pxWidth / 8 * 3, 130, Viewport.pxWidth / 4 * 3, 30);
+                Viewport.ctx.fillRect(Viewport.pxWidth / 2 - Viewport.pxWidth / 8 * 3, 130, Protagonist.spaceship.curHealth * (Viewport.pxWidth / 4 * 3) / Protagonist.spaceship.maxHealth, 30);
+                if(Protagonist.spaceship.hasShield)
+                {
+                  Viewport.ctx.strokeStyle = "#60b0ea";
+                  Viewport.ctx.fillStyle   = "#60b0ea";
+                  Viewport.ctx.strokeRect(Viewport.pxWidth / 2 - Viewport.pxWidth / 8 * 3, 90, Viewport.pxWidth / 4 * 3, 30);
+                  Viewport.ctx.fillRect(Viewport.pxWidth / 2 - Viewport.pxWidth / 8 * 3, 90, Protagonist.spaceship.shieldCurHealth * (Viewport.pxWidth / 4 * 3) / Protagonist.spaceship.shieldMaxHealth, 30);
+                }
+            } else if("bottom" == Viewport.hudPlacement)
             {
                 //do a clear:
                 Viewport.ctx.fillStyle = "#ffffff";
@@ -200,10 +224,17 @@ var Viewport = {
 
                 Viewport.ctx.strokeStyle = "#e00000";
                 Viewport.ctx.fillStyle   = "#e00000";
-                Viewport.ctx.fillText("Score: " +  Protagonist.score,10,Viewport.paintOffset[1] + Viewport.paintSize[1] + 90);
-                Viewport.ctx.fillText("Wave: " + EnemyWaves.loopedAmount,10,Viewport.paintOffset[1] + Viewport.paintSize[1] + 140);
+                Viewport.ctx.fillText("Score: " +  Protagonist.score,10,Viewport.paintOffset[1] + Viewport.paintSize[1] + 100);
+                Viewport.ctx.fillText("Wave: " + EnemyWaves.loopedAmount,10,Viewport.paintOffset[1] + Viewport.paintSize[1] + 150);
                 Viewport.ctx.strokeRect(Viewport.pxWidth / 2 - Viewport.pxWidth / 8 * 3, Viewport.paintOffset[1] + Viewport.paintSize[1], Viewport.pxWidth / 4 * 3, 30);
                 Viewport.ctx.fillRect(Viewport.pxWidth / 2 - Viewport.pxWidth / 8 * 3, Viewport.paintOffset[1] + Viewport.paintSize[1], Protagonist.spaceship.curHealth * (Viewport.pxWidth / 4 * 3) / Protagonist.spaceship.maxHealth, 30);
+                if(Protagonist.spaceship.hasShield)
+                {
+                  Viewport.ctx.strokeStyle = "#60b0ea";
+                  Viewport.ctx.fillStyle   = "#60b0ea";
+                  Viewport.ctx.strokeRect(Viewport.pxWidth / 2 - Viewport.pxWidth / 8 * 3, Viewport.paintOffset[1] + Viewport.paintSize[1] + 40, Viewport.pxWidth / 4 * 3, 30);
+                  Viewport.ctx.fillRect(Viewport.pxWidth / 2 - Viewport.pxWidth / 8 * 3, Viewport.paintOffset[1] + Viewport.paintSize[1] + 40, Protagonist.spaceship.shieldCurHealth * (Viewport.pxWidth / 4 * 3) / Protagonist.spaceship.shieldMaxHealth, 30);
+                }
             } else if("right" == Viewport.hudPlacement)
             {
                 //do a clear:
