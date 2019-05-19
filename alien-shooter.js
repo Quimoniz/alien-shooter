@@ -268,10 +268,42 @@ var MovablesEngine = {
         var newSpeedB = appliedSpeedB.clone();
         newSpeedB.Multiply(collision.subjectB.mass).Add(appliedSpeedA.MultiplyNoChanges(collision.subjectA.mass)).Divide(collision.subjectA.mass + collision.subjectB.mass).Multiply(2).Subtract(appliedSpeedB);
 
+        //apply the speed calculations we found out
         collision.subjectA.speed = newSpeedA.length;
-        collision.subjectA.moveDirection = newSpeedA.Normalize();
+        collision.subjectA.moveDirection = newSpeedA.Normalized;
         collision.subjectB.speed = newSpeedB.length;
-        collision.subjectB.moveDirection = newSpeedB.Normalize();
+        collision.subjectB.moveDirection = newSpeedB.Normalized;
+
+        var deltaPosA = collision.subjectA.position.clone().Subtract(collision.subjectA.previousPosition);
+        var deltaPosB = collision.subjectB.position.clone().Subtract(collision.subjectB.previousPosition);
+        var fictionalPosACur, fictionalPosBCur;
+        var fictionalPosAOld = collision.subjectA.previousPosition, fictionalPosBOld = collision.subjectB.previousPosition;
+        var collisionHappenedAtFraction = 0;
+        for(var i = 0; i < 10; ++i)
+        {
+          deltaPosA.Multiply(0.5);
+          deltaPosB.Multiply(0.5);
+          fictionalPosACur = fictionalPosAOld.AddVectorNoChanges(deltaPosA);
+          fictionalPosBCur = fictionalPosBOld.AddVectorNoChanges(deltaPosB);
+          collision.subjectA.position = fictionalPosACur;
+          collision.subjectB.position = fictionalPosBCur;
+          collision.subjectA.updateHitbox();
+          collision.subjectB.updateHitbox();
+          var hitcheckResult = collision.subjectA.hitcheck(collision.subjectB);
+          if(!hitcheckResult)
+          {
+            collisionHappenedAtFraction += 1.00 / Math.pow(2, i + 1);
+            fictionalPosAOld = fictionalPosACur;
+            fictionalPosBOld = fictionalPosBCur;
+          }
+        }
+        // Apply what we found out, calculate position and updateHitbox
+        fictionalPosACur = fictionalPosAOld.AddVectorNoChanges(newSpeedA.MultiplyNoChanges(Viewport.deltaTimePreviousFrame * (1 - collisionHappenedAtFraction) / 1000));
+        fictionalPosBCur = fictionalPosBOld.AddVectorNoChanges(newSpeedB.MultiplyNoChanges(Viewport.deltaTimePreviousFrame * (1 - collisionHappenedAtFraction) / 1000));
+        collision.subjectA.position = fictionalPosACur;
+        collision.subjectB.position = fictionalPosBCur;
+        collision.subjectA.updateHitbox();
+        collision.subjectB.updateHitbox();
 
         collision.subjectA.collisionDamage();
         collision.subjectB.collisionDamage();

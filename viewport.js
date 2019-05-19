@@ -2,9 +2,10 @@ var Viewport = {
     viewportCanvas: undefined,
     viewportOffset: new Vector2(0,0),
     viewportSize: new Vector2(20000, 12000),
-    paintOffset: [0,0],
-    paintSize: [200,200],
+    paintOffset: [0,0], //TODO: vectorize me
+    paintSize: [200,200], //TODO: vectorize me
     hudPlacement: "right",
+    deltaTimePreviousFrame: 0,
     curTime: 0,
     ctx: undefined,
     pxWidth: 0,
@@ -116,6 +117,7 @@ var Viewport = {
         if ( Viewport.wasRunning  )
         {
             timeSinceLastFrame = curTime - Viewport.lastFrameTime;
+            Viewport.deltaTimePreviousFrame = timeSinceLastFrame;
         }
         Viewport.viewportOffset.y += Viewport.movePerSecond * timeSinceLastFrame / 1000;
 
