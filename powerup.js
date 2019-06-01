@@ -1,14 +1,19 @@
-var allPowerups  = new Array();
 
 class Powerup
 {
+    
     constructor(powerupNumber, paramPosition)
     {
+        this.id = objectIdCounter++;
+        this.name = "Powerup " + powerupNumber;
         this.position = paramPosition;
+        this.rotation = 0;
+        this.mass = 100;
+        this.rotationSpeed = 0;
         this.powerupNumber = powerupNumber;
         this.isCollected = false;
         this.initPowerup();
-        allPowerups.push(this);
+        MovablesEngine.addObject(this);
     }
 
     initPowerup()
@@ -29,8 +34,8 @@ class Powerup
 
     destroy ()
     {
-        allPowerups.splice(allPowerups.indexOf(this), 1);
-		delete this;
+        MovablesEngine.removeObject(this);
+
     }
 
     PowerupEffect()
@@ -140,54 +145,6 @@ class Powerup
                     this.isCollected = true;
                     this.PowerupEffect();
                     this.destroy();
-    //DEBUG
-                    if (false) //DEBUG draw rectangle
-                    {
-                        if(false)  //DEBUG OUTPUT
-                        {
-                            var nicified = "[ ";
-                            for (var i = 0; i < 4; i ++)
-                            {
-                                if ( i > 0 ) nicified += ", ";
-                                nicified += "" + Math.round(hitRect[i]);
-                            }
-                            nicified += " ]";
-                            console.log("hitRect:" + nicified);
-                        }
-                        switch ( this.id % 6) {
-                            case 0:
-                                Viewport.ctx.fillStyle = "#00FF00";
-                                break;
-                            case 1:
-                                Viewport.ctx.fillStyle = "#0000FF";
-                                break;
-                            case 2:
-                                Viewport.ctx.fillStyle = "#00A0A0";
-                                break;
-                            case 3:
-                                Viewport.ctx.fillStyle = "#A0A000";
-                                break;
-                            case 4:
-                                Viewport.ctx.fillStyle = "#A000A0";
-                                break;
-                            case 5:
-                                Viewport.ctx.fillStyle = "#00D0D0";
-                                break;
-                        }
-                        if(((Math.round(Viewport.lastFrameTime / 1000) + this.id) % 3) == 0) {
-                            Viewport.ctx.fillRect(Math.round((hitRect[0] - Viewport.viewportOffset[0]) * Viewport.pixelsPerThousand / 1000),
-                                              Math.round((hitRect[1] - Viewport.viewportOffset[1]) * Viewport.pixelsPerThousand / 1000),
-                                              Math.round(hitRect[2] * Viewport.pixelsPerThousand / 1000),
-                                              Math.round(hitRect[3] * Viewport.pixelsPerThousand / 1000) );
-                        }
-                    }
-                    if (false) {  //DEBUG draw cross-hair
-                        markerposition.x = Math.round(hitRect[0] + hitRect[2] / 2);
-                        markerposition.y = Math.round(hitRect[1] + hitRect[3] / 2);
-                        Viewport.ctx.fillStyle = "#000080";
-                        Viewport.ctx.fillRect( Math.round((markerposition.x - Viewport.viewportOffset[0]) * Viewport.pixelsPerThousand / 1000)- 2, Math.round((markerposition.y - Viewport.viewportOffset[1]) * Viewport.pixelsPerThousand / 1000) - 10, 4, 20);
-                        Viewport.ctx.fillRect( Math.round((markerposition.x - Viewport.viewportOffset[0]) * Viewport.pixelsPerThousand / 1000) - 10, Math.round((markerposition.y - Viewport.viewportOffset[1]) * Viewport.pixelsPerThousand / 1000) - 2, 20, 4);
-                    }
                 }
             }
 

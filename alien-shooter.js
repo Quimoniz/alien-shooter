@@ -181,7 +181,6 @@ var MovablesEngine = {
     doHitcheck: function()
     {
         var movablesLength = MovablesEngine.arrObjects.length;
-        var allPowerupsLength = allPowerups.length;
         for ( var i = 0; i < movablesLength; i++)
         {
             for ( var j = 0; j < movablesLength; j++)
@@ -240,13 +239,6 @@ var MovablesEngine = {
             }
         }
         
-        for(var i = 0; i < allPowerupsLength; i++)
-        {
-            if(allPowerups[i])
-            {
-                allPowerups[i].hitcheck(MovablesEngine.arrObjects[0]);
-            }
-        }
         for(var i = 0; i < MovablesEngine.collisionList.length; ++i)
         {
             var curCollision = MovablesEngine.collisionList[i];
