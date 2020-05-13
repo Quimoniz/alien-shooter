@@ -3,7 +3,7 @@ var Credits = {
     timer: 0,
     creditsSpeed: 3,
     authors: ["Niklas Werner", "Franz Melzow", "Lars Jitschin"],
-    distanceBetweenAuthors : 200,
+    distanceBetweenAuthors : 170,
     
     ShowCredits : function () {
         if (!this.isShowing) {
@@ -18,7 +18,7 @@ var Credits = {
 
         for (i = 0; i < Text.length; i++) {
             char = Text.charAt(i);
-            Viewport.ctx.fillText(char, (Viewport.viewportCanvas.width / 2 - textLength / 2 + curLength), this.timer * this.creditsSpeed + Math.sin(Math.PI * 2 / 10 * i + this.timer / 5) * 11+ offset);
+            Viewport.ctx.fillText(char, (Viewport.viewportCanvas.width / 2 - textLength / 2 + curLength), this.timer * this.creditsSpeed + Math.sin(Math.PI * 2 / 10 * i + this.timer / 5) * 11 + offset);
             curLength += Viewport.ctx.measureText(char).width + 0.5;
         }
     },
