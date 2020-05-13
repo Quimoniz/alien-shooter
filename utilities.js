@@ -27,8 +27,45 @@ function ImageWrapper(nameStr, imageSrc, imgWidth, imgHeight)
     this.name = nameStr
     this.src = new Image()
     this.src.src = imageSrc;
-    this.width = imgWidth;
-    this.height = imgHeight;
+    this.origWidth = this.width = imgWidth;
+    this.origHeight = this.height = imgHeight;
+    this.animSteps = new Array();
+    this.minStepDuration = 200;
+    this.curAnimStep = 0;
+    this.lastAnimUpdate = 0;
+    this.updateAnimeStep = function()
+    {
+      if(0 == this.lastAnimUpdate)
+      {
+        this.lastAnimUpdate = Viewport.curTime;
+      } else if((Viewport.curTime - this.lastAnimUpdate) > this.minStepDuration)
+      {
+        if(0 < this.animSteps.length)
+        {
+          this.curAnimStep = (this.curAnimStep + 1) % this.animSteps.length;
+        }
+      }
+    }
+    this.addAnimStepsPerRow = function (frameSize, frameOffset, frameCount)
+    {
+        for (var i = 0; i < frameCount; i++)
+        {
+            this.animSteps.push([
+                frameOffset[0] + frameSize[0] * i,
+                frameOffset[1],
+                frameSize[0],
+                frameSize[1]
+                ]);
+        }
+    }
+    this.getAnimStep = function (indexAnimStep)
+    {
+        return this.animSteps[indexAnimStep % this.animSteps.length];
+    }
+    this.getStepCount = function ()
+    {
+        return this.animSteps.length;
+    }
 }
 
 var ParticlesTemplateRooster = {
