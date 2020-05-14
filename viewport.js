@@ -143,12 +143,16 @@ var Viewport = {
         for( var i = 0; i < movablesLength; i++)
         {
             curObj = MovablesEngine.arrObjects[i];
-            if (Viewport.objInsideViewport(curObj) || curObj == Protagonist.spaceship)
+            if(curObj)
             {
-                curObj.paint(Viewport.ctx, Viewport.viewportOffset, Viewport.viewportSize, timeSinceLastFrame);
-            } else
-            {
-                MovablesEngine.removeObject(curObj);
+              if (Viewport.objInsideViewport(curObj) || curObj == Protagonist.spaceship)
+              {
+                  curObj.paint(Viewport.ctx, Viewport.viewportOffset, Viewport.viewportSize, timeSinceLastFrame);
+              } else
+              {
+                  curObj.isAlive = false;
+                  //MovablesEngine.removeObject(curObj);
+              }
             }
         }
     },

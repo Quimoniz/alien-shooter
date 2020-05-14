@@ -12,6 +12,7 @@ class Powerup
         this.rotationSpeed = 0;
         this.powerupNumber = powerupNumber;
         this.isCollected = false;
+        this.isAlive = true;
         this.initPowerup();
         MovablesEngine.addObject(this);
     }
@@ -34,8 +35,8 @@ class Powerup
 
     destroy ()
     {
-        MovablesEngine.removeObject(this);
-
+        //MovablesEngine.removeObject(this);
+        this.isAlive = false;
     }
 
     PowerupEffect()

@@ -10,7 +10,8 @@ function Projectile (paramOriginSpaceship, imgName, paramPosition, paramPower, p
     this.speed = paramVelocity;
     this.rotation = Math.PI/2 - paramMoveDirection ;
     this.rotationSpeed = 0;
-    this.hitbox = [0,0,0,0]; 
+    this.hitbox = [0,0,0,0];
+    this.isAlive = true;
     this.update = function(timeSinceLastFrame)
     { /* same as for spaceship */
         this.position.Add(this.moveDirection.Normalized.MultiplyNoChanges((this.speed * timeSinceLastFrame / 1000)));
@@ -109,6 +110,7 @@ function Projectile (paramOriginSpaceship, imgName, paramPosition, paramPower, p
     }
     this.destroy = function ()
     {
-        MovablesEngine.removeObject(this);
+        //MovablesEngine.removeObject(this);
+        this.isAlive = false;
     }
 }

@@ -26,7 +26,9 @@ function Spaceship (paramName, imgName, paramPosition, paramMass, paramInitialHe
     this.hasShield = false;
     this.shieldCurHealth = 0;
     this.shieldMaxHealth = 0;
-
+    this.collisionList = new Array();
+    this.duplicateCollisionTimeout = 1500;
+    this.isAlive = true;
 
     this.engine = function()
     {
@@ -288,7 +290,8 @@ function Spaceship (paramName, imgName, paramPosition, paramMass, paramInitialHe
                 new Powerup(3, this.position.AddVectorNoChanges(new Vector2(Math.floor(Math.random() * 400), Math.floor(Math.random() * 400))));
             }
         }
-		 MovablesEngine.removeObject(this);
+		//MovablesEngine.removeObject(this);
+        this.isAlive = false;
     }
     this.initHealth = function (paramHealth)
     {
@@ -348,8 +351,32 @@ function Spaceship (paramName, imgName, paramPosition, paramMass, paramInitialHe
     {
         this.damage(powerOfImpact);
     }
-    this.collisionDamage = function ()
+    this.collidedRecently = function(impactingObject)
     {
+        if(0 < this.collisionList.length)
+        {
+            if((this.collisionList[0][0] + this.duplicateCollisionTimeout) < Viewport.curTime)
+            {
+                this.collisionList = new Array();
+            } else
+            {
+                for(var i = 0; i < this.collisionList.length; ++i)
+                {
+                    if((this.collisionList[i][0] + this.duplicateCollisionTimeout) > Viewport.curTime)
+                    {
+                        if(this.collisionList[i][1] == impactingObject.id)
+                        {
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+        return false;
+    }
+    this.collided = function (impactingObject)
+    {
+        this.collisionList.push([Viewport.curTime, impactingObject.id]);
         this.damage(25);
     }
     this.fireProjectile = function ()

@@ -155,32 +155,21 @@ var MovablesEngine = {
         MovablesEngine.arrParticles.push(newParticle);
         return newParticle;
     },
-    removeObject: function (oldObject)
+    discardDeadObjects: function()
     {
-        if(oldObject)
+      var newObjectList = new Array();
+      for(var i = MovablesEngine.arrObjects.length - 1; i >= 0; i--)
+      {
+        if(MovablesEngine.arrObjects[i].isAlive)
         {
-            for (var i = 0; i < MovablesEngine.arrObjects.length; i++)
-            {
-                if (oldObject.id == MovablesEngine.arrObjects[i].id)
-                {
-                    var newArrObjects = new Array(MovablesEngine.arrObjects.length - 1);
-                    for (var j = 0; j < newArrObjects.length; j++)
-                    {
-                        if (j < i)
-                        {
-                            newArrObjects[j] = MovablesEngine.arrObjects[j];
-                        } else
-                        {
-                            newArrObjects[j] = MovablesEngine.arrObjects[j + 1];
-                        }
-                    }
-                    MovablesEngine.arrObjects = newArrObjects;
-                    break;
-                }
-            }
-            //explicitly tell the garbage collector to delete this object
-            delete oldObject;
+          newObjectList.push(MovablesEngine.arrObjects[i]);
+        } else
+        {
+          // tell Garbage Collector to remove said object
+          //delete MovablesEngine.arrObjects[i];
         }
+      }
+      MovablesEngine.arrObjects = newObjectList;
     },
     doHitcheck: function()
     {
@@ -246,9 +235,12 @@ var MovablesEngine = {
         for(var i = 0; i < MovablesEngine.collisionList.length; ++i)
         {
             var curCollision = MovablesEngine.collisionList[i];
-            MovablesEngine.performCollision(curCollision);
+            if(!curCollision.subjectA.collidedRecently(curCollision.subjectB))
+            {
+              MovablesEngine.performCollision(curCollision);
+            }
             curCollision.subjectA = undefined;
-            curCollision.subjectb = undefined;
+            curCollision.subjectB = undefined;
             delete curCollision;
             
         }
@@ -301,8 +293,8 @@ var MovablesEngine = {
         collision.subjectA.updateHitbox();
         collision.subjectB.updateHitbox();
 
-        collision.subjectA.collisionDamage();
-        collision.subjectB.collisionDamage();
+        collision.subjectA.collided(collision.subjectB);
+        collision.subjectB.collided(collision.subjectA);
     }
 };
 
@@ -358,6 +350,7 @@ var ProgramExecuter = {
         Viewport.update(); //Will also call update and paint on spaceship
         Viewport.ctx.restore();
         Viewport.paintHud();
+        MovablesEngine.discardDeadObjects();
     },
     gameOver: function ()
     {
@@ -450,7 +443,7 @@ function spawnEnemyOfType(enemyType, enemyPos)
             break;
         case 3:
             newEnemy.defaultSpeed = newEnemy.speed = 2000;
-            newEnemy.mass = 300;
+            newEnemy.mass = 100;
             newEnemy.timeBetweenFiring = 2000;
             // move octagonally
             newEnemy.engine = function ()
