@@ -413,7 +413,7 @@ function spawnEnemyOfType(enemyType, enemyPos)
     {
         case 1: // Kamikaze spaceship
             newEnemy.defaultSpeed = newEnemy.speed = 4500;
-            newEnemy.initHealth(25);
+            newEnemy.initHealth(50);
             // follow the player
             newEnemy.engine = function ()
             {
@@ -677,7 +677,9 @@ GraphicsRooster.addImage("laser_1", "gfx/laser-1.png", 3, 10);
 GraphicsRooster.addImage("laser_2", "gfx/laser-2.png", 3, 10); 
 GraphicsRooster.addImage("shield", "gfx/shield.png", 90, 105); 
 GraphicsRooster.addImage("particle_explosion", "gfx/explosion-whole.png", 480, 288);
-GraphicsRooster.addImage("particle_dot", "gfx/particle-dot.png", 96, 16);
+GraphicsRooster.addImage("particle_dot_red", "gfx/particle-dot-red.png", 96, 16);
+GraphicsRooster.addImage("particle_dot_yellow", "gfx/particle-dot-yellow.png", 96, 16);
+GraphicsRooster.addImage("particle_dot_orange", "gfx/particle-dot-orange.png", 96, 16);
 GraphicsRooster.addImage("powerup_1", "gfx/powerup_1.png", 36, 36);
 GraphicsRooster.addImage("powerup_2", "gfx/powerup_2.png", 36, 36);
 GraphicsRooster.addImage("powerup_3", "gfx/powerup_3.png", 36, 36);
@@ -686,9 +688,15 @@ GraphicsRooster.addImage("alien_tileset", "gfx/alien%20tileset.png", 192, 416);
 var curTemplate = new ParticleTemplate("particle_explosion");
 curTemplate.addAnimStepsPerRow([80,80],[0,0],5);
 ParticlesTemplateRooster.addTemplate("explosion", curTemplate);
-curTemplate = new ParticleTemplate("particle_dot");
+curTemplate = new ParticleTemplate("particle_dot_red");
 curTemplate.addAnimStepsPerRow([16,16],[0,0],6);
 ParticlesTemplateRooster.addTemplate("reddot", curTemplate);
+curTemplate = new ParticleTemplate("particle_dot_yellow");
+curTemplate.addAnimStepsPerRow([16,16],[0,0],6);
+ParticlesTemplateRooster.addTemplate("yellowdot", curTemplate);
+curTemplate = new ParticleTemplate("particle_dot_orange");
+curTemplate.addAnimStepsPerRow([16,16],[0,0],6);
+ParticlesTemplateRooster.addTemplate("orangedot", curTemplate);
 
 setTimeout(ProgramExecuter.init, 150);
 

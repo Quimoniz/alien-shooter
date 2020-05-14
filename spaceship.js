@@ -27,7 +27,7 @@ function Spaceship (paramName, imgName, paramPosition, paramMass, paramInitialHe
     this.shieldCurHealth = 0;
     this.shieldMaxHealth = 0;
     this.collisionList = new Array();
-    this.duplicateCollisionTimeout = 1500;
+    this.duplicateCollisionTimeout = 300;
     this.isAlive = true;
 
     this.engine = function()
@@ -255,7 +255,16 @@ function Spaceship (paramName, imgName, paramPosition, paramMass, paramInitialHe
         }
         return false;
     }
-    
+    this.spawnCollisionParticles = function(particleTemplate, particleCountArr, particlePositionVec, particleDirectionArr, particleSpeedArr)
+    {
+      for (var i = particleCountArr[0] + Math.random() * (particleCountArr[1] - particleCountArr[0]); i > 0 ; i--)
+        {
+            var curDirection = Vector2.RadToVector(particleDirectionArr[0] + (particleDirectionArr[1] - particleDirectionArr[0]) * Math.random())
+            var curSpeed = particleSpeedArr[0] + (particleSpeedArr[1] - particleSpeedArr[0]) * Math.random();
+            var explosionParticle = MovablesEngine.createParticle(particleTemplate, particlePositionVec, curDirection, curSpeed);
+            explosionParticle.template.minStepDuration = 300;
+        }
+    }
     this.destroy = function ()
     {
         var explosionParticle;
@@ -270,11 +279,9 @@ function Spaceship (paramName, imgName, paramPosition, paramMass, paramInitialHe
             explosionParticle = MovablesEngine.createParticle("explosion", new Vector2(this.position.x + i / numOfExplosions * this.effectiveSize.x, this.position.y), this.moveDirection, this.speed / 3);
             explosionParticle.template.minStepDuration = 70;
         }
-        for (var i = 8 + Math.random() * 6; i > 0 ; i--)
-        {
-            explosionParticle = MovablesEngine.createParticle("reddot", new Vector2(this.position.x, this.position.y), Vector2.RadToVector(Math.PI * 2 * i / 10 + Math.random() * Math.PI * 2 / 10), 800 + Math.random() * 1500 + Math.random () * 1500);
-            explosionParticle.template.minStepDuration = 300;
-        }
+        this.spawnCollisionParticles("reddot", [5, 8], this.position.clone(), [0, Math.PI*2], [800, 3000]);
+        this.spawnCollisionParticles("orangedot", [1, 3], this.position.clone(), [0, Math.PI*2], [400, 1000]);
+        this.spawnCollisionParticles("yellowdot", [1, 2], this.position.clone(), [0, Math.PI*2], [400, 1000]);
         
         if(Protagonist.spaceship.id == this.id)
         {
@@ -376,8 +383,10 @@ function Spaceship (paramName, imgName, paramPosition, paramMass, paramInitialHe
     }
     this.collided = function (impactingObject)
     {
-        this.collisionList.push([Viewport.curTime, impactingObject.id]);
+        this.collisionList.unshift([Viewport.curTime, impactingObject.id]);
         this.damage(25);
+        var collisionCenter = new Vector2((this.position.x + impactingObject.position.x) / 2, (this.position.y + impactingObject.position.y) / 2);
+        this.spawnCollisionParticles("orangedot", [1, 2], collisionCenter, [0, Math.PI*2], [150, 600]);
     }
     this.fireProjectile = function ()
     {
