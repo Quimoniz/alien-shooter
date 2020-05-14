@@ -30,7 +30,7 @@ function Projectile (paramOriginSpaceship, imgName, paramPosition, paramPower, p
     }
     this.updateHitbox();
 
-    this.paint = function (ctx, viewportOffset, timeSinceLastFrame)
+    this.paint = function (ctx, viewportOffset, viewportSize, timeSinceLastFrame)
     { /* same as for spaceship */
         this.update(timeSinceLastFrame);
         var tileSource = [0,0,this.img.width,this.img.height];

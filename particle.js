@@ -22,7 +22,7 @@ function Particle (particleTemplate, paramPosition, paramMoveDirection, paramVel
         else if(this.rotation  < 0)
             this.rotation = (Math.PI * 2) - (this.rotation % (Math.PI * -2));
     } 
-    this.paint = function (ctx, viewportOffset, timeSinceLastFrame)
+    this.paint = function (ctx, viewportOffset, viewportSize, timeSinceLastFrame)
     {
         if((Viewport.curTime - this.timeLastFrame) >= this.template.minStepDuration)
         {

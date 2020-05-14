@@ -15,14 +15,13 @@ var Landscape = {
       var url = "maps/" + mapName + ".js";
       var scriptEle = document.createElement("script");
       scriptEle.type = "text/javascript";
-      console.log("loadMapProvider(" + mapName + ")");
       scriptEle.addEventListener("load", function (paramMapName) { return function(evtObj)
       {
         Landscape.setMapProvider(paramMapName);
       }; }(mapName));
       scriptEle.src = url;
       document.getElementsByTagName("head")[0].appendChild(scriptEle);
-
+ 
     },
     setMapProvider: function(mapName)
     {

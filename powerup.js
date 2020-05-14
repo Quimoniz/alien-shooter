@@ -77,7 +77,7 @@ class Powerup
                        this.img.height * 1000/ Viewport.pixelsPerThousand];
     }
 
-    paint (ctx, viewportOffset, timeSinceLastFrame)
+    paint (ctx, viewportOffset, viewportSize, timeSinceLastFrame)
     {
         this.update(timeSinceLastFrame);
         

@@ -145,7 +145,7 @@ var Viewport = {
             curObj = MovablesEngine.arrObjects[i];
             if (Viewport.objInsideViewport(curObj) || curObj == Protagonist.spaceship)
             {
-                curObj.paint(Viewport.ctx, Viewport.viewportOffset, timeSinceLastFrame);
+                curObj.paint(Viewport.ctx, Viewport.viewportOffset, Viewport.viewportSize, timeSinceLastFrame);
             } else
             {
                 MovablesEngine.removeObject(curObj);
@@ -162,7 +162,7 @@ var Viewport = {
             curParticle = MovablesEngine.arrParticles[i];
             if(curParticle.isActive && Viewport.objInsideViewport(curParticle))
             {
-                curParticle.paint(Viewport.ctx, Viewport.viewportOffset, timeSinceLastFrame);
+                curParticle.paint(Viewport.ctx, Viewport.viewportOffset, Viewport.viewportSize, timeSinceLastFrame);
                 newParticleArr.push(curParticle);
             } else
             {
