@@ -106,7 +106,7 @@ function spawnWave(waveNum)
         case 0:
           var randomXPos = Math.floor(Viewport.viewportOffset.x + 500 + (Math.random() * (Viewport.viewportSize.x - 5000)));
           spawnEnemyOfType(1, new Vector2(randomXPos, screenTopPos));
-          spawnEnemyOfType(1, new Vector2(randomXPos + 4999, screenTopPos));
+          //spawnEnemyOfType(1, new Vector2(randomXPos + 4999, screenTopPos));
           break;
         case 1:
           spawnEnemyOfType(2, new Vector2(Viewport.viewportOffset.x + 4000, screenTopPos));
@@ -122,18 +122,22 @@ function spawnWave(waveNum)
           break;
         case 3:
           var randomXPos = Math.floor(Viewport.viewportOffset.x + 500 + (Math.random() * (Viewport.viewportSize.x - 7500)));
-          spawnEnemyOfType(4, new Vector2(randomXPos + 750, screenTopPos - 40));
+          // reduce wave size
+          //spawnEnemyOfType(4, new Vector2(randomXPos + 750, screenTopPos - 40));
           spawnEnemyOfType(4, new Vector2(randomXPos + 2250, screenTopPos - 40));
           spawnEnemyOfType(4, new Vector2(randomXPos + 3750, screenTopPos - 40));
           spawnEnemyOfType(4, new Vector2(randomXPos + 5250, screenTopPos - 40));
-          spawnEnemyOfType(4, new Vector2(randomXPos + 6750, screenTopPos - 40));
+          //spawnEnemyOfType(4, new Vector2(randomXPos + 6750, screenTopPos - 40));
           break;
         case 4:
           var randomXPos = Math.floor(Viewport.viewportOffset.x + 500 + (Math.random() * (Viewport.viewportSize.x - 2000)));
           spawnEnemyOfType(5, new Vector2(randomXPos, screenTopPos));
           break;
     }
-    setTimeout(spawnRandomEnemy, 800);
+    if(0.1 > Math.random())
+    {
+      setTimeout(spawnRandomEnemy, 800);
+    }
 }
 
 var MovablesEngine = {
@@ -414,8 +418,9 @@ function spawnEnemyOfType(enemyType, enemyPos)
     var newEnemy = new Spaceship("Enemy " + enemyType, "gegner_" + enemyType, enemyPos, 5000, 100);
     switch(enemyType)
     {
-        case 1:
+        case 1: // Kamikaze spaceship
             newEnemy.defaultSpeed = newEnemy.speed = 4500;
+            newEnemy.initHealth(25);
             // follow the player
             newEnemy.engine = function ()
             {
