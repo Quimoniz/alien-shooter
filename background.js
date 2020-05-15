@@ -4,6 +4,7 @@ var Landscape = {
     tileSize: new Vector2(32, 32),
     map: new Array(),
     showGrid: false,
+    spawnPoints: new Array(),
     mapProvider: undefined,
     init: function ()
     {
@@ -35,12 +36,17 @@ var Landscape = {
         {
           return false;
         }
+        //startX, endX calculation is probably faulty
         var startX = Math.floor(Viewport.viewportOffset.x * Viewport.pixelsPerThousand / 1000 / Landscape.tileSize.x);
         var endX =  Math.ceil((Viewport.viewportOffset.x + Viewport.viewportSize.x) * Viewport.pixelsPerThousand / 1000 / Landscape.tileSize.x);
-        var startY = Math.floor(Viewport.viewportOffset.y * Viewport.pixelsPerThousand / 1000 / Landscape.tileSize.y);
-        var endY = Math.ceil((Viewport.viewportOffset.y + Viewport.viewportSize.y) * Viewport.pixelsPerThousand / 1000 / Landscape.tileSize.y);
+        var positionToPixelsFactor = 1 * Viewport.pixelsPerThousand / 1000.00;
+
+        var startY = Math.floor((Viewport.viewportOffset.y * positionToPixelsFactor) / Landscape.tileSize.y) - 1;
+        var endY = startY + Math.ceil((Viewport.viewportSize.y * positionToPixelsFactor) / Landscape.tileSize.y);
+
+        //offsetX calculation is probably faulty
         var offsetX = startX * Landscape.tileSize.x - Viewport.viewportOffset.x * Viewport.pixelsPerThousand / 1000;
-        var offsetY = startY * Landscape.tileSize.y - Viewport.viewportOffset.y * Viewport.pixelsPerThousand / 1000;
+        var offsetY = Math.round(Landscape.tileSize.y - ((Viewport.viewportOffset.y * positionToPixelsFactor) - (startY * Landscape.tileSize.y)));
 //console.log("X range:" + startX + " to " + endX);
 //console.log("Y range:" + startY + " to " + endY);
         var destX = 0, destY = 0;
@@ -49,10 +55,11 @@ var Landscape = {
         {
           if(!Landscape.map[curY])
           {
+            /*
             for(var i = Landscape.map.length; i < startY; ++i)
             {
               Landscape.map.push(new Array());
-            }
+            }*/
             Landscape.map[curY] = new Array(endX + 1);
             Landscape.mapProvider.provideMapLine(Landscape.map, curY, startX, endX);
           }
@@ -119,5 +126,38 @@ var Landscape = {
       return true;
     }
     return false;
+  },
+  markSpawnPoint: function(lineNumber, rowNumber) {
+    var point = new Vector2(rowNumber  * Landscape.tileSize.x / Viewport.pixelsPerThousand * 1000,
+                            lineNumber * Landscape.tileSize.y / Viewport.pixelsPerThousand * 1000
+                            );
+    Landscape.spawnPoints.push(point);
+    /*
+    console.log("Adding spawnPoint " + (point.x) + ", " + (point.y));
+    console.log("Viewport x:" + Viewport.viewportOffset.x + "-" + (Viewport.viewportOffset.x + Viewport.viewportSize.x)
+            + ", Viewport y:" + Viewport.viewportOffset.y + "-" + (Viewport.viewportOffset.y + Viewport.viewportSize.y));
+    console.log("Landscape.map.length: " + Landscape.map.length);
+    */
+    var countToStrip = 0;
+    for(var i = 0; i < Landscape.spawnPoints.length; ++i)
+    {
+      if(!Viewport.vecInsideViewport(Landscape.spawnPoints[i]))
+      {
+        /*
+        console.log("Discarding spawnPoint: Out of range.");
+        console.log("SpawnPoint: " + (Landscape.spawnPoints[i].x) + ", " + (Landscape.spawnPoints[i].y));
+        console.log("Viewport x:" + Viewport.viewportOffset.x + "-" + (Viewport.viewportOffset.x + Viewport.viewportSize.x)
+                + ", Viewport y:" + Viewport.viewportOffset.y + "-" + (Viewport.viewportOffset.y + Viewport.viewportSize.y));
+                */
+        countToStrip++;
+      } else
+      {
+        break;
+      }
+    }
+    if(0 < countToStrip)
+    {
+      Landscape.spawnPoints.splice(0, countToStrip);
+    }
   }
 }

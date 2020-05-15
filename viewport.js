@@ -268,6 +268,17 @@ var Viewport = {
             }
         }
     },
+    vecInsideViewport: function(vec)
+    {
+        if(vec.x > Viewport.viewportOffset.x
+        && vec.x < (Viewport.viewportOffset.x + Viewport.viewportSize.x)
+        && vec.y > Viewport.viewportOffset.y
+        && vec.y < (Viewport.viewportOffset.y + Viewport.viewportSize.y))
+        {
+            return true;
+        }
+        return false;
+    },
     objInsideViewport: function (movingObject)
     {
         if(movingObject)

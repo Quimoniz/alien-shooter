@@ -55,7 +55,7 @@ var MapProvider = {
 		  else if(Landscape.isElement(belowTile, [0, 11])) newTile = [0, 10];
 		  else if(Landscape.isElement(belowTile, [1, 11])) newTile = [1, 10];
 		  else {
-			  if(0 == Math.floor(Math.random() * 70))
+			  if(0 == Math.floor(Math.random() * 50))
 			  {
 			  	let randomNum = Math.floor(Math.random() * 12);
 			  	{
@@ -63,18 +63,21 @@ var MapProvider = {
 			  			mapObject[lineNumber][j] = [0, 2];
 			  			mapObject[lineNumber][j + 1] = [1, 2];
 			  			mapObject[lineNumber][j + 2] = [2, 2];
+			  			Landscape.markSpawnPoint(lineNumber, j + 1);
 			  			j += 2;
 			  		}	
 			  		else if(1 == randomNum) { // 3x2 blue planet
 			  			mapObject[lineNumber][j] = [3, 1];
 			  			mapObject[lineNumber][j + 1] = [4, 1];
 			  			mapObject[lineNumber][j + 2] = [5, 1];
+			  			Landscape.markSpawnPoint(lineNumber, j + 1);
 			  			j += 2;
 			  		}	
 			  		else if(2 == randomNum) { // 3x2 red planet
 			  			mapObject[lineNumber][j] = [3, 3];
 			  			mapObject[lineNumber][j + 1] = [4, 3];
 			  			mapObject[lineNumber][j + 2] = [5, 3];
+			  			Landscape.markSpawnPoint(lineNumber, j + 1);
 			  			j += 2;
 			  		}	
 			  		else if(3 == randomNum) { // 4x4 red planet
@@ -82,16 +85,19 @@ var MapProvider = {
 			  			mapObject[lineNumber][j + 1] = [1, 7];
 			  			mapObject[lineNumber][j + 2] = [2, 7];
 			  			mapObject[lineNumber][j + 3] = [3, 7];
+			  			Landscape.markSpawnPoint(lineNumber, j + 1);
 			  			j += 3;
 			  		}	
 			  		else if(4 == randomNum) { // 2x2 green planet
 			  			mapObject[lineNumber][j] = [4, 5];
 			  			mapObject[lineNumber][j + 1] = [5, 5];
+			  			Landscape.markSpawnPoint(lineNumber, j + 1);
 			  			j += 1;
 			  		}	
 			  		else if(5 == randomNum) { // 2x2 brown planet
 			  			mapObject[lineNumber][j] = [4, 7];
 			  			mapObject[lineNumber][j + 1] = [5, 7];
+			  			Landscape.markSpawnPoint(lineNumber, j + 1);
 			  			j += 1;
 			  		}	
 			  		else if(6 == randomNum) { // 1x1 single big star
@@ -108,6 +114,7 @@ var MapProvider = {
 			  		}	
 			  		else if(9 == randomNum) { // 1x1 red planet
 			  			mapObject[lineNumber][j] = [5, 11];
+			  			Landscape.markSpawnPoint(lineNumber, j);
 			  			j += 0;
 			  		}	
 			  		else if(10 == randomNum) { // 2x3 space station
@@ -119,6 +126,7 @@ var MapProvider = {
 			  			mapObject[lineNumber][j] = [2, 12];
 			  			mapObject[lineNumber][j + 1] = [3, 12];
 			  			mapObject[lineNumber][j + 2] = [4, 12];
+			  			Landscape.markSpawnPoint(lineNumber, j + 1);
 			  			j += 2;
 			  		}
 				  }
