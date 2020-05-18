@@ -36,7 +36,7 @@ var Protagonist = {
     init: function ()
     {
         Protagonist.spaceship = new Spaceship("Protagonist", "spieler_0", new Vector2(3000, 7000), 500, 100);
-        Protagonist.spaceship.defaultSpeed = 14000;
+        Protagonist.spaceship.maxSteeringSpeed = 14000;
         Protagonist.spaceship.speed = 5000;
         MovablesEngine.addObject(Protagonist.spaceship);
         if(-1 < location.href.indexOf("invincible"))
@@ -336,6 +336,7 @@ function KeyUsedObj (keyCode, timeElapsed)
 
 var UserInput = {
     keysUsedQueue: new Array(),
+    keyPressCallbacks: new Array(),
     init: function ()
     {
         document.onkeydown = function (eventParam)
@@ -358,6 +359,13 @@ var UserInput = {
             {
                 UserInput.keysUsedQueue.push(new KeyPressObj(keyCode));
             }
+            for(var i = 0; i < UserInput.keyPressCallbacks.length; ++i)
+            {
+                if(keyCode == UserInput.keyPressCallbacks[i][0])
+                {
+                  UserInput.keyPressCallbacks[i][1](eventParam); 
+                }
+            }
         }
         document.onkeyup = function (eventParam)
         {
@@ -375,6 +383,10 @@ var UserInput = {
                 }
             }
         }
+    },
+    registerKeyPressCallback: function(keyCode, callback)
+    {
+      UserInput.keyPressCallbacks.push([keyCode, callback]);
     },
     getKeysSinceLastQuery: function ()
     {
@@ -418,10 +430,10 @@ var UserInput = {
             curKeyPress = keysPressed[i];
             switch(curKeyPress.keyCode)
             {
-              case 32:
+              case 32: // pressing SPACE BAR
                 Protagonist.spaceship.firingIntended();
                 break;
-              case 67:
+              case 67: // pressing C
                 Credits.ShowCredits();
                 break;
               case 69:
@@ -432,7 +444,7 @@ var UserInput = {
               //Takes care of pressing Q
                 Protagonist.spaceship.rotation = Vector2.VectorToRad(1, 1) * 7;
                 break;
-              case 83:
+              case 83: // pressing S
                 spawnRandomEnemy();
                 break;
               default :
@@ -443,20 +455,20 @@ var UserInput = {
             }
             if(!Viewport.mouse)
             {
-              var defaultSpeed = Protagonist.spaceship.defaultSpeed;
+              var maxSpeed = Protagonist.spaceship.maxSteeringSpeed;
               switch(curKeyPress.keyCode)
               {
-                case 37:
-                  Protagonist.userInputDirection(new Vector2(-1, 0), defaultSpeed, curKeyPress.timeElapsed);
+                case 37:  // LEFT ARROW
+                  Protagonist.userInputDirection(new Vector2(-1, 0), maxSpeed, curKeyPress.timeElapsed);
                   break;
-                case 38:
-                  Protagonist.userInputDirection(new Vector2(0, 1), defaultSpeed, curKeyPress.timeElapsed);
+                case 38:  // UP ARROW
+                  Protagonist.userInputDirection(new Vector2(0, 1), maxSpeed, curKeyPress.timeElapsed);
                   break;
-                case 39:
-                  Protagonist.userInputDirection(new Vector2(1, 0), defaultSpeed, curKeyPress.timeElapsed);
+                case 39:  // RIGHT ARROW
+                  Protagonist.userInputDirection(new Vector2(1, 0), maxSpeed, curKeyPress.timeElapsed);
                   break;
-                case 40:
-                  Protagonist.userInputDirection(new Vector2(0, -1), defaultSpeed, curKeyPress.timeElapsed);
+                case 40:  // DOWN ARROW
+                  Protagonist.userInputDirection(new Vector2(0, -1), maxSpeed, curKeyPress.timeElapsed);
                   break;
               }
             }
@@ -469,14 +481,35 @@ var UserInput = {
           var offsetDirection = new Vector2(calculatedPos[0] - Protagonist.spaceship.position.x, calculatedPos[1] - Protagonist.spaceship.position.y);
 //          Protagonist.spaceship.steerTowardsDirection(offsetDirection);
           //speed it up a little
-          if(offsetDirection.length > Protagonist.spaceship.defaultSpeed)
+          var areaToTarget = offsetDirection.x * offsetDirection.y * 0.5;
+          var desiredDirection = undefined;
+          //FLAWED, FIX ME
+          var timeUntilReaching = (offsetDirection.clone().Divide(Protagonist.spaceship.speed)).length;
+          var timeUntilZeroSpeed = Protagonist.spaceship.speed / Protagonist.spaceship.maxSteeringSpeed;
+          if(timeUntilReaching <= timeUntilZeroSpeed)
           {
-            offsetDirection.Multiply(Protagonist.spaceship.defaultSpeed / offsetDirection.length);
+            desiredDirection = offsetDirection.MultiplyNoChanges(-1);
+          } else
+          {
+
+            var mulFactor = timeUntilReaching/timeUntilZeroSpeed;
+            if(isNaN(mulFactor))
+            {
+              mulFactor = 3;
+            } else {
+              mulFactor *= 2;
+            }
+            desiredDirection = offsetDirection.MultiplyNoChanges(mulFactor);
           }
-          var newSpeed = Math.asin(Math.min(1, offsetDirection.length / Protagonist.spaceship.defaultSpeed)) / (Math.PI * 2) * 400;
-          offsetDirection.Multiply(newSpeed);
-          //console.log("calculatedPos:" + calculatedPos.join(",") + ". newSpeed:" + newSpeed + ". offsetDirection.length" + offsetDirection.length);
-          Protagonist.userInputDirection(offsetDirection, offsetDirection.length, 500);
+          Protagonist.userInputDirection(desiredDirection, desiredDirection.length, 500);
+          if(DistanceTracking.running)
+          {
+            DistanceTracking.recordDistance([Protagonist.spaceship.position.Distance(new Vector2(calculatedPos[0], calculatedPos[1])),
+                                            desiredDirection.length,
+                                            areaToTarget,
+                                            timeUntilReaching,
+                                            timeUntilZeroSpeed]);
+          }
         }
         if(Viewport.mousedown)
         {
@@ -485,10 +518,71 @@ var UserInput = {
     }
 };
 
+var DistanceTracking = {
+  startTime: undefined,
+  running: false,
+  record: new Array(),
+  recordDistance: function(trackingArr) {
+    var curArr = new Array(trackingArr.length + 1);
+    curArr[0] = Viewport.curTime - DistanceTracking.startTime;
+    for(var i = 1; i <= trackingArr.length; ++i)
+    {
+      curArr[i] = trackingArr[i - 1];
+    }
+    DistanceTracking.record.push(curArr);
+  },
+  startTracking: function()
+  {
+    DistanceTracking.startTime = Viewport.curTime;
+    DistanceTracking.running = true;
+  },
+  resetTracking: function()
+  {
+    DistanceTracking.startTime = undefined;
+    DistanceTracking.record = new Array(),
+    DistanceTracking.running = false;
+  },
+  getCSV: function()
+  {
+    var outCSV = "";
+    for(var i = 0; i < DistanceTracking.record.length; ++i)
+    {
+      outCSV += DistanceTracking.record[i][0];
+      for(var j = 1; j < DistanceTracking.record[i].length; ++j)
+      {
+        outCSV += "," + (parseFloat(DistanceTracking.record[i][j])).toFixed(3);
+      }
+      outCSV += "\n";
+    }
+    return outCSV;
+  }
+};
 
-
-
-
+UserInput.registerKeyPressCallback("R".charCodeAt(0), function(evtObj) {
+    if(!DistanceTracking.running)
+    {
+      DistanceTracking.startTracking();
+    } else
+    {
+      downloadString("alien-shooter-distances.csv",
+                     DistanceTracking.getCSV(),
+                     "text/csv;charset: utf-8;");
+      DistanceTracking.resetTracking();
+    }
+});
+function downloadString(nameStr, outStr, typeStr)
+{
+  var linkEle = document.createElement("a");
+  var dataUrl = URL.createObjectURL( new Blob([outStr], { "type": typeStr }));
+  linkEle.setAttribute("href", dataUrl);
+  linkEle.setAttribute("download", nameStr);
+  linkEle.setAttribute("onclick", "this.parentNode.removeChild(this);");
+  document.body.appendChild(document.createTextNode(nameStr));
+  linkEle = document.body.appendChild(linkEle);
+  linkEle.click();
+  //NOT CALLING URL.revokeObjectURL(dataUrl)
+  //'CAUSE THIS IS NOT A PRODUCTION FEATURE
+}
 
 GraphicsRooster.addImage("gegner_1", "gfx/gegner_1.png", 62, 56);
 GraphicsRooster.addImage("gegner_2", "gfx/gegner_2.png", 60, 82);

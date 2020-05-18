@@ -9,8 +9,8 @@ function Spaceship (paramName, imgName, paramPosition, paramMass, paramInitialHe
                             this.img.height * 1000 / Viewport.pixelsPerThousand);
     this.effectiveSize = this.baseSize.clone();
     this.previousPosition = paramPosition;
-    this.defaultSpeed = 800;
-    this.speed = 0;
+    this.maxSteeringSpeed = 800; //max speed
+    this.speed = 0; //current speed
     this.moveDirection = new Vector2(0, -1);
     this.steerIntention = undefined;
     this.curHealth = paramInitialHealth;
@@ -45,17 +45,19 @@ function Spaceship (paramName, imgName, paramPosition, paramMass, paramInitialHe
           var appliedCurrentSpeed = this.moveDirection.MultiplyNoChanges(this.speed);
           var deltaSpeed;
           deltaSpeed =  this.steerIntention.clone().Subtract(appliedCurrentSpeed);
-          if(deltaSpeed.length < this.defaultSpeed * 0.10)
+          //if the desired alteration deviates just 10%
+          //  just copy the desired alteration
+          if(deltaSpeed.length < this.maxSteeringSpeed * 0.10)
           {
             this.moveDirection = this.steerIntention;
-            this.speed = this.defaultSpeed;
+            this.speed = this.maxSteeringSpeed;
             this.steerIntention = undefined;
           }
-          appliedCurrentSpeed.Add(deltaSpeed.Normalized.MultiplyNoChanges(this.defaultSpeed * timeSinceLastFrame / 1000));
+          appliedCurrentSpeed.Add(deltaSpeed.Normalized.MultiplyNoChanges(this.maxSteeringSpeed * timeSinceLastFrame / 1000));
           // maximum speed is default speed
-          if(appliedCurrentSpeed.length > this.defaultSpeed)
+          if(appliedCurrentSpeed.length > this.maxSteeringSpeed)
           {
-            appliedCurrentSpeed.Multiply(this.defaultSpeed / appliedCurrentSpeed.length)
+            appliedCurrentSpeed.Multiply(this.maxSteeringSpeed / appliedCurrentSpeed.length)
           }
           this.speed = appliedCurrentSpeed.length;
           this.moveDirection = appliedCurrentSpeed.Normalized;

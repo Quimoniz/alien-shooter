@@ -111,6 +111,13 @@ class Vector2
         return Math.atan2(this.y, this.x);
     }
 
+    Distance(otherVec)
+    {
+      var deltaX = Math.abs(this.x - otherVec.x);
+      var deltaY = Math.abs(this.y - otherVec.y);
+      return Math.sqrt((deltaX * deltaX) + (deltaY * deltaY));
+    }
+
     Output(optionalText)
     {
         console.log(optionalText + ": (" + this.x + "|" + this.y + ")");
