@@ -482,33 +482,63 @@ var UserInput = {
 //          Protagonist.spaceship.steerTowardsDirection(offsetDirection);
           //speed it up a little
           var areaToTarget = offsetDirection.x * offsetDirection.y * 0.5;
-          var desiredDirection = undefined;
+          var desiredDirection = new Vector2(0, 0);
           //FLAWED, FIX ME
-          var timeUntilReaching = (offsetDirection.clone().Divide(Protagonist.spaceship.speed)).length;
-          var timeUntilZeroSpeed = Protagonist.spaceship.speed / Protagonist.spaceship.maxSteeringSpeed;
-          if(timeUntilReaching <= timeUntilZeroSpeed)
-          {
-            desiredDirection = offsetDirection.MultiplyNoChanges(-1);
-          } else
-          {
+          var timeUntilReaching = new Array(3);
+          timeUntilReaching[2] = (offsetDirection.clone().Divide(Protagonist.spaceship.speed)).length;
+          var timeUntilZeroSpeed = new Array(3);
+          timeUntilZeroSpeed[2] = Protagonist.spaceship.speed / Protagonist.spaceship.maxSteeringSpeed;
 
-            var mulFactor = timeUntilReaching/timeUntilZeroSpeed;
-            if(isNaN(mulFactor))
+          for(var i = 0; i < 2; ++i)
+          {
+//            console.log("timeUntilReaching[" + i + "]: " + timeUntilReaching[i]);
+//            console.log("timeUntilZeroSpeed[" + i + "]: " + timeUntilZeroSpeed[i]);
+//            console.log("offsetDirection.values[" + i + "]" + offsetDirection.values[i]);
+            timeUntilReaching[i] = offsetDirection.values[i] / (Protagonist.spaceship.moveDirection.values[i] * Protagonist.spaceship.speed);
+            timeUntilZeroSpeed[i] = (Protagonist.spaceship.speed * Protagonist.spaceship.moveDirection.values[i] ) / Protagonist.spaceship.maxSteeringSpeed;
+
+            
+            if(0 < timeUntilReaching[i]
+            && timeUntilReaching[i] <= timeUntilZeroSpeed[i])
             {
-              mulFactor = 3;
-            } else {
-              mulFactor *= 2;
+              if(0 == i)
+              {
+                desiredDirection.x = offsetDirection.values[i] * -1;
+              } else if(1 == i)
+              {
+               desiredDirection.y = offsetDirection.values[i] * -1;
+              }
+            } else
+            {
+
+              var mulFactor = Math.abs(timeUntilReaching[i] / timeUntilZeroSpeed[i]);
+              if(!isFinite(mulFactor))
+              {
+                mulFactor = 1;
+              } else if(isNaN(mulFactor))
+              {
+                mulFactor = 3;
+              } else {
+                mulFactor *= 4;
+              }
+              if(0 == i)
+              {
+                desiredDirection.x = offsetDirection.x * mulFactor;
+              } else if(1 == i)
+              {
+                desiredDirection.y = offsetDirection.y * mulFactor;
+              }
             }
-            desiredDirection = offsetDirection.MultiplyNoChanges(mulFactor);
           }
+          //console.log(offsetDirection.toString());
           Protagonist.userInputDirection(desiredDirection, desiredDirection.length, 500);
           if(DistanceTracking.running)
           {
             DistanceTracking.recordDistance([Protagonist.spaceship.position.Distance(new Vector2(calculatedPos[0], calculatedPos[1])),
                                             desiredDirection.length,
                                             areaToTarget,
-                                            timeUntilReaching,
-                                            timeUntilZeroSpeed]);
+                                            timeUntilReaching[2],
+                                            timeUntilZeroSpeed[2]]);
           }
         }
         if(Viewport.mousedown)

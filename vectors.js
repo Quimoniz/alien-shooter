@@ -143,6 +143,11 @@ class Vector2
         return Math.sqrt((Math.pow(this.x, 2) + Math.pow(this.y , 2)));
     }
 
+    get values()
+    {
+        return [this.x, this.y];
+    }
+
     get isZero()
     {
         return (this.x == 0 && this.y == 0)?true:false;
